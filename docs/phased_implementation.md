@@ -18,8 +18,8 @@ This document outlines the phased development approach for **MyMantra**, breakin
 
 | Phase | Timeline | Key Deliverables | Platforms |
 |-------|----------|------------------|-----------|
-| **Phase 1.0 - MVP** | Months 1-3 | Core offline features | iOS, Android |
-| **Phase 2.0 - Cloud & Audio** | Months 4-5 | Cloud sync, voice recording | + macOS, Web |
+| **Phase 1.0 - MVP** | Months 1-3 | Core offline features | iOS |
+| **Phase 2.0 - Cloud & Audio** | Months 4-5 | Cloud sync, voice recording | iOS, Android, Web |
 | **Phase 3.0 - Gamification** | Months 6-7 | Achievements, sharing | All platforms |
 
 ---
