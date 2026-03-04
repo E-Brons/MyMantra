@@ -1,0 +1,69 @@
+{
+  // Editor
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.inlineSuggest.enabled": true,
+  "editor.rulers": [80],
+
+  // Dart formatter (used by Flutter extension)
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true,
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  },
+
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  },
+
+  // Files
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/.dart_tool": true,
+    "**/build": true,
+    "**/.pub-cache": true,
+    "**/ios/Pods": true,
+    "**/android/app/build": true
+  },
+
+  // Search
+  "search.exclude": {
+    "**/.dart_tool": true,
+    "**/build": true,
+    "**/.pub-cache": true,
+    "**/ios/Pods": true,
+    "**/android/app/build": true,
+    "**/coverage": true
+  },
+
+  // Dart / Flutter specific
+  "dart.flutterSdkPath": null,
+  "dart.debugExternalPackageLibraries": false,
+  "dart.debugSdkLibraries": false,
+  "dart.openDevTools": "flutter",
+  "dart.warnWhenEditingFilesOutsideWorkspace": true,
+
+  // Git
+  "git.autofetch": true,
+  "git.confirmSync": false,
+
+  // Terminal
+  "terminal.integrated.defaultProfile.osx": "zsh",
+
+  // Color accent
+  "workbench.colorCustomizations": {
+    "editorRuler.foreground": "#8B5CF6"
+  }
+}

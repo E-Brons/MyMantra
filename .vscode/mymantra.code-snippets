@@ -1,0 +1,107 @@
+{
+  // Flutter StatelessWidget
+  "Flutter StatelessWidget": {
+    "prefix": "flstless",
+    "body": [
+      "class ${1:WidgetName} extends StatelessWidget {",
+      "  const ${1:WidgetName}({super.key});",
+      "",
+      "  @override",
+      "  Widget build(BuildContext context) {",
+      "    return ${2:Container()};",
+      "  }",
+      "}"
+    ],
+    "description": "Flutter StatelessWidget"
+  },
+
+  // Flutter StatefulWidget
+  "Flutter StatefulWidget": {
+    "prefix": "flstful",
+    "body": [
+      "class ${1:WidgetName} extends StatefulWidget {",
+      "  const ${1:WidgetName}({super.key});",
+      "",
+      "  @override",
+      "  State<${1:WidgetName}> createState() => _${1:WidgetName}State();",
+      "}",
+      "",
+      "class _${1:WidgetName}State extends State<${1:WidgetName}> {",
+      "  @override",
+      "  Widget build(BuildContext context) {",
+      "    return ${2:Container()};",
+      "  }",
+      "}"
+    ],
+    "description": "Flutter StatefulWidget"
+  },
+
+  // Riverpod ConsumerWidget
+  "Riverpod ConsumerWidget": {
+    "prefix": "flconsumer",
+    "body": [
+      "class ${1:WidgetName} extends ConsumerWidget {",
+      "  const ${1:WidgetName}({super.key});",
+      "",
+      "  @override",
+      "  Widget build(BuildContext context, WidgetRef ref) {",
+      "    return ${2:Container()};",
+      "  }",
+      "}"
+    ],
+    "description": "Riverpod ConsumerWidget"
+  },
+
+  // Riverpod StateNotifierProvider
+  "Riverpod StateNotifierProvider": {
+    "prefix": "flprovider",
+    "body": [
+      "final ${1:name}Provider = StateNotifierProvider<${2:Notifier}, ${3:State}>((ref) {",
+      "  return ${2:Notifier}();",
+      "});",
+      "",
+      "class ${2:Notifier} extends StateNotifier<${3:State}> {",
+      "  ${2:Notifier}() : super(${4:initialState});",
+      "",
+      "  $5",
+      "}"
+    ],
+    "description": "Riverpod StateNotifierProvider"
+  },
+
+  // Use Case class
+  "Flutter Use Case": {
+    "prefix": "flusecase",
+    "body": [
+      "class ${1:UseCaseName} {",
+      "  final ${2:Repository} _repository;",
+      "",
+      "  const ${1:UseCaseName}(this._repository);",
+      "",
+      "  Future<${3:Result}> call(${4:Params} params) async {",
+      "    $5",
+      "  }",
+      "}"
+    ],
+    "description": "Clean Architecture use case"
+  },
+
+  // Dart freezed data class stub
+  "Dart Entity": {
+    "prefix": "flentity",
+    "body": [
+      "class ${1:EntityName} {",
+      "  final ${2:String} ${3:field};",
+      "",
+      "  const ${1:EntityName}({",
+      "    required this.${3:field},",
+      "  });",
+      "",
+      "  ${1:EntityName} copyWith({${2:String}? ${3:field}}) {",
+      "    return ${1:EntityName}(${3:field}: ${3:field} ?? this.${3:field});",
+      "  }",
+      "}"
+    ],
+    "description": "Simple Dart entity class"
+  }
+}

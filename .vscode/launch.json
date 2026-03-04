@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter — iOS Simulator",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": ["-d", "iPhone 15 Pro"]
+    },
+    {
+      "name": "Flutter — Android Emulator",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": ["-d", "emulator-5554"]
+    },
+    {
+      "name": "Flutter — macOS",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": ["-d", "macos"]
+    },
+    {
+      "name": "Flutter — Chrome",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": ["-d", "chrome"]
+    },
+    {
+      "name": "Flutter — Profile (iOS)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "args": ["-d", "iPhone 15 Pro"]
+    },
+    {
+      "name": "Dart Tests",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "recommendations": [
+    // Flutter & Dart (essential)
+    "Dart-Code.flutter",
+    "Dart-Code.dart-code",
+
+    // Dependency management
+    "jeroen-meijer.pubspec-assist",
+
+    // Inline error display
+    "usernamehw.errorlens",
+
+    // Git integration
+    "eamodio.gitlens",
+
+    // Markdown preview (for docs)
+    "yzhang.markdown-all-in-one",
+
+    // Better comments
+    "aaron-bond.better-comments",
+
+    // TODO highlight
+    "wayou.vscode-todo-highlight",
+
+    // File icons
+    "vscode-icons-team.vscode-icons",
+
+    // Color highlight
+    "naumovs.color-highlight"
+  ]
+}

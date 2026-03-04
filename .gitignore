@@ -1,18 +1,21 @@
-# OSX
+# macOS
 .DS_Store
 
-# Node
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# React Native
-.expo/
-.expo-shared/
+# Flutter / Dart / Pub
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
 
 # Android
-android/app/build/
-android/.gradle/
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
 *.keystore
 !debug.keystore
 
@@ -24,12 +27,14 @@ ios/DerivedData/
 *.dSYM.zip
 *.dSYM
 xcuserdata/
+ios/.xcode.env.local
 
-# Fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots
-fastlane/test_output
+# Web
+/web/*.g.dart
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
 
 # Environment
 .env
@@ -38,18 +43,17 @@ fastlane/test_output
 
 # IDE
 .idea/
-.vscode/
-.claude/
+# .vscode/ is intentionally not ignored so workspace config is shared
 *.swp
 *.swo
 *.swn
 *.bak
 
-# Testing
+# Test coverage
 coverage/
-.jest/
+lcov.info
 
 # Misc
 *.log
 .cache/
-ios/.xcode.env.local
+migrate_working_dir/

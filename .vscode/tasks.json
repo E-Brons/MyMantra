@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "flutter: pub get",
+      "type": "shell",
+      "command": "flutter pub get",
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter: run (iOS Simulator)",
+      "type": "shell",
+      "command": "flutter run -d 'iPhone 15 Pro'",
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter: run (Chrome)",
+      "type": "shell",
+      "command": "flutter run -d chrome",
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter: run (macOS)",
+      "type": "shell",
+      "command": "flutter run -d macos",
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter: build runner",
+      "type": "shell",
+      "command": "dart run build_runner build --delete-conflicting-outputs",
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter: build runner (watch)",
+      "type": "shell",
+      "command": "dart run build_runner watch --delete-conflicting-outputs",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter: test",
+      "type": "shell",
+      "command": "flutter test",
+      "problemMatcher": ["$dart-test"]
+    },
+    {
+      "label": "flutter: test (coverage)",
+      "type": "shell",
+      "command": "flutter test --coverage",
+      "problemMatcher": ["$dart-test"]
+    },
+    {
+      "label": "flutter: analyze",
+      "type": "shell",
+      "command": "flutter analyze",
+      "problemMatcher": ["$dart"]
+    },
+    {
+      "label": "flutter: clean",
+      "type": "shell",
+      "command": "flutter clean",
+      "problemMatcher": []
+    }
+  ]
+}
