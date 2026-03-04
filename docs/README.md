@@ -12,6 +12,31 @@ This folder contains the complete documentation suite for the **MyMantra** spiri
 
 ---
 
+## Setup Guides
+
+### S1. VS Code Setup (`vscode-setup.md`)
+**Status:** ✅ Updated for Flutter
+**Purpose:** Configure Visual Studio Code for Flutter/Dart development
+
+**Key Content:**
+- Required extensions (Flutter, Dart, Pubspec Assist)
+- Running and debugging with hot reload
+- Code generation workflow
+
+---
+
+### S2. Flutter Build Environment (`flutter-build-environment.md`)
+**Status:** ✅ Flutter stack
+**Purpose:** Environment setup for all target platforms
+
+**Key Content:**
+- Flutter SDK and Dart installation
+- iOS (Xcode), Android (Android Studio), macOS, Web setup
+- Build and run commands for each platform
+- Useful Flutter CLI reference
+
+---
+
 ## Core Documents
 
 ### 1. Application Goals (`application_goals.md`)
@@ -212,6 +237,7 @@ All documents agree on phase breakdown:
 | 2025-11-24 | All (6 docs) | Initial creation - v0.1 draft |
 | 2025-11-24 | All (6 docs) | Updated to use "MyMantra" branding |
 | 2025-11-24 | All (6 docs) | Aligned technical identifiers (bundle IDs, deep links) |
+| 2026-03-04 | Setup guides | Migrated from React Native to Flutter stack; replaced ios-build-environment.md with flutter-build-environment.md; updated vscode-setup.md and folder_structure.md |
 
 ---
 

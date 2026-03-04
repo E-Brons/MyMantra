@@ -1,6 +1,6 @@
 # VS Code Setup Guide for MyMantra
 
-This guide will help you set up Visual Studio Code to view mockups and run React Native on a simulated phone (iOS Simulator on Mac).
+This guide will help you set up Visual Studio Code to develop and run the Flutter-based MyMantra application.
 
 ---
 
@@ -8,22 +8,29 @@ This guide will help you set up Visual Studio Code to view mockups and run React
 
 VS Code will automatically suggest these extensions when you open the project (from `.vscode/extensions.json`):
 
-### Essential Extensions:
-1. **React Native Tools** (`msjsdiag.vscode-react-native`)
-   - Debug React Native apps
-   - Run on iOS Simulator/Android Emulator
-   - IntelliSense for React Native APIs
+### Essential Extensions
 
-2. **ESLint** (`dbaeumer.vscode-eslint`)
-   - Linting for JavaScript/TypeScript
+1. **Flutter** (`Dart-Code.flutter`)
+   - Full Flutter development support: run, debug, hot reload
+   - Device picker, widget inspector, DevTools integration
 
-3. **Prettier** (`esbenp.prettier-vscode`)
-   - Code formatting
+2. **Dart** (`Dart-Code.dart-code`)
+   - Dart language support (auto-installed with the Flutter extension)
+   - Code analysis, formatting, and completion
 
-4. **ES7+ React/Redux/React-Native snippets** (`dsznajder.es7-react-js-snippets`)
-   - Code snippets for faster development
+3. **Pubspec Assist** (`jeroen-meijer.pubspec-assist`)
+   - Quick dependency management for `pubspec.yaml`
 
-### Installation:
+### Recommended Extensions
+
+4. **Error Lens** (`usernamehw.errorlens`)
+   - Inline error and warning display
+
+5. **GitLens** (`eamodio.gitlens`)
+   - Enhanced git history and blame
+
+### Installation
+
 1. Open VS Code
 2. Go to Extensions (⌘+Shift+X)
 3. Click "Show Recommendations" in the Extensions sidebar
@@ -31,211 +38,78 @@ VS Code will automatically suggest these extensions when you open the project (f
 
 Or install manually:
 ```bash
-code --install-extension msjsdiag.vscode-react-native
-code --install-extension dbaeumer.vscode-eslint
-code --install-extension esbenp.prettier-vscode
-code --install-extension dsznajder.es7-react-js-snippets
+code --install-extension Dart-Code.flutter
+code --install-extension Dart-Code.dart-code
+code --install-extension jeroen-meijer.pubspec-assist
 ```
 
 ---
 
-## 2. Prerequisites (Required Before Running)
+## 2. Prerequisites
 
-### Install Xcode (for iOS Simulator on Mac)
+### Install Flutter SDK
+
 ```bash
-# 1. Install Xcode from Mac App Store (15+ GB, takes time)
-# 2. After installation, install command line tools:
-xcode-select --install
+# macOS (Homebrew recommended)
+brew install flutter
 
-# 3. Accept Xcode license
-sudo xcodebuild -license accept
-
-# 4. Install iOS Simulator (open Xcode once)
-open -a Xcode
+# Verify installation and check for issues
+flutter doctor
 ```
 
-### Install Homebrew
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
+All green checkmarks from `flutter doctor` are required before building. Fix any issues reported before proceeding.
 
-### Install Node.js
-```bash
-brew install node
-# Verify
-node --version  # Should be 18.x or higher
-npm --version
-```
+See `docs/flutter-build-environment.md` for full environment setup details.
 
-### Install Watchman (for file watching)
-```bash
-brew install watchman
-```
+---
 
-### Install CocoaPods (for iOS dependencies)
+## 3. Running the App
+
 ```bash
-sudo gem install cocoapods
+# Check available devices and simulators
+flutter devices
+
+# Run on iOS Simulator
+flutter run -d "iPhone 15 Pro"
+
+# Run on Android Emulator
+flutter run -d emulator-5554
+
+# Run on web (Chrome)
+flutter run -d chrome
+
+# Run on macOS
+flutter run -d macos
 ```
 
 ---
 
-## 3. React Native Approach
+## 4. VS Code Debugging (Flutter)
 
-### Expo (Recommended for Beginners) ⭐
-
-**Pros:**
-- Faster setup
-- Built-in components
-- Easy preview
-- Over-the-air updates
-
-**Setup:**
-```bash
-# Install Expo CLI globally
-npm install -g expo-cli
-
-# Initialize Expo project
-npx create-expo-app@latest myMantra --template blank-typescript
-
-# Move into project
-cd myMantra
-
-# Start Expo
-npx expo start
-
-# Press 'i' to open iOS Simulator
-# Press 'a' to open Android Emulator
-```
-
----
-
-## 4. Viewing the Mockups
-
-The mockups are currently in TypeScript/React Native format but **won't render directly** in VS Code. Here are your options:
-
-### Option 1: Run in Simulator (Best Option)
-
-1. **Initialize React Native project** (see section 3)
-2. **Copy the mockup code** from `src/screens/mockups.tsx`
-3. **Import in App.tsx**:
-   ```typescript
-   import { WelcomeScreen } from './src/screens/mockups';
-
-   export default function App() {
-     return <WelcomeScreen />;
-   }
-   ```
-4. **Run the app**:
-   ```bash
-   # Expo
-   npx expo start
-   # then press 'i' for iOS
-
-   # Or React Native CLI
-   npx react-native run-ios
-   ```
-
-### Option 2: Use Expo Snack (Online Preview)
-
-1. Go to https://snack.expo.dev/
-2. Copy paste the mockup code
-3. View live preview in browser or scan QR code on your phone
-
-### Option 3: Storybook (Component Library)
-
-```bash
-# Install Storybook
-npx sb init --type react_native
-
-# Run Storybook
-npm run storybook
-```
-
----
-
-## 5. Running iOS Simulator from VS Code
-
-### Method 1: Using Debugger (Recommended)
+### Run & Debug
 
 1. Open VS Code
-2. Go to Run and Debug (⌘+Shift+D)
-3. Select "Run iOS (Simulator)" from dropdown
-4. Press F5 (or click green play button)
+2. Go to **Run and Debug** (⌘+Shift+D)
+3. Select a launch configuration from the dropdown
+4. Press **F5** to start
 
-This will:
-- Start Metro bundler
-- Launch iOS Simulator
-- Install and run your app
-- Enable debugging with breakpoints
+Features available in debug mode:
+- Hot reload (press `r` in terminal or click the lightning bolt icon)
+- Hot restart (press `R`)
+- Flutter Widget Inspector
+- Flutter DevTools (Performance, Memory, Network)
 
-### Method 2: Using Terminal in VS Code
+### Hot Reload vs Hot Restart
 
-1. Open integrated terminal (⌘+`)
-2. Run:
-   ```bash
-   # Expo
-   npx expo start
-   # Press 'i' when Metro starts
-
-   # React Native CLI
-   npx react-native run-ios
-   # Or specify simulator
-   npx react-native run-ios --simulator="iPhone 15"
-   ```
-
-### Method 3: Using Tasks
-
-1. Press ⌘+Shift+P
-2. Type "Tasks: Run Task"
-3. Select "Run iOS Simulator"
+| Action | When to use | Shortcut |
+|--------|-------------|----------|
+| Hot Reload | UI changes, widget rebuilds | ⌘+\ or `r` in terminal |
+| Hot Restart | State reset, new app logic | Shift+⌘+\ or `R` in terminal |
+| Full Restart | Dependency changes | Stop + Start |
 
 ---
 
-## 6. Available iOS Simulators
-
-List available simulators:
-```bash
-xcrun simctl list devices
-```
-
-Run specific simulator:
-```bash
-# React Native CLI
-npx react-native run-ios --simulator="iPhone 15 Pro"
-npx react-native run-ios --simulator="iPhone 15 Pro Max"
-npx react-native run-ios --simulator="iPad Pro"
-
-# Or open simulator directly
-open -a Simulator
-```
-
----
-
-## 7. Debugging in VS Code
-
-### Set Breakpoints
-1. Click left of line number to set breakpoint (red dot)
-2. Run debugger (F5)
-3. App will pause at breakpoint
-4. Inspect variables in Debug sidebar
-
-### Debug Console
-- **Console output**: Shows console.log() statements
-- **Watch variables**: Add variables to watch
-- **Call stack**: See function call hierarchy
-
-### React DevTools
-```bash
-# Install React DevTools
-npm install -g react-devtools
-
-# Run (in separate terminal)
-react-devtools
-```
-
----
-
-## 8. Useful VS Code Shortcuts
+## 5. Useful VS Code Shortcuts
 
 ### Navigation
 - **⌘+P**: Quick file open
@@ -247,66 +121,70 @@ react-devtools
 - **⌘+D**: Select next occurrence
 - **⌥+↑/↓**: Move line up/down
 - **⌘+/**: Toggle comment
-- **⌥+Shift+F**: Format document
+- **⌥+Shift+F**: Format document (Dart formatter)
 
 ### Debugging
 - **F5**: Start debugging
-- **⌘+Shift+F5**: Restart debugging
 - **Shift+F5**: Stop debugging
+- **⌘+\\**: Hot reload
+- **Shift+⌘+\\**: Hot restart
 - **F9**: Toggle breakpoint
 - **F10**: Step over
 - **F11**: Step into
 
 ---
 
-## 9. Project Structure in VS Code
+## 6. Project Structure in VS Code
 
 ```
 myMantra/
-├── .vscode/              # ✅ VS Code configuration
-│   ├── extensions.json   # Recommended extensions
-│   ├── launch.json       # Debugger configuration
-│   ├── settings.json     # Editor settings
-│   └── *.code-snippets   # Code snippets
-├── src/
-│   ├── theme/            # ✅ Theme system
-│   └── screens/
-│       └── mockups.tsx   # ✅ Screen mockups
-└── docs/
-    └── vscode-setup.md   # This file
+├── .vscode/                # VS Code configuration
+│   ├── extensions.json     # Recommended extensions
+│   ├── launch.json         # Flutter debug configurations
+│   └── settings.json       # Editor settings (Dart formatter, etc.)
+├── lib/                    # Main Flutter/Dart source code
+├── test/                   # Unit and widget tests
+├── assets/                 # Images, fonts, audio files
+├── docs/                   # Documentation (this file)
+└── pubspec.yaml            # Flutter dependencies & metadata
 ```
 
-## Quick Start (TL;DR)
+---
+
+## 7. Running Tests
 
 ```bash
-# 1. Install Xcode from App Store (if not installed)
+# Run all tests
+flutter test
 
-# 2. Install prerequisites
-xcode-select --install
-brew install node watchman
-sudo gem install cocoapods
+# Run with coverage report
+flutter test --coverage
 
-# 3. Install VS Code extensions
-# (VS Code will prompt when you open the project)
+# Run a specific test file
+flutter test test/features/mantras/mantra_test.dart
+```
 
-# 4. Initialize Expo project
-npx create-expo-app@latest myMantra --template blank-typescript
-cd myMantra
+---
 
-# 5. Copy mockup code to App.tsx
+## 8. Code Generation
 
-# 6. Run
-npx expo start
-# Press 'i' for iOS Simulator
+Isar database models and Riverpod code generation must be run after modifying annotated files:
 
-# 7. Open VS Code debugger (⌘+Shift+D) and press F5
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+Or use the watch mode during active development:
+```bash
+dart run build_runner watch --delete-conflicting-outputs
 ```
 
 ---
 
 ## Resources
 
-- **React Native Docs**: https://reactnative.dev/
-- **Expo Docs**: https://docs.expo.dev/
-- **VS Code React Native**: https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native
-- **iOS Simulator**: https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device
+- **Flutter Docs**: https://docs.flutter.dev/
+- **Dart Docs**: https://dart.dev/guides
+- **Flutter VS Code Extension**: https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter
+- **Riverpod Docs**: https://riverpod.dev/
+- **Isar DB Docs**: https://isar.dev/
