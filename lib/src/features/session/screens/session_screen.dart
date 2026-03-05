@@ -202,7 +202,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                         style: const TextStyle(
                           fontFamily: 'NotoSansDevanagari',
                           fontSize: 20,
-                          color: Colors.white90,
+                          color: const Color(0xE6FFFFFF),
                           shadows: [Shadow(color: Color(0x668B5CF6), blurRadius: 20)],
                         ),
                       ),
@@ -518,7 +518,7 @@ class _ExitSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black70,
+      color: const Color(0xB3000000),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(

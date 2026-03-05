@@ -3,7 +3,7 @@
 # ==========================================
 #
 # FIRST TIME SETUP:
-#   make setup           Full install + scaffold + get (run once)
+#   make setup           Full install + scaffold + deps (run once)
 #
 # DAILY USE:
 #   make run-web         Run in Chrome (no emulator needed)
@@ -20,7 +20,7 @@ GF         := https://raw.githubusercontent.com/google/fonts/main/ofl
 .PHONY: help \
         install-flutter scaffold pods setup \
         install-fonts \
-        doctor get clean clean-pods build-runner \
+        doctor deps clean clean-pods build-runner \
         run-ios run-android run-macos run-web \
         build-ios build-android build-macos build-web \
         test test-coverage lint
@@ -32,12 +32,12 @@ help:
 	@echo "==================================================="
 	@echo ""
 	@echo "First-time setup:"
-	@echo "  make setup             Full install (flutter + scaffold + fonts + get + pods)"
+	@echo "  make setup             Full install (flutter + scaffold + fonts + deps + pods)"
 	@echo "  make install-flutter   Install Flutter SDK via Homebrew"
 	@echo "  make scaffold          Generate platform dirs (ios/android/macos/web)"
 	@echo "  make install-fonts     Download all mantra script fonts incl. CJK (~35 MB)"
 	@echo "  make pods              Install CocoaPods dependencies (iOS/macOS)"
-	@echo "  make get               Install/update Dart dependencies"
+	@echo "  make deps              Resolve and install Dart package dependencies"
 	@echo "  make doctor            Check Flutter environment health"
 	@echo ""
 	@echo "Run (debug) — recommended order:"
@@ -47,10 +47,10 @@ help:
 	@echo "  make run-android       Run on Android Emulator  [Android Studio required]"
 	@echo ""
 	@echo "Build (release):"
-	@echo "  make build-web         Build web → build/web/"
-	@echo "  make build-ios         Build iOS release"
-	@echo "  make build-android     Build Android AAB release"
-	@echo "  make build-macos       Build macOS release"
+	@echo "  make build-web         Compile optimized web app for deployment (output: build/web/)"
+	@echo "  make build-ios         Build iOS release (.ipa)"
+	@echo "  make build-android     Build Android AAB for Play Store"
+	@echo "  make build-macos       Build macOS release (.app)"
 	@echo ""
 	@echo "Quality:"
 	@echo "  make test              Run all tests"
@@ -98,27 +98,30 @@ pods:
 		if [ -f macos/Podfile ]; then cd macos && pod install; fi; \
 	fi
 
-## Full first-time setup: install Flutter, scaffold platforms, fonts, get deps, install pods.
-setup: install-flutter scaffold install-fonts get pods
+## Full first-time setup: install Flutter, scaffold platforms, fonts, deps, install pods.
+setup: install-flutter scaffold install-fonts deps pods
 
 # ── Environment ─────────────────────────────────────────
 
 doctor:
 	$(FLUTTER) doctor -v
 
-get:
+deps:
 	$(FLUTTER) pub get
 
 clean: clean-pods
 	$(FLUTTER) clean
 
 ## Remove and reinstall CocoaPods for iOS and macOS.
-## Fixes corrupted or version-conflicted pod states.
+## Runs flutter pub get first to regenerate Generated.xcconfig before pod install.
 clean-pods:
-	@if [ -f ios/Podfile ]; then cd ios && pod deintegrate && pod install; fi
-	@if [ -f macos/Podfile ]; then cd macos && pod deintegrate && pod install; fi
+	@if [ -f ios/Podfile ]; then cd ios && pod deintegrate; fi
+	@if [ -f macos/Podfile ]; then cd macos && pod deintegrate; fi
+	$(FLUTTER) pub get
+	@if [ -f ios/Podfile ]; then cd ios && pod install; fi
+	@if [ -f macos/Podfile ]; then cd macos && pod install; fi
 
-build-runner: get
+build-runner: deps
 	dart run build_runner build --delete-conflicting-outputs
 
 # ── Fonts ────────────────────────────────────────────────
@@ -168,38 +171,38 @@ install-fonts:
 
 # ── Run (debug) ──────────────────────────────────────────
 
-run-web: get install-fonts
+run-web: deps install-fonts
 	$(FLUTTER) run -d chrome
 
-run-ios: get install-fonts
+run-ios: deps install-fonts
 	$(FLUTTER) run -d "iPhone 16 Pro"
 
-run-android: get install-fonts
+run-android: deps install-fonts
 	$(FLUTTER) run -d emulator-5554
 
-run-macos: get install-fonts
+run-macos: deps install-fonts
 	$(FLUTTER) run -d macos
 
 # ── Build (release) ──────────────────────────────────────
 
-build-web: get install-fonts
+build-web: deps install-fonts
 	$(FLUTTER) build web --release
 
-build-ios: get install-fonts
+build-ios: deps install-fonts
 	$(FLUTTER) build ios --release --obfuscate --split-debug-info=build/ios/symbols
 
-build-android: get install-fonts
+build-android: deps install-fonts
 	$(FLUTTER) build appbundle --release --obfuscate --split-debug-info=build/android/symbols
 
-build-macos: get install-fonts
+build-macos: deps install-fonts
 	$(FLUTTER) build macos --release
 
 # ── Quality ──────────────────────────────────────────────
 
-test: get
+test: deps
 	$(FLUTTER) test
 
-test-coverage: get
+test-coverage: deps
 	$(FLUTTER) test --coverage
 
 lint:
