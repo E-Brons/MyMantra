@@ -57,3 +57,4 @@ lcov.info
 *.log
 .cache/
 migrate_working_dir/
+assets/fonts

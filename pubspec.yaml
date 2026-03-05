@@ -11,17 +11,17 @@ dependencies:
     sdk: flutter
 
   # State management
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.2.1
 
   # Navigation
-  go_router: ^14.8.1
+  go_router: ^17.1.0
 
   # Persistence
   shared_preferences: ^2.3.4
 
   # Utilities
   uuid: ^4.5.1
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   # Icons
   cupertino_icons: ^1.0.8
@@ -29,7 +29,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
@@ -41,15 +41,53 @@ flutter:
     - assets/images/icons/
 
   fonts:
-    - family: Cinzel
+    # ── UI headers ─────────────────────────────────────────────────────────
+    - family: Cinzel                   # Latin – English titles/headers
       fonts:
-        - asset: assets/fonts/Cinzel-Regular.ttf
-        - asset: assets/fonts/Cinzel-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Cinzel-Bold.ttf
-          weight: 700
-    - family: NotoSansDevanagari
+        - asset: assets/fonts/Cinzel-Variable.ttf
+
+    # ── Mantra scripts ─────────────────────────────────────────────────────
+    - family: NotoSans                 # Latin / Greek / Cyrillic – English, European, Russian
       fonts:
-        - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
-        - asset: assets/fonts/NotoSansDevanagari-Bold.ttf
-          weight: 700
+        - asset: assets/fonts/NotoSans-Variable.ttf
+
+    - family: NotoSansDevanagari       # Devanagari – Sanskrit, Hindi, Marathi
+      fonts:
+        - asset: assets/fonts/NotoSansDevanagari-Variable.ttf
+
+    - family: NotoSansHebrew           # Hebrew
+      fonts:
+        - asset: assets/fonts/NotoSansHebrew-Variable.ttf
+
+    - family: NotoSansArabic           # Arabic, Urdu, Farsi
+      fonts:
+        - asset: assets/fonts/NotoSansArabic-Variable.ttf
+
+    - family: NotoSerifTibetan         # Tibetan (Buddhist mantras)
+      fonts:
+        - asset: assets/fonts/NotoSerifTibetan-Variable.ttf
+
+    - family: NotoSansThai             # Thai (Theravada Buddhist mantras)
+      fonts:
+        - asset: assets/fonts/NotoSansThai-Variable.ttf
+
+    - family: NotoSansTamil            # Tamil (Shaiva/Vaishnava mantras)
+      fonts:
+        - asset: assets/fonts/NotoSansTamil-Variable.ttf
+
+    - family: NotoSansGujarati         # Gujarati (Jain mantras)
+      fonts:
+        - asset: assets/fonts/NotoSansGujarati-Variable.ttf
+
+    # ── CJK ────────────────────────────────────────────────────────────────
+    - family: NotoSansSC               # Simplified Chinese (Mandarin Buddhist mantras)
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Variable.ttf
+
+    - family: NotoSansJP               # Japanese (Zen / Shingon mantras)
+      fonts:
+        - asset: assets/fonts/NotoSansJP-Variable.ttf
+
+    - family: NotoSansKR               # Korean (Korean Buddhist mantras)
+      fonts:
+        - asset: assets/fonts/NotoSansKR-Variable.ttf
