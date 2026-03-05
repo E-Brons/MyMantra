@@ -16,6 +16,9 @@
 /android/app/debug/
 /android/app/profile/
 /android/app/release/
+/android/.gradle/
+android/local.properties
+android/captures/
 *.keystore
 !debug.keystore
 
@@ -23,11 +26,24 @@
 ios/Pods/
 ios/build/
 ios/DerivedData/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
 *.ipa
 *.dSYM.zip
 *.dSYM
 xcuserdata/
 ios/.xcode.env.local
+
+# macOS
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/ephemeral/
+
+# IDE — IntelliJ / Android Studio
+.idea/
+*.iml
+.metadata
 
 # Web
 /web/*.g.dart
@@ -58,3 +74,6 @@ lcov.info
 .cache/
 migrate_working_dir/
 assets/fonts
+
+# Claude Code session data
+.claude/

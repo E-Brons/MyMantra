@@ -35,7 +35,13 @@
     "**/build": true,
     "**/.pub-cache": true,
     "**/ios/Pods": true,
-    "**/android/app/build": true
+    "**/android/app/build": true,
+    // Platform scaffolding — managed by Flutter, edit via Makefile or native IDEs
+    "android/": true,
+    "ios/": true,
+    "macos/": true,
+    "linux/": true,
+    "windows/": true
   },
 
   // Search
@@ -45,7 +51,12 @@
     "**/.pub-cache": true,
     "**/ios/Pods": true,
     "**/android/app/build": true,
-    "**/coverage": true
+    "**/coverage": true,
+    "android/": true,
+    "ios/": true,
+    "macos/": true,
+    "linux/": true,
+    "windows/": true
   },
 
   // Dart / Flutter specific
