@@ -2,65 +2,76 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "flutter: pub get",
+      "label": "install",
+      "detail": "Install tools and verify environment for all build=true targets",
       "type": "shell",
-      "command": "flutter pub get",
-      "problemMatcher": []
+      "command": "make install",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
     },
     {
-      "label": "flutter: run (iOS Simulator)",
+      "label": "install: target",
+      "detail": "Install tools for a specific target",
       "type": "shell",
-      "command": "flutter run -d 'iPhone 15 Pro'",
-      "problemMatcher": []
+      "command": "make install TARGET=${input:target}",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
     },
     {
-      "label": "flutter: run (Chrome)",
+      "label": "build",
+      "detail": "Build release artifacts for all build=true targets",
       "type": "shell",
-      "command": "flutter run -d chrome",
-      "problemMatcher": []
+      "command": "make build",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$dart"],
+      "presentation": { "reveal": "always", "panel": "shared" }
     },
     {
-      "label": "flutter: run (macOS)",
+      "label": "build: target",
+      "detail": "Build a specific target",
       "type": "shell",
-      "command": "flutter run -d macos",
-      "problemMatcher": []
+      "command": "make build TARGET=${input:target}",
+      "group": "build",
+      "problemMatcher": ["$dart"],
+      "presentation": { "reveal": "always", "panel": "shared" }
     },
     {
-      "label": "flutter: build runner",
+      "label": "run",
+      "detail": "Run app (auto-selects target if only one build=true)",
       "type": "shell",
-      "command": "dart run build_runner build --delete-conflicting-outputs",
-      "problemMatcher": []
+      "command": "make run TARGET=${input:target}",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
     },
     {
-      "label": "flutter: build runner (watch)",
+      "label": "debug",
+      "detail": "Run app with hot reload (auto-selects if only one debug=true)",
       "type": "shell",
-      "command": "dart run build_runner watch --delete-conflicting-outputs",
-      "isBackground": true,
-      "problemMatcher": []
+      "command": "make debug TARGET=${input:target}",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
     },
     {
-      "label": "flutter: test",
+      "label": "clean",
+      "detail": "Remove all build artifacts",
       "type": "shell",
-      "command": "flutter test",
-      "problemMatcher": ["$dart-test"]
-    },
+      "command": "make clean",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    }
+  ],
+  "inputs": [
     {
-      "label": "flutter: test (coverage)",
-      "type": "shell",
-      "command": "flutter test --coverage",
-      "problemMatcher": ["$dart-test"]
-    },
-    {
-      "label": "flutter: analyze",
-      "type": "shell",
-      "command": "flutter analyze",
-      "problemMatcher": ["$dart"]
-    },
-    {
-      "label": "flutter: clean",
-      "type": "shell",
-      "command": "flutter clean",
-      "problemMatcher": []
+      "id": "target",
+      "type": "pickString",
+      "description": "Target",
+      "options": ["ios", "android", "macos", "web"],
+      "default": "ios"
     }
   ]
 }

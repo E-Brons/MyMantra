@@ -29,6 +29,8 @@
   "files.insertFinalNewline": true,
   "files.eol": "\n",
   "files.exclude": {
+    ".metadata":true,
+    "pubspec.lock":true,
     "**/.git": true,
     "**/.DS_Store": true,
     "**/.dart_tool": true,

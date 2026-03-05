@@ -1,0 +1,6 @@
+{
+    "ios":     { "target": "iPhone 17", "version": "26.3", "build": true,  "debug": true  },
+    "android": { "target": "Pixel_10_Pro", "version": "16.0", "build": false, "debug": true  },
+    "macos":   {                                               "build": true,  "debug": true  },
+    "web":     {                                               "build": true,  "debug": false }
+}
