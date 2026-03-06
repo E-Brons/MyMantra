@@ -197,11 +197,47 @@ while IFS='|' read -r name _device _debug; do
 
         android)
             ANDROID_SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
-            if [[ -d "$ANDROID_SDK" ]]; then
-                echo "  android sdk found: $ANDROID_SDK"
+            if [[ ! -d "$ANDROID_SDK" ]]; then
+                echo "  android sdk not found — install Android Studio:" >&2
+                echo "    https://developer.android.com/studio" >&2
+                exit 1
+            fi
+            echo "  android sdk: $ANDROID_SDK"
+
+            # Use Android Studio's bundled JDK so sdkmanager/avdmanager get JDK 17+
+            # regardless of the system JAVA_HOME.
+            AS_JDK="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+            if [[ -d "$AS_JDK" ]]; then
+                export JAVA_HOME="$AS_JDK"
+            fi
+
+            AVD_NAME="$_device"
+            if [[ -z "$AVD_NAME" ]]; then
+                echo "  no target device set in target.json — skipping avd creation"
             else
-                echo "  android sdk not found — install Android Studio:"
-                echo "  https://developer.android.com/studio"
+                EMULATOR_BIN="$ANDROID_SDK/emulator/emulator"
+                AVDMANAGER="$ANDROID_SDK/cmdline-tools/latest/bin/avdmanager"
+                SDKMANAGER="$ANDROID_SDK/cmdline-tools/latest/bin/sdkmanager"
+
+                if "$EMULATOR_BIN" -list-avds 2>/dev/null | grep -qx "$AVD_NAME"; then
+                    echo "  avd already exists: $AVD_NAME"
+                else
+                    # API levels may include a minor version (e.g. android-36.1).
+                    # Prefer google_apis_playstore; fall back to google_apis.
+                    IMAGE="$("$SDKMANAGER" --list_installed 2>/dev/null \
+                        | grep -oE 'system-images;android-[0-9.]+;google_apis[^;]*;arm64-v8a' \
+                        | grep 'google_apis_playstore' | tail -1 || \
+                      "$SDKMANAGER" --list_installed 2>/dev/null \
+                        | grep -oE 'system-images;android-[0-9.]+;google_apis[^;]*;arm64-v8a' \
+                        | tail -1 || true)"
+                    if [[ -z "$IMAGE" ]]; then
+                        echo "  error: no arm64 system image found via sdkmanager" >&2
+                        echo "  in Android Studio: SDK Manager → SDK Tools → install a system image" >&2
+                        exit 1
+                    fi
+                    echo "  creating avd '$AVD_NAME' using image: $IMAGE"
+                    "$AVDMANAGER" create avd --name "$AVD_NAME" --package "$IMAGE" --device "pixel" --force
+                fi
             fi
             ;;
 

@@ -52,8 +52,34 @@ echo "==> $( [[ $DEBUG == true ]] && echo debug || echo run ): $TARGET_NAME"
 case "$TARGET_NAME" in
 
     ios)
-        DEVICE="${TARGET_DEVICE:-iPhone 17}"
-        (cd "$REPO_ROOT" && $FLUTTER run -d "$DEVICE" $FLUTTER_MODE)
+        DEVICE="$TARGET_DEVICE"
+        if [[ -z "$DEVICE" ]]; then
+            echo "error: no target device set for ios in target.json" >&2
+            exit 1
+        fi
+
+        # Resolve to a UDID — xcrun handles name→UDID and avoids ambiguity when
+        # multiple simulators share the same name.
+        UDID="$(xcrun simctl list devices available 2>/dev/null \
+            | grep -F "$DEVICE (" | head -1 \
+            | grep -oE '[A-F0-9-]{36}' || true)"
+        if [[ -z "$UDID" ]]; then
+            echo "error: no available simulator matching '$DEVICE'" >&2
+            echo "  run: xcrun simctl list devices available" >&2
+            exit 1
+        fi
+
+        # Boot if not already running
+        STATE="$(xcrun simctl list devices 2>/dev/null \
+            | grep "$UDID" | grep -oE '\(Booted\)|\(Shutdown\)' || true)"
+        if [[ "$STATE" != "(Booted)" ]]; then
+            echo "  booting simulator: $DEVICE ($UDID)"
+            xcrun simctl boot "$UDID"
+        fi
+        open -a Simulator --args -CurrentDeviceUDID "$UDID" 2>/dev/null || true
+
+        # iOS simulator only supports debug mode; --release/--profile require a physical device.
+        (cd "$REPO_ROOT" && $FLUTTER run -d "$UDID")
         ;;
 
     android)
@@ -71,13 +97,62 @@ case "$TARGET_NAME" in
                 echo "error: no android avd found — run: make install TARGET=android" >&2
                 exit 1
             fi
+
+            # Verify the AVD exists before trying to launch it
+            if ! "$EMULATOR" -list-avds 2>/dev/null | grep -qx "$AVD"; then
+                echo "error: avd '$AVD' not found" >&2
+                echo "  available: $("$EMULATOR" -list-avds 2>/dev/null | tr '\n' ' ' || echo '(none)')" >&2
+                echo "  run: make install TARGET=android" >&2
+                exit 1
+            fi
+
             echo "  starting emulator: $AVD"
-            "$EMULATOR" -avd "$AVD" &>/dev/null &
-            echo "  waiting for emulator to boot..."
-            adb wait-for-device
-            adb shell 'while [ "$(getprop sys.boot_completed 2>/dev/null)" != "1" ]; do sleep 2; done'
+            EMULATOR_LOG="$(mktemp /tmp/emulator-XXXXXX.log)"
+            "$EMULATOR" -avd "$AVD" >"$EMULATOR_LOG" 2>&1 &
+            EMULATOR_PID=$!
+
+            echo "  waiting for emulator to boot (pid $EMULATOR_PID, log: $EMULATOR_LOG)..."
+            BOOT_TIMEOUT=120
+            ELAPSED=0
+            adb wait-for-device &
+            ADB_WAIT_PID=$!
+            while kill -0 "$ADB_WAIT_PID" 2>/dev/null; do
+                if ! kill -0 "$EMULATOR_PID" 2>/dev/null; then
+                    echo "error: emulator process exited unexpectedly — last log lines:" >&2
+                    tail -20 "$EMULATOR_LOG" >&2
+                    exit 1
+                fi
+                if (( ELAPSED >= BOOT_TIMEOUT )); then
+                    echo "error: timed out waiting for emulator after ${BOOT_TIMEOUT}s" >&2
+                    tail -20 "$EMULATOR_LOG" >&2
+                    kill "$EMULATOR_PID" 2>/dev/null || true
+                    exit 1
+                fi
+                sleep 2
+                (( ELAPSED += 2 ))
+            done
+            wait "$ADB_WAIT_PID" 2>/dev/null || true
+
+            echo "  device visible, waiting for boot to complete..."
+            while true; do
+                BOOT="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')"
+                if [[ "$BOOT" == "1" ]]; then break; fi
+                if ! kill -0 "$EMULATOR_PID" 2>/dev/null; then
+                    echo "error: emulator exited during boot — last log lines:" >&2
+                    tail -20 "$EMULATOR_LOG" >&2
+                    exit 1
+                fi
+                if (( ELAPSED >= BOOT_TIMEOUT )); then
+                    echo "error: timed out waiting for boot_completed after ${BOOT_TIMEOUT}s" >&2
+                    tail -20 "$EMULATOR_LOG" >&2
+                    exit 1
+                fi
+                sleep 2
+                (( ELAPSED += 2 ))
+            done
+
             echo "  emulator ready"
-            RUNNING="emulator-5554"
+            RUNNING="$(adb devices 2>/dev/null | awk '/emulator.*device$/{print $1}' | head -1 || echo emulator-5554)"
         fi
         (cd "$REPO_ROOT" && $FLUTTER run -d "$RUNNING" $FLUTTER_MODE)
         ;;
