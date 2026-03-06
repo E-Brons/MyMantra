@@ -1,5 +1,10 @@
 # MyMantra - Application Flow Chart
 
+**Version:** 0.1
+**Date:** November 2025
+**Status:** Unsynched — outdated
+**Application Name:** MyMantra
+
 ## Overview
 This document describes the complete user flow through the MyMantra application, including screen navigation and user journeys.
 

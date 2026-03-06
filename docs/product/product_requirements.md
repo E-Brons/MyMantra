@@ -338,35 +338,23 @@ Empower individuals on their spiritual journey by removing friction from daily m
 ### 4.8 Mantra Library (Built-in)
 **Priority: P2 (Nice to Have - Phase 2.0+)**
 
-#### FR-8.1: Curated Mantra Collection
-- Pre-loaded mantras from various traditions:
-  - **Signature Mantra:** Yoga Sutra I.12 (abhyāsa-vairāgya-ābhyāṃ tat-nirodhaḥ)
-    - Sanskrit (Devanagari): अभ्यासवैराग्याभ्यां तन्निरोधः॥
-    - English: "Through steady practice and dispassion, the mind is stilled"
-    - Hebrew: בהתמדה ובאי-היקשרות — הנפש שקטה
-    - **Why:** Embodies the app's philosophy of consistent practice without attachment
-  - Hindu (Om, Gayatri Mantra, Mahamrityunjaya)
-  - Buddhist (Om Mani Padme Hum, Heart Sutra)
-  - Sikh (Mul Mantra)
-  - Universal affirmations
-- Each entry includes:
-  - Original language text (Sanskrit, Tibetan, etc.)
-  - Transliteration (IAST for Sanskrit)
-  - Multiple translations (English, Hebrew, more)
-  - Cultural context (source, tradition, meaning)
-  - Suggested repetitions
-  - Pronunciation guide
-- Browse by category/tradition
-- Add library mantra to "My Mantras" (becomes editable copy)
+The full curated mantra collection — content, translations, cultural context, JSON metadata, and licensing notes — is maintained in:
 
-**Content Licensing:**
-- Public domain only
-- Community contributions (Phase 3.0)
+**[product/builtin_mantras_library.md](builtin_mantras_library.md)**
+
+#### FR-8.1: Curated Mantra Collection
+
+**Signature Mantra:** Yoga Sutra I.12 (abhyāsa-vairāgya-ābhyāṃ tat-nirodhaḥ)
+- Sanskrit (Devanagari): अभ्यासवैराग्याभ्यां तन्निरोधः॥
+- English: "Through steady practice and dispassion, the mind is stilled"
+- Hebrew: בהתמדה ובאי-היקשרות — הנפש שקטה
+- **Why:** Embodies the app's philosophy of consistent practice without attachment
+
+Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani Padme Hum, Heart Sutra), Sikh (Mul Mantra), universal affirmations. See reference doc for full details.
 
 **Success Criteria:**
 - 1 signature mantra at launch (Yoga Sutra I.12)
 - 20+ high-quality mantras by v2.0
-- Clear attribution and cultural respect
 - Users can easily distinguish custom vs. library mantras
 
 ---
@@ -891,11 +879,8 @@ Empower individuals on their spiritual journey by removing friction from daily m
 - **Offline-first:** Architecture where local data is primary, sync is secondary
 
 ### Appendix B: Reference Mantras (for Built-in Library)
-1. **Om (ॐ)** - Universal sound, Hindu/Buddhist
-2. **Om Mani Padme Hum (ॐ मणिपद्मे हूँ)** - Buddhist compassion mantra
-3. **Gayatri Mantra (ॐ भूर्भुवः स्वः...)** - Hindu Vedic hymn
-4. **Mahamrityunjaya Mantra** - Hindu protection mantra
-5. **So Hum (सो ऽहम्)** - "I am That," meditative breath mantra
+
+See [product/builtin_mantras_library.md](builtin_mantras_library.md) for the full curated list with texts, transliterations, translations, and cultural context.
 
 ### Appendix C: Notification Sound Library
 - Singing Bowl (default)

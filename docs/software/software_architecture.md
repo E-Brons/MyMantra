@@ -1,8 +1,8 @@
 # Software Architecture Document (SAD)
 ## MyMantra - Spiritual Practice Application
 
-**Version:** 0.1
-**Date:** November 2025
+**Version:** 0.2
+**Date:** March 2026
 **Status:** Draft
 **Application Name:** MyMantra
 
@@ -102,11 +102,14 @@ This document covers:
 ```dart
 // Domain
 final mantrasProvider = FutureProvider<List<Mantra>>(...);
-final sessionStateProvider = StateNotifierProvider<SessionNotifier, SessionState>(...);
+final sessionStateProvider = NotifierProvider<SessionNotifier, SessionState>(...);
 final progressProvider = StreamProvider<Progress>(...);
 
 // Infrastructure
-final databaseProvider = Provider<IsarDatabase>(...);
+// Phase 1.0 (current): SharedPreferences-backed StorageService
+final storageServiceProvider = Provider<StorageService>(...);
+// Phase 2.0+ (planned): replace with Isar
+// final databaseProvider = Provider<IsarDatabase>(...);
 final notificationServiceProvider = Provider<NotificationService>(...);
 ```
 
@@ -127,51 +130,36 @@ final mantraRepositoryProvider = Provider<MantraRepository>(
 
 ### 3.1 Module Structure
 
+> **Phase 1.0 (current):** simplified layout with a flat `core/` for models, providers, services, and utils; features do not yet have per-feature data/domain/presentation sub-trees.  See [folder_structure.md](folder_structure.md) for the live directory layout.
+>
+> **Phase 2.0+ (target):** full clean-architecture per-feature breakdown shown below.
+
 ```
 lib/
 ├── main.dart                    # App entry point
-├── app/
-│   ├── app.dart                # MaterialApp configuration
-│   └── router.dart             # Navigation routing
-├── core/
-│   ├── constants/              # App-wide constants
-│   ├── error/                  # Error handling
-│   ├── theme/                  # Theming configuration
-│   └── utils/                  # Utility functions
-├── features/
-│   ├── mantras/
-│   │   ├── data/
-│   │   │   ├── models/         # MantraModel (Isar)
-│   │   │   ├── datasources/    # LocalMantraDataSource
-│   │   │   └── repositories/   # MantraRepositoryImpl
-│   │   ├── domain/
-│   │   │   ├── entities/       # Mantra (pure Dart)
-│   │   │   ├── repositories/   # MantraRepository (interface)
-│   │   │   └── usecases/       # CreateMantra, UpdateMantra, etc.
-│   │   └── presentation/
-│   │       ├── providers/      # Riverpod state
-│   │       ├── screens/        # MantraListScreen, MantraDetailScreen
-│   │       └── widgets/        # MantraCard, SearchBar
-│   ├── session/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   ├── reminders/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   ├── progress/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   └── settings/
-│       └── presentation/
-└── shared/
-    ├── services/               # Cross-cutting services
-    │   ├── database_service.dart
-    │   ├── notification_service.dart
-    │   └── haptic_service.dart
-    └── widgets/                # Reusable UI components
+└── src/
+    ├── app/
+    │   ├── app.dart             # MaterialApp configuration
+    │   ├── router.dart          # go_router ShellRoute + bottom nav
+    │   └── theme/               # app_colors.dart, app_theme.dart
+    ├── core/
+    │   ├── constants/           # App-wide constants
+    │   ├── error/               # Failure classes
+    │   ├── models/              # Shared domain models (Phase 1.0)
+    │   ├── providers/           # Top-level Riverpod providers (Phase 1.0)
+    │   ├── services/            # StorageService, HapticService, NotificationService
+    │   └── utils/               # Date/timezone utilities, streak logic
+    ├── features/
+    │   ├── mantras/             # User mantra management
+    │   │   ├── data/            # (Phase 2.0+ target)
+    │   │   ├── domain/          # (Phase 2.0+ target)
+    │   │   └── presentation/    # screens, widgets, providers
+    │   ├── session/             # Repetition counter + timer
+    │   ├── library/             # Built-in mantra library
+    │   ├── progress/            # Streak and stats
+    │   └── settings/            # User preferences
+    └── shared/
+        └── widgets/             # AppScaffold, cross-feature components
 ```
 
 ### 3.2 Feature Module Pattern
@@ -192,6 +180,14 @@ Each feature (mantras, session, reminders, etc.) follows:
 ## 4. Data Architecture
 
 ### 4.1 Database Architecture
+
+#### Phase 1.0 (current) — SharedPreferences JSON
+
+The MVP persists all data as serialized JSON through `StorageService` (`lib/src/core/services/storage_service.dart`) backed by SharedPreferences. This is sufficient for the typical data volumes of a single user's mantra collection and session history.
+
+**Trade-offs:** no indexed queries, no real-time streams, full read/write on every operation. Acceptable for Phase 1.0; a migration path to Isar is planned for Phase 2.0 when per-mantra session history and search performance matter.
+
+#### Phase 2.0+ (planned) — Isar (NoSQL embedded database)
 
 **Technology**: Isar (NoSQL embedded database)
 
@@ -944,7 +940,7 @@ OS triggers scheduled notification
 | Framework | Flutter | 3.16+ | Cross-platform, high performance, mature |
 | Language | Dart | 3.2+ | Type-safe, null-safe, async/await |
 | State Management | Riverpod | 2.5+ | Compile-time safety, testability, no context |
-| Database | Isar | 3.1+ | Fast, embedded NoSQL, great for offline |
+| Database | SharedPreferences JSON (Phase 1.0) / Isar 3.1+ (Phase 2.0+) | — | Zero-config JSON for MVP; Isar for indexed queries and scale |
 | Routing | go_router | 14.0+ | Declarative routing, deep links |
 | Notifications | flutter_local_notifications | 17.0+ | Cross-platform, reliable |
 
@@ -1042,8 +1038,8 @@ class CounterDisplay extends ConsumerWidget {
 ### 9.1 Data Security
 
 **At Rest**:
-- Isar database encrypted via device OS (iOS: Data Protection, Android: Full Disk Encryption)
-- No custom encryption layer (KISS principle)
+- Phase 1.0: SharedPreferences storage — encrypted by device OS (iOS: Data Protection, Android: Full Disk Encryption)
+- Phase 2.0+: Isar database — same OS-level encryption, no custom layer (KISS principle)
 
 **In Transit** (Phase 2):
 - Cloud sync via HTTPS only

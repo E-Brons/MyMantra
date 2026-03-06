@@ -48,10 +48,10 @@ The system shall provide:
 │                                             │
 │              MyMantra                       │
 │                                             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
-│  │ UI Layer │  │ Business │  │   Data   │ │
-│  │ (Flutter)│◄─┤  Logic   │◄─┤  Layer   │ │
-│  └──────────┘  └──────────┘  └──────────┘ │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │ UI Layer │  │ Business │  │   Data   │   │
+│  │ (Flutter)│◄─┤  Logic   │◄─┤  Layer   │   │
+│  └──────────┘  └──────────┘  └──────────┘   │
 │                                  │          │
 └──────────────────────────────────┼──────────┘
                                    │
@@ -67,7 +67,7 @@ The system shall provide:
 
 ### 2.2 User Characteristics
 - **Skill Level**: Basic to intermediate smartphone users
-- **Age Range**: 18-65+
+- **Age Range**: 7-65+
 - **Usage Patterns**: Daily, multiple short sessions (2-10 minutes)
 - **Device Types**: Smartphones (primary), tablets, desktop (Phase 2+)
 
@@ -78,7 +78,7 @@ The system shall provide:
 ### 3.1 Mantra Management Module
 
 #### SR-1.1: Create Mantra
-**Priority**: High  
+**Priority**: High
 **Description**: User shall be able to create a new mantra entry.
 
 **Input**:
@@ -106,7 +106,7 @@ The system shall provide:
 ---
 
 #### SR-1.2: Read Mantra List
-**Priority**: High  
+**Priority**: High
 **Description**: Display all stored mantras in a scrollable list.
 
 **Input**: None (or optional search query)
@@ -130,7 +130,7 @@ The system shall provide:
 ---
 
 #### SR-1.3: Update Mantra
-**Priority**: High  
+**Priority**: High
 **Description**: User shall be able to edit existing mantra details.
 
 **Input**: Same as SR-1.1 (with pre-filled existing values)
@@ -152,7 +152,7 @@ The system shall provide:
 ---
 
 #### SR-1.4: Delete Mantra
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: User shall be able to delete a mantra with confirmation.
 
 **Input**: Mantra UUID
@@ -175,7 +175,7 @@ The system shall provide:
 ---
 
 #### SR-1.5: Search Mantras
-**Priority**: Low  
+**Priority**: Low
 **Description**: Filter mantra list by text search.
 
 **Input**: Search query string
@@ -197,7 +197,7 @@ The system shall provide:
 ### 3.2 Reminder Management Module
 
 #### SR-2.1: Create Reminder
-**Priority**: High  
+**Priority**: High
 **Description**: User shall be able to schedule notifications for a mantra.
 
 **Input**:
@@ -224,7 +224,7 @@ The system shall provide:
 ---
 
 #### SR-2.2: Update Reminder
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: Modify existing reminder parameters.
 
 **Input**: Same as SR-2.1
@@ -243,7 +243,7 @@ The system shall provide:
 ---
 
 #### SR-2.3: Delete Reminder
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: Remove a scheduled reminder.
 
 **Input**: Reminder UUID
@@ -261,7 +261,7 @@ The system shall provide:
 ---
 
 #### SR-2.4: Enable/Disable Reminder
-**Priority**: High  
+**Priority**: High
 **Description**: Toggle reminder without deleting.
 
 **Input**: Reminder UUID, new state (boolean)
@@ -282,7 +282,7 @@ The system shall provide:
 ### 3.3 Session Module
 
 #### SR-3.1: Start Session
-**Priority**: High  
+**Priority**: High
 **Description**: Begin a counting session for a mantra.
 
 **Input**: Mantra UUID, wasFromReminder (boolean)
@@ -304,7 +304,7 @@ The system shall provide:
 ---
 
 #### SR-3.2: Increment Counter
-**Priority**: High  
+**Priority**: High
 **Description**: Count each repetition with tap interaction.
 
 **Input**: User tap anywhere on screen
@@ -327,7 +327,7 @@ The system shall provide:
 ---
 
 #### SR-3.3: Pause/Resume Session
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: Temporarily pause counting.
 
 **Input**: Pause/Resume button tap
@@ -345,7 +345,7 @@ The system shall provide:
 ---
 
 #### SR-3.4: Complete Session
-**Priority**: High  
+**Priority**: High
 **Description**: Finish session and save to history.
 
 **Input**: Complete button tap OR auto-complete when target reached
@@ -376,7 +376,7 @@ The system shall provide:
 ---
 
 #### SR-3.5: Cancel Session
-**Priority**: Low  
+**Priority**: Low
 **Description**: Exit session without saving.
 
 **Input**: Cancel/Back button
@@ -395,7 +395,7 @@ The system shall provide:
 ---
 
 #### SR-3.6: Reset Counter
-**Priority**: Low  
+**Priority**: Low
 **Description**: Reset counter to 0 during session.
 
 **Input**: Reset button tap
@@ -415,7 +415,7 @@ The system shall provide:
 ### 3.4 Progress Tracking Module
 
 #### SR-4.1: Calculate Streak
-**Priority**: High  
+**Priority**: High
 **Description**: Track consecutive days with completed sessions.
 
 **Algorithm**:
@@ -451,7 +451,7 @@ if current_streak > longest_streak:
 ---
 
 #### SR-4.2: Display Progress Dashboard
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: Show user's overall progress statistics.
 
 **Input**: None
@@ -475,7 +475,7 @@ if current_streak > longest_streak:
 ---
 
 #### SR-4.3: List Session History
-**Priority**: Low  
+**Priority**: Low
 **Description**: Show past sessions in chronological order.
 
 **Input**: Optional filters (date range, mantra)
@@ -498,7 +498,7 @@ if current_streak > longest_streak:
 ### 3.5 Gamification Module
 
 #### SR-5.1: Unlock Achievement
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: Grant badge when milestone reached.
 
 **Achievements**:
@@ -530,7 +530,7 @@ if current_streak > longest_streak:
 ---
 
 #### SR-5.2: Display Achievements
-**Priority**: Low  
+**Priority**: Low
 **Description**: Show all achievements (locked/unlocked).
 
 **Input**: None
@@ -553,7 +553,7 @@ if current_streak > longest_streak:
 ### 3.6 Settings Module
 
 #### SR-6.1: Theme Selection
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: User can choose app color theme.
 
 **Input**: Theme option (Light, Dark, System)
@@ -571,7 +571,7 @@ if current_streak > longest_streak:
 ---
 
 #### SR-6.2: Notification Settings
-**Priority**: High  
+**Priority**: High
 **Description**: Configure notification behavior.
 
 **Input**:
@@ -593,7 +593,7 @@ if current_streak > longest_streak:
 ---
 
 #### SR-6.3: Default Target Repetitions
-**Priority**: Low  
+**Priority**: Low
 **Description**: Set default value for new mantras.
 
 **Input**: Integer, 1-10000
@@ -612,7 +612,7 @@ if current_streak > longest_streak:
 ---
 
 #### SR-6.4: About & Donations
-**Priority**: Low  
+**Priority**: Low
 **Description**: Display app information and donation options.
 
 **Input**: None
