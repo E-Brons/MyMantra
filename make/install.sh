@@ -85,7 +85,9 @@ _install_fonts() {
     echo "  checking fonts..."
 
     _dl() {
-        local url="$1" file="$2" target="$FONTS_DIR/$file"
+        local url="$1"
+        local file="$2"
+        local target="$FONTS_DIR/$file"
         if [[ -f "$target" ]]; then
             printf "    ok   %s\n" "$file"
         else
