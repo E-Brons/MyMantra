@@ -67,7 +67,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                     ),
                     child: const Icon(Icons.arrow_back, size: 18, color: AppColors.textPrimary),
                   ),
-                  onPressed: () => context.pop(),
+                  onPressed: () => context.canPop() ? context.pop() : context.go('/'),
                 ),
                 title: Text(
                   mantra.title,

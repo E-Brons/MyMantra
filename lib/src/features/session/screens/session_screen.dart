@@ -144,7 +144,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
     final target = mantra.targetRepetitions;
     final progress = (_count / target).clamp(0.0, 1.0);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          if (_showCelebration) {
+            context.pop();
+          } else {
+            _handleExit();
+          }
+        }
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: const Color(0xFF0D0520),
@@ -387,6 +398,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
               ),
           ],
         ),
+      ),
       ),
     );
   }

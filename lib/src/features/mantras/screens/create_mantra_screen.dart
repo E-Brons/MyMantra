@@ -83,7 +83,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         title: Text(_isEditing ? 'Edit Mantra' : 'New Mantra'),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
         actions: [
           TextButton(
