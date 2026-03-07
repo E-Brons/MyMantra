@@ -1,6 +1,7 @@
 {
-    "ios":     { "target": "iPhone 17", "version": "26.3",     "build": true, "debug": false },
-    "android": { "target": "Pixel_10_Pro", "version": "16.0",  "build": true, "debug": false },
-    "macos":   {                                               "build": true, "debug": true },
-    "web":     {                                               "build": true, "debug": false }
+    "ios":     { "target": "iPhone 17", "version": "26.3",     "build": true,  "debug": false },
+    "android": { "target": "Pixel_10_Pro", "version": "16.0",  "build": true,  "debug": false },
+    "macos":   {                                               "build": true,  "debug": true  },
+    "web":     {                                               "build": true,  "debug": false },
+    "linux":   { "target": "ubuntu-latest", "version": "24.04", "build": false, "debug": false }
 }

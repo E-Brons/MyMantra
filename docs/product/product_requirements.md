@@ -515,6 +515,42 @@ Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani P
 
 ---
 
+#### UF-4: Platform Back Navigation
+
+Every screen reachable via forward navigation must be dismissible via the platform's
+standard back gesture or control. Users must never feel trapped on a screen.
+
+```
+Screen                  │ Back Destination    │ Confirmation Required?
+────────────────────────┼─────────────────────┼──────────────────────
+MantraDetail            │ Home                │ No
+CreateMantra (new)      │ Home                │ Yes — if unsaved changes
+CreateMantra (edit)     │ MantraDetail        │ Yes — if unsaved changes
+Session (counter = 0)   │ MantraDetail        │ No
+Session (counter > 0)   │ Stay in session     │ Yes — "Discard session?"
+```
+
+**Platform back controls:**
+
+| Platform | Controls that must trigger back |
+|----------|---------------------------------|
+| iOS | Swipe-from-left-edge; back arrow in nav bar |
+| Android | Hardware back button; system gesture (swipe edge) |
+| macOS | Back arrow in toolbar; **Escape key**; Cmd+[ |
+| Web | Browser back button |
+
+**Known issues (v0.1):**
+
+- **BUG-001 (macOS):** Back navigation from `MantraDetail` (and other routes outside the
+  `ShellRoute`) is blocked. `context.pop()` is a no-op when the route has no predecessor
+  on the Navigator stack. Fix: guard with `context.canPop()`, fall back to `context.go('/')`.
+- **BUG-002 (Android):** Hardware back inside `SessionScreen` with `counter > 0` bypasses
+  the "Discard session?" confirmation. Fix: add `PopScope` to `SessionScreen`.
+
+Both bugs are **P0 blockers** for Phase 1.0 ship to production.
+
+---
+
 ### 5.2 Screen Wireframes (High-Level)
 
 #### Screen 1: Home (Mantra List)
@@ -850,6 +886,9 @@ Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani P
 - [ ] App works 100% offline (no internet required)
 - [ ] Counter accuracy: 0% missed taps in 10 taps/second stress test
 - [ ] Streak calculation: Correct across timezone changes and date boundaries
+- [ ] **BUG-001 resolved:** Back navigation works on macOS from all routes outside ShellRoute
+- [ ] **BUG-002 resolved:** Android hardware back button shows "Discard session?" when counter > 0
+- [ ] Back navigation verified on all 4 platforms (iOS, Android, macOS, Web)
 - [ ] App Store approval (iOS)
 - [ ] Play Store approval (Android)
 - [ ] Beta testing: 10+ users, 7+ days, <5 high-priority bugs
@@ -908,3 +947,4 @@ See [product/builtin_mantras_library.md](builtin_mantras_library.md) for the ful
 |---------|------|--------|---------|
 | 1.0 | 2025-11-XX | Product Team | Initial draft |
 | 2.0 | 2025-11-24 | Product Team | Updated with cloud sync, gamification, phased approach |
+| 2.1 | 2026-03-07 | Engineering | Added UF-4 (back navigation), BUG-001/002, back-nav acceptance criteria |

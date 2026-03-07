@@ -1,0 +1,66 @@
+name: CI
+
+# Runs on every push to main and on every pull request targeting main.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ── Job 1: Static analysis ──────────────────────────────────────────────────
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter analyze
+
+  # ── Job 2: Unit tests ───────────────────────────────────────────────────────
+  # Pure Dart — models, streak logic, utilities. No device needed. ~30 s.
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter test test/unit/ --coverage
+
+  # ── Job 3: Widget tests ─────────────────────────────────────────────────────
+  # Renders screens in Flutter's headless test engine. No device needed. ~60 s.
+  widget-test:
+    name: Widget Tests
+    runs-on: ubuntu-latest
+    needs: analyze
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter test test/widget/
+
+  # ── Job 4: Integration tests (Linux desktop) ────────────────────────────────
+  # Compiles and runs the real app on a Linux desktop target using xvfb for a
+  # headless display. Tests full user flows end-to-end, including navigation,
+  # persistence, and the BUG-001/002 regression paths.
+  integration-linux:
+    name: Integration Tests (Linux)
+    runs-on: ubuntu-latest
+    needs: [unit-test, widget-test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+
+      - name: Install Linux target
+        run: make install TARGET=linux
+
+      - name: Run integration tests (headless)
+        run: make test-integration

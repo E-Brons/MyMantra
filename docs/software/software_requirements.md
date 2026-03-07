@@ -394,6 +394,33 @@ The system shall provide:
 
 ---
 
+#### SR-3.11: Cancel Session via Platform Back
+**Priority**: High (P0 — Phase 1.0 bug fix)
+**Description**: The platform's native back action (Android hardware back, iOS swipe-left,
+macOS Escape/back-button) during an active session must behave identically to tapping the
+visible Cancel button.
+
+**Input**: Any platform back event (gesture, hardware button, keyboard shortcut) while
+`SessionScreen` is displayed.
+
+**Process**:
+1. Intercept back event using `PopScope(canPop: false, onPopInvoked: ...)`
+2. If counter == 0: pop immediately, no confirmation
+3. If counter > 0: show "Discard session?" dialog (same as SR-3.5)
+4. If user confirms: discard, pop to MantraDetail
+5. If user cancels: dismiss dialog, remain in session
+
+**Output**: Consistent back behaviour across all platforms
+
+**Acceptance Criteria**:
+- Android hardware back with counter > 0 shows confirmation dialog (BUG-002 fix)
+- Android hardware back with counter == 0 exits without dialog
+- iOS swipe-left gesture behaves identically
+- macOS ESC key behaves identically
+- No session data saved unless user taps "Complete" or counter reaches target
+
+---
+
 #### SR-3.6: Reset Counter
 **Priority**: Low
 **Description**: Reset counter to 0 during session.
@@ -963,6 +990,89 @@ if current_streak > longest_streak:
 
 ---
 
+### 3.10 Navigation Requirements
+
+Cross-platform back navigation is a first-class requirement. Users must be able to leave
+any screen using the platform's standard back control — no screen may become a dead end.
+
+---
+
+#### SR-NAV-1: Consistent Back Navigation Across All Routes
+**Priority**: High (P0)
+**Description**: Every non-root screen must handle back navigation and return the user
+to a meaningful previous state.
+
+**Back Destination Map:**
+
+| Screen (Route) | Back Destination | go_router action |
+|----------------|-----------------|-----------------|
+| MantraDetail `/mantras/:id` | Home `/` | `context.canPop() ? context.pop() : context.go('/')` |
+| CreateMantra `/mantras/new` | Home `/` | `context.canPop() ? context.pop() : context.go('/')` |
+| EditMantra `/mantras/:id/edit` | MantraDetail `/mantras/:id` | `context.pop()` |
+| Session `/mantras/:id/session` | MantraDetail `/mantras/:id` | `context.pop()` (after confirmation if needed) |
+
+**Acceptance Criteria**:
+- Every screen has a visible back control (arrow, ×, or Cancel)
+- Back control tapped always navigates as per the table above
+- No screen is reachable without a way out
+
+---
+
+#### SR-NAV-2: Android Hardware Back Button
+**Priority**: High (P0)
+**Description**: The Android system back gesture/button must behave identically to the
+on-screen back control on every screen.
+
+**Implementation**: Use `PopScope` (Flutter 3.12+) on every full-screen route.
+
+**Acceptance Criteria**:
+- Hardware back on MantraDetail returns to Home
+- Hardware back on Session (counter == 0) returns to MantraDetail without dialog
+- Hardware back on Session (counter > 0) shows "Discard session?" dialog (SR-3.11)
+- Hardware back on CreateMantra with unsaved changes shows "Discard changes?" dialog
+
+**Known Bug (v0.1):** BUG-002 — `PopScope` missing on `SessionScreen`. Hardware back
+bypasses the confirmation dialog when counter > 0.
+
+---
+
+#### SR-NAV-3: macOS Keyboard and Toolbar Back
+**Priority**: High (P0)
+**Description**: On macOS, users expect to navigate back via the toolbar arrow and the
+Escape key.
+
+**Implementation**:
+- Toolbar back button: call `context.canPop() ? context.pop() : context.go('/')`
+- Escape key: register `Shortcuts` / `Actions` or `FocusScope` key handler for
+  `LogicalKeyboardKey.escape`
+
+**Acceptance Criteria**:
+- Escape key on MantraDetail returns user to Home
+- Escape key on Session (counter == 0) returns to MantraDetail
+- Escape key on Session (counter > 0) shows confirmation dialog
+- macOS toolbar back button (if present in the window chrome) navigates correctly
+
+**Known Bug (v0.1):** BUG-001 — `context.pop()` is a no-op on macOS for routes outside
+`ShellRoute` because there is no prior entry on the Navigator stack. Fix: guard with
+`context.canPop()`.
+
+---
+
+#### SR-NAV-4: Deep-Link Entry Safety
+**Priority**: Medium
+**Description**: When a route is entered via deep-link (cold launch directly to
+`/mantras/:id`), the Navigator stack has no history. The app must still provide a
+working back path.
+
+**Implementation**: If `context.canPop()` is false and the route is a detail/session
+screen, back action must call `context.go('/')` to land on Home.
+
+**Acceptance Criteria**:
+- Cold-launch to `/mantras/:id` → back → Home (not crash, not frozen)
+- Cold-launch to `/mantras/:id/session` → back → Home (session cancelled without saving)
+
+---
+
 ## 4. Data Requirements
 
 ### 4.1 Data Models
@@ -1196,14 +1306,17 @@ Mantra (1) ──< (N) Session
 ### Phase 1 MVP Acceptance
 - [ ] All SR-1.x (Mantra Management) requirements met
 - [ ] All SR-2.x (Reminder Management) requirements met
-- [ ] All SR-3.x (Session) requirements met
+- [ ] All SR-3.x (Session) requirements met including SR-3.11
 - [ ] All SR-4.x (Progress) requirements met
 - [ ] All SR-5.x (Gamification) requirements met
 - [ ] All SR-6.x (Settings) requirements met
+- [ ] All SR-NAV.x (Navigation) requirements met
 - [ ] All PERF, REL, SEC requirements met
-- [ ] Manual testing passed on iOS and Android
+- [ ] Manual testing passed on iOS, Android, and macOS
 - [ ] Beta testing completed (10+ users, 7+ days)
 - [ ] Zero critical bugs, <5 high-priority bugs
+- [ ] BUG-001 (macOS back nav) resolved and regression-tested
+- [ ] BUG-002 (Android back in session) resolved and regression-tested
 
 ---
 
@@ -1243,3 +1356,10 @@ Mantra (1) ──< (N) Session
 | Requirements Engineer | [TBD] | |
 | Technical Architect | [TBD] | |
 | QA Lead | [TBD] | |
+
+**Change Log**
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 0.1 | 2025-11-XX | Engineering | Initial draft |
+| 0.2 | 2026-03-07 | Engineering | Added SR-3.11, SR-NAV-1..4, BUG-001/002 documentation, updated Phase 1 acceptance criteria |

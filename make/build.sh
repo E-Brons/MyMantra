@@ -52,6 +52,10 @@ while IFS='|' read -r name _device debug; do
             (cd "$REPO_ROOT" && $FLUTTER build web $MODE)
             ;;
 
+        linux)
+            (cd "$REPO_ROOT" && $FLUTTER build linux $MODE)
+            ;;
+
         # ── future targets ────────────────────────────────────────────────────
         # python)
         #     (cd "$REPO_ROOT/services" && uv build)

@@ -245,6 +245,25 @@ while IFS='|' read -r name _device _debug; do
             echo "  no additional installs required for web"
             ;;
 
+        linux)
+            # Install build toolchain — only meaningful on Linux.
+            # Safe to run on macOS too: the guard just skips the apt-get step.
+            if [[ "$(uname -s)" == "Linux" ]]; then
+                echo "  installing linux desktop build dependencies..."
+                sudo apt-get update -y
+                sudo apt-get install -y clang cmake ninja-build libgtk-3-dev xvfb
+            else
+                echo "  skipping apt-get deps (not running on Linux)"
+            fi
+            # Scaffold linux/ platform directory if it doesn't exist yet.
+            if [[ ! -d "$REPO_ROOT/linux" ]]; then
+                echo "  scaffolding linux platform directory..."
+                (cd "$REPO_ROOT" && $FLUTTER create . --platforms linux)
+            else
+                echo "  linux platform directory already exists — skipping"
+            fi
+            ;;
+
         # ── future targets ────────────────────────────────────────────────────
         # python)
         #     command -v uv >/dev/null || pip install uv
@@ -264,4 +283,8 @@ _install_fonts
 
 echo ""
 echo "==> verify: prerequisites"
-bash "$MAKE_DIR/prerequisites.sh" --targets "$TARGETS_CSV"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    bash "$MAKE_DIR/prerequisites.sh" --targets "$TARGETS_CSV"
+else
+    echo "  prerequisite check skipped (macOS only — lipo not available on $(uname -s))"
+fi

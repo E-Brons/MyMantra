@@ -166,6 +166,10 @@ case "$TARGET_NAME" in
         (cd "$REPO_ROOT" && $FLUTTER run -d chrome $FLUTTER_MODE)
         ;;
 
+    linux)
+        (cd "$REPO_ROOT" && $FLUTTER run -d linux $FLUTTER_MODE)
+        ;;
+
     # ── future targets ────────────────────────────────────────────────────────
     # python)
     #     (cd "$REPO_ROOT/services" && uv run python -m app)

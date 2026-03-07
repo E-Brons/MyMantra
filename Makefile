@@ -12,7 +12,7 @@
 TARGET ?=
 _T     := $(if $(TARGET),--target $(TARGET),)
 
-.PHONY: install build run debug clean
+.PHONY: install build run debug clean test test-integration
 
 install:
 	@bash make/install.sh $(_T)
@@ -28,3 +28,12 @@ debug:
 
 clean:
 	@bash make/clean.sh
+
+# Run unit + widget tests (no device needed — works on macOS and Linux)
+# --reporter expanded prints each test name as it runs.
+test:
+	@flutter test test/unit/ test/widget/ --reporter expanded
+
+# Run integration tests against the Linux desktop target (Linux only, requires xvfb)
+test-integration:
+	@xvfb-run flutter test integration_test/ -d linux
