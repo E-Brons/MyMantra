@@ -86,8 +86,8 @@
 | FR-5.3 | Font size (Small / Medium / Large) | P1 | 🐛 | BUG-003: setting is persisted but never applied — all font sizes are hard-coded; UI fonts and mantra fonts unaffected |
 | FR-5.4 | Default target repetitions | P1 | ✅ | |
 | FR-5.5 | About screen (version, license) | P1 | ✅ | |
-| FR-5.6 | Default repetition cycle (Session / Daily / Weekly) | P1 | ✅ | `defaultRepetitionCycle` on `Settings`; UI pending |
-| FR-5.7 | Tap rate limit toggle | P1 | ✅ | `limitClickRate` on `Settings`; UI + enforcement pending |
+| FR-5.6 | Default repetition cycle (Session / Daily / Weekly) | P1 | ✅ | `defaultRepetitionCycle` on `Settings`; dropdown in Practice section |
+| FR-5.7 | Tap rate limit toggle | P1 | 🚧 | `limitClickRate` on `Settings`; toggle in Practice section; enforcement pending (step 6) |
 
 ### Navigation & Platform Behaviour
 
@@ -185,7 +185,53 @@ All analytics are **opt-in only**, disclosed upfront, collect no PII, and defaul
 
 ---
 
-## Quality & Testing
+## Phase 4.0 — Guru-Guided Mantra Creation (Epic)
+
+A conversational "guru" guides the user through a structured dialogue to discover or
+compose their own personal mantra. The specific methodologies driving the dialogue will
+be provided and documented separately; this epic describes the container, UX, and
+integration framework.
+
+### Methodology Framework
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-12.1 | Pluggable methodology registry | P0 | 📋 | Each methodology is a self-contained conversation script; new ones can be added without code changes to the engine |
+| FR-12.2 | Methodology selection screen | P1 | 📋 | User picks a methodology (or guru recommends one based on a brief intake); methodology descriptions shown |
+| FR-12.3 | Methodology content (TBD) | P0 | 📋 | **Specific methodologies to be provided by product owner**; placeholder names: Intention-Based, Tradition-Based, Sound & Vibration, Affirmation-Based |
+
+### Guru Conversation Engine
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-12.4 | Conversational UI (chat / card Q&A) | P0 | 📋 | Sequential guru messages with user responses via free text, tappable chips, or sliders; adapts to screen size |
+| FR-12.5 | Intention & theme intake | P0 | 📋 | Opening questions: purpose, tradition, language preference, life context; answers seed the methodology |
+| FR-12.6 | Adaptive question sequencing | P1 | 📋 | Each answer influences the next question; branching logic defined per methodology |
+| FR-12.7 | Guru persona & tone settings | P2 | 📋 | User can choose guru voice: Neutral, Vedic, Buddhist, Modern Wellness; affects language and framing of questions |
+| FR-12.8 | Offline scripted guru | P0 | 📋 | Fully deterministic decision-tree guru; no network required; works on Phase 1.0 devices |
+| FR-12.9 | AI-powered guru (opt-in) | P2 | 📋 | LLM-backed guru for open-ended conversation; requires network; explicit privacy disclosure before activation |
+
+### Mantra Generation & Refinement
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-12.10 | Mantra candidate generation | P0 | 📋 | Produces 1–3 mantra candidates from the conversation; each shown with its rationale |
+| FR-12.11 | Candidate review screen | P0 | 📋 | User sees candidates side-by-side or sequentially; can play audio preview (Phase 2.0+) |
+| FR-12.12 | Refinement loop | P1 | 📋 | User can request variations (shorter/longer, different language, different emphasis) up to 3 iterations |
+| FR-12.13 | Mantra explanation card | P1 | 📋 | Each candidate shows: meaning, tradition context, sound qualities, why it matches the user's answers |
+
+### Save & Integration
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-12.14 | Save to personal collection | P0 | 📋 | One-tap save; fields pre-filled from conversation (text, title, target reps, tradition tag); user can edit before confirming |
+| FR-12.15 | Conversation log linked to mantra | P1 | 📋 | Full guru conversation saved and viewable from the mantra's detail screen |
+| FR-12.16 | Resume interrupted conversation | P1 | 📋 | If user exits mid-session, the conversation is preserved and resumable from the home screen |
+| FR-12.17 | Created-by-guru badge on mantra card | P2 | 📋 | Subtle indicator on home screen and detail view distinguishing guru-created from manually entered mantras |
+
+---
+
+
 
 | ID | Feature | Priority | Status | Notes |
 |----|---------|----------|--------|-------|
@@ -220,3 +266,4 @@ All analytics are **opt-in only**, disclosed upfront, collect no PII, and defaul
 | 0.4 | 2026-03-07 | Engineering | Step 3 complete: create/edit screen — cycle picker (Session/Daily/Weekly chips); wired to save |
 | 0.5 | 2026-03-07 | Engineering | FR-5.3 downgraded to 🐛 (BUG-003: font size setting not applied); added FR-11.x epic (Usage Analytics & Mantra Feedback, 20 features across crash telemetry, feature usage, session signals, content feedback, user satisfaction, consent) |
 | 0.6 | 2026-03-07 | Engineering | Step 4 complete: FR-3.12 ✅ — session target sheet (Your default / Mantra's target / Custom) with daily/weekly accumulated-reps support; pumpSession helper updated; 5 new widget tests |
+| 0.7 | 2026-03-07 | Engineering | Step 5 complete: FR-5.6 ✅ FR-5.7 🚧 — Default cycle dropdown + Limit tap rate toggle in Settings Practice section; 3 widget tests; enforcement pending (step 6) |
