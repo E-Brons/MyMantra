@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mymantra/src/core/models/mantra.dart';
 import 'package:mymantra/src/core/providers/app_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -20,6 +21,10 @@ AppNotifier _notifier() {
 // ---------------------------------------------------------------------------
 
 void main() {
+  // SharedPreferences (used by StorageService) requires the Flutter binding.
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   // ── createMantra ──────────────────────────────────────────────────────────
 
   group('AppNotifier.createMantra', () {

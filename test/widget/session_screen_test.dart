@@ -123,8 +123,11 @@ void main() {
       await pumpSession(tester);
       await tester.tap(find.text('0'));
       await tester.pump();
-      // Advance real time by pumping a 1-second duration so DateTime.now() moves.
-      await tester.pump(const Duration(seconds: 1));
+      // tester.pump(Duration) advances Flutter's fake clock but NOT
+      // DateTime.now(). Use runAsync to let real time pass so the
+      // 1-second guard in _handleTap expires.
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 1100)));
+      await tester.pump();
       await tester.tap(find.text('1'));
       await tester.pump();
       expect(find.text('2'), findsOneWidget);

@@ -25,7 +25,7 @@ void main() {
       expect(find.text('Limit tap rate'), findsOneWidget);
 
       final container = ProviderScope.containerOf(
-        tester.element(find.byType(ProviderScope).first),
+        tester.element(find.byType(MaterialApp)),
       );
       expect(container.read(appProvider).settings.limitClickRate, isTrue);
     });
@@ -36,14 +36,11 @@ void main() {
       await tester.pumpAndSettle();
 
       final container = ProviderScope.containerOf(
-        tester.element(find.byType(ProviderScope).first),
+        tester.element(find.byType(MaterialApp)),
       );
 
-      // Find the switch for limitClickRate — it is the one near 'Limit tap rate' text.
-      // There are multiple switches; target the last one (limitClickRate is after
-      // haptic feedback and notifications).
-      final switches = find.byType(Switch);
-      await tester.tap(switches.last);
+      // Switches in order: haptic (0), limitClickRate (1), notifications (2).
+      await tester.tap(find.byType(Switch).at(1));
       await tester.pumpAndSettle();
 
       expect(container.read(appProvider).settings.limitClickRate, isFalse);
@@ -55,7 +52,7 @@ void main() {
       await tester.pumpAndSettle();
 
       final container = ProviderScope.containerOf(
-        tester.element(find.byType(ProviderScope).first),
+        tester.element(find.byType(MaterialApp)),
       );
 
       // Open the Default cycle dropdown and pick Daily.
