@@ -1,0 +1,242 @@
+[
+  {
+    "id": "islamic_001",
+    "name": "Bismillah",
+    "english": "In the name of God, the Most Gracious, the Most Merciful",
+    "original": "بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ",
+    "transliteration": "Bismillāhi r-Raḥmāni r-Raḥīm",
+    "abstract": "Bismillah is the opening phrase of the Quran and is recited by Muslims before beginning almost every significant act — eating, reading, traveling, working, or praying. Its three divine attributes — Allah (God), Rahman (the All-Merciful), and Rahim (the Ever-Merciful) — encapsulate the Islamic understanding of divine compassion as the ground of all existence.\n\nThe phrase appears at the beginning of 113 of the 114 chapters of the Quran, making it the most frequently encountered sacred formula in Islam. Classical commentators describe Bismillah as a key that unlocks the door between the human and the divine — reciting it transforms an ordinary act into an act of worship.\n\nIn Sufi theology, Bismillah is treated as a complete cosmological statement. The letter 'ba,' the first letter, is said by some mystics to contain the entire universe within it; the dot beneath that letter is interpreted as a point of divine consciousness. Al-Hallaj and later Ibn Arabi both wrote extensively on the metaphysical depth concealed in this single syllable.\n\nThe practical effect of consistent Bismillah recitation is mindfulness — each act becomes an invitation for divine presence. In Islamic psychology this constant re-orientation toward God (tawakkul) is considered the antidote to heedlessness (ghafla), the root cause of human suffering. By beginning with God's name, the ego's grip on action is loosened.\n\nBismillah is also the gateway mantra for the Islamic rosary (tasbih). When a practitioner takes up the 99-bead string and whispers Bismillah before the dhikr sequence, they signal the transition from everyday consciousness to a state of sacred remembrance.",
+    "tags": ["prayer", "gratitude", "protection", "beginnings", "devotion"],
+    "tradition": "Islamic",
+    "category": "Opening Formula",
+    "difficulty": "beginner",
+    "targetRepetitions": 21,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "In the name of God, the Most Gracious, the Most Merciful",
+      "zh": "奉至仁至慈的真主之名",
+      "es": "En el nombre de Dios, el Compasivo, el Misericordioso"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_002",
+    "name": "Subhan Allah",
+    "english": "Glory be to God",
+    "original": "سُبْحَانَ اللهِ",
+    "transliteration": "Subḥāna llāh",
+    "abstract": "Subhan Allah is a formula of glorification (tasbih) expressing that God is utterly beyond all human imperfection, limitation, or comparison. The root 'sabaha' carries the image of swimming freely — God is free of all constraints, immaculate, transcendent. Reciting this phrase is an act of acknowledging divine perfection in contrast to the creaturely world.\n\nThe Prophet Muhammad is reported to have said that saying Subhan Allah, Alhamdulillah, and Allahu Akbar thirty-three times each after every prayer is equivalent in spiritual reward to a long night of voluntary worship. These three phrases together — the tasbihat — form a complete post-prayer dhikr cycle practised by hundreds of millions of Muslims daily.\n\nIn Sufi practice, Subhan Allah is used as a rhythmic breath mantra. Each exhalation carries 'subhan,' each inhalation 'Allah,' creating a loop of glorification that synchronizes breath and remembrance. Sheikh Ahmad Al-Alawi described this method as teaching the body to pray without ceasing, independent of the mind's chatter.\n\nNaturally arising moments of beauty — a sunset, the birth of a child, an unexpected kindness — are traditional occasions to spontaneously utter Subhan Allah. The phrase marks the recognition that creation is a continuous outpouring of divine generosity and artistry.\n\nQuantitatively, devotees often recite Subhan Allah 33 times on tasbih beads as part of the post-salah sequence. Advanced practitioners may recite it 100 or even 1000 times in sitting meditation, entering deep states of absorption where the phrase loses its conceptual surface and becomes pure vibration.",
+    "tags": ["gratitude", "awe", "mindfulness", "devotion", "cleansing"],
+    "tradition": "Islamic",
+    "category": "Tasbih / Glorification",
+    "difficulty": "beginner",
+    "targetRepetitions": 33,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "Glory be to God",
+      "zh": "真主至美无暇",
+      "es": "Gloria a Dios"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_003",
+    "name": "Alhamdulillah",
+    "english": "All praise and thanks belong to God",
+    "original": "اَلْحَمْدُ لِلّٰهِ",
+    "transliteration": "Al-ḥamdu lillāh",
+    "abstract": "Alhamdulillah is the quintessential Islamic expression of gratitude and the opening phrase of Surah Al-Fatiha, recited in every unit of the five daily prayers. By stating that all praise belongs to God, the phrase relocates the source of all goodness from circumstance or human effort to divine origin, cultivating a permanent orientation of thankfulness.\n\nThe Arabic word 'hamd' is richer than simple gratitude — it includes admiration, acknowledgment of excellence, and willing celebration. A person says 'shukr' (thanks) when they receive a favour; 'hamd' is an ongoing recognition of inherent worth whether or not a specific gift has been received. Alhamdulillah is thus less a transaction of gratitude and more a steady contemplative stance.\n\nIn Sufi metaphysics, Alhamdulillah is the phrase that returns the entirety of creation to its source. Everything that exists is a manifestation of divine attributes, and praise is the natural response of anything that recognises its origin. Rumi writes in the Masnavi that even the reed's cry of longing for the reed bed is, at its depth, a form of hamd — praise arising from longing for the Real.\n\nContemporary neuroscience of gratitude aligns surprisingly well with the traditional Islamic emphasis on shukr and hamd. Regular gratitude practice retrains the brain's negativity bias. In Islamic practice, whispering Alhamdulillah at every moment — of joy, hardship, transition — is an ancient technology of the same type: it re-frames experience through the lens of divine provision.\n\nPractitioners are encouraged to repeat Alhamdulillah 33 times in the post-prayer tasbih sequence, but also to weave it into conversation throughout the day. Every sneeze is met with Alhamdulillah; every good news elicits it; and classical teachers say that saying it in the face of difficulty — because even trials contain hidden mercies — marks the highest stage of gratitude.",
+    "tags": ["gratitude", "prayer", "mindfulness", "peace", "devotion"],
+    "tradition": "Islamic",
+    "category": "Tasbih / Glorification",
+    "difficulty": "beginner",
+    "targetRepetitions": 33,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "All praise and thanks belong to God",
+      "zh": "一切赞美归于真主",
+      "es": "Toda alabanza pertenece a Dios"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_004",
+    "name": "Allahu Akbar",
+    "english": "God is the Greatest",
+    "original": "اَللهُ أَكْبَرُ",
+    "transliteration": "Allāhu akbar",
+    "abstract": "Allahu Akbar is the Takbir — the proclamation that God is greater than anything the mind can conceive or the tongue describe. The comparative form 'akbar' is deliberate: God is not merely great but always greater than any name, concept, fear, or attachment one might be holding. Reciting it is an act of dethroning the ego and every worldly concern.\n\nThe Takbir opens every unit of Islamic prayer (salah), signalling the transition from ordinary consciousness to the sacred space of divine address. It appears in the call to prayer five times a day across the Muslim world, functioning as a communal reset — an invitation for millions of hearts to simultaneously reorient toward the infinite.\n\nIn dhikr practice the Takbir is used to break mental preoccupation. Sheikh Ibn Ata Allah of Alexandria wrote that when the heart is distracted by worldly concerns during meditation, repeating Allahu Akbar with full presence interrupts the chain of mundane thought and reestablishes divine priority. It functions like a spiritual circuit-breaker.\n\nIn Sufi circles the Takbir is sometimes chanted in a breath technique where the practitioner exhales completely while vocalising 'Allahu' and inhales in silence before the next repetition. The symbolism is embodied: in declaring God's greatness, one acknowledges one's own smallness — but in that smallness, paradoxically, finds infinite space.\n\nThe social dimension of Allahu Akbar should not be overlooked. Historically it has marked the beginning of great undertakings, the completion of difficult journeys, and the recognition of collective blessings. The phrase that begins individual prayer is the same one that rings from the minarets, knitting the individual into a vast community of remembrance.",
+    "tags": ["awe", "prayer", "strength", "devotion", "focus"],
+    "tradition": "Islamic",
+    "category": "Takbir / Proclamation",
+    "difficulty": "beginner",
+    "targetRepetitions": 33,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "God is the Greatest",
+      "zh": "真主至大",
+      "es": "Dios es el más Grande"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_005",
+    "name": "La Ilaha Illa Allah",
+    "english": "There is no god but God",
+    "original": "لَا إِلٰهَ إِلَّا اللهُ",
+    "transliteration": "Lā ilāha illā llāh",
+    "abstract": "La Ilaha Illa Allah is the first half of the Shahada, the Islamic declaration of faith, and is considered the most powerful of all Islamic phrases. It consists of a negation (la ilaha — there is no god) followed by an affirmation (illa Allah — except God). This structure is deliberate; every idol of the heart — attachment, fear, ego, status — must be negated before the absolute divine reality can be affirmed.\n\nIn Sufi dhikr this phrase is the most commonly used sacred formula. The Qadiri, Shadhili, Naqshbandi, and Chishti orders all use it as their central practice, though with different rhythms and breath patterns. The Shadhili tradition divides the phrase across the breath: 'La ilaha' on the exhalation (sweeping away), 'illa Allah' on the inhalation (receiving the divine).\n\nClassically, the phrase is said to have been heard by the Prophet in the divine presence as the essence of all revelation compressed into a single statement. Al-Ghazali in the Ihya Ulum al-Din calls it the master key of the heart: if recited with full awareness of meaning, it gradually dissolves every competing object of desire and fear until only God remains as the soul's orientation.\n\nFrom a psychological perspective, the negation-then-affirmation structure mirrors the cognitive process of value clarification. One must identify and release the false gods — approval, security, pleasure, power — before the heart can settle into unconditional trust. Many classical teachers prescribe this practice specifically for practitioners struggling with anxiety or addiction.\n\nThe full Shahada — La Ilaha Illa Allah, Muhammadun Rasul Allah — adds the second clause acknowledging Muhammad as the messenger. But La Ilaha Illa Allah stands alone as a practice capable of carrying a devotee from the periphery of religion to its innermost centre.",
+    "tags": ["liberation", "devotion", "focus", "transformation", "unity"],
+    "tradition": "Islamic",
+    "category": "Shahada / Declaration",
+    "difficulty": "intermediate",
+    "targetRepetitions": 100,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "There is no god but God",
+      "zh": "万物非主，唯有真主",
+      "es": "No hay más dios que Dios"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_006",
+    "name": "Astaghfirullah",
+    "english": "I seek forgiveness from God",
+    "original": "أَسْتَغْفِرُ اللهَ",
+    "transliteration": "Astaghfiru llāh",
+    "abstract": "Astaghfirullah is the Islamic formula of seeking divine forgiveness (istighfar). The root 'ghafara' means to cover, protect, and forgive — the divine act not merely of overlooking wrong but of shielding the soul from its consequences. By regularly seeking this protection, the practitioner cultivates humility before divine mercy.\n\nThe Prophet Muhammad is reported to have sought forgiveness from God more than seventy times each day, despite being considered spiritually perfected by his community. The hadith tradition uses this as evidence that istighfar is not only for sinners but is a constant practice for any soul that recognizes the gap between its current state and its highest possibility.\n\nIn Sufi teaching, Astaghfirullah serves as a 'polishing' practice for the mirror of the heart. According to Ibn Arabi's metaphysics, the human heart is like a mirror meant to reflect divine attributes; sin, negligence, and ego are the tarnish that obscures this reflection. Istighfar is the cloth that continuously polishes, allowing divine light to shine through more completely.\n\nMany teachers prescribe Astaghfirullah specifically at the moment of waking — before the mind is fully activated and before the narrative of self-justification begins. In this liminal state, the formula enters the subconscious more directly, gradually reshaping the soul's default orientation from self-protection to self-surrender.\n\nThe longer extended form — Astaghfirullaha l-'azim alladhi la ilaha illa huwa l-hayyal qayyuma wa atubu ilayh — is considered by many scholars the most comprehensive formula of return. Reciting it once with awareness is said to be equivalent to a night of prayer.",
+    "tags": ["healing", "cleansing", "transformation", "peace", "devotion"],
+    "tradition": "Islamic",
+    "category": "Istighfar / Seeking Forgiveness",
+    "difficulty": "beginner",
+    "targetRepetitions": 70,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "I seek forgiveness from God",
+      "zh": "我向真主忏悔求饶",
+      "es": "Busco el perdón de Dios"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_007",
+    "name": "Hasbunallahu Wa Ni'mal Wakeel",
+    "english": "God is sufficient for us, and the best disposer of affairs",
+    "original": "حَسْبُنَا اللهُ وَنِعْمَ الْوَكِيلُ",
+    "transliteration": "Ḥasbunallāhu wa niʿmal wakīl",
+    "abstract": "This phrase appears in the Quran (3:173) as the response of the Prophet Ibrahim and later the Prophet Muhammad and his companions when confronted with overwhelming odds. Its literal meaning is a declaration of radical trust: God alone is enough, and God alone is the perfect guardian and trustee of all affairs. It represents Islam's highest articulation of tawakkul — complete reliance on God.\n\nThe context of its Quranic appearance is instructive: the companions were told that a vast army had assembled against them and they should be afraid. Their response — Hasbunallahu wa ni'mal wakeel — is presented in the Quran as exemplary faith. The phrase thus carries the specific energy of courage in the face of threat, of choosing trust over terror.\n\nIn Sufi practice this phrase is prescribed for moments of anxiety, financial worry, illness, conflict, or any situation where the ego's control-seeking activates fear. By voicing Hasbunallahu, the practitioner acknowledges that the situation is beyond their management and consciously hands it to divine care. This is not passivity but an active spiritual stance.\n\nThe classical scholar Ibn al-Qayyim wrote that this phrase, when recited from the heart with certainty (yaqin), creates a spiritual state in which all worry dissolves because the practitioner has genuinely relocated their dependency from created circumstances to the Creator. He compares it to a child who stops struggling the moment they are held by a loving parent.\n\nModern practitioners of Islamic mindfulness use Hasbunallahu as an anchor phrase in moments of cognitive spiral — rumination, catastrophizing, future-anxiety. Repeating it slowly while placing a hand on the heart interrupts the stress response and reactivates what Islamic psychology calls the 'aql al-qalb,' the intelligence of the heart.",
+    "tags": ["protection", "strength", "peace", "surrender", "trust"],
+    "tradition": "Islamic",
+    "category": "Tawakkul / Trust in God",
+    "difficulty": "beginner",
+    "targetRepetitions": 33,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "God is sufficient for us, and the best disposer of affairs",
+      "zh": "真主够我们所需，祂是最好的监护者",
+      "es": "Dios nos basta; Él es el mejor custodio de los asuntos"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_008",
+    "name": "La Hawla Wa La Quwwata Illa Billah",
+    "english": "There is no power nor strength except through God",
+    "original": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ",
+    "transliteration": "Lā ḥawla wa lā quwwata illā billāh",
+    "abstract": "Known as 'al-Hawqala,' this declaration is described in hadith as a 'treasure from the treasures of paradise.' It is a comprehensive acknowledgment that no movement, no capacity for change, no strength of any kind originates in the human being — all power is derived from God. It dissolves both pride (claiming one's achievements as self-generated) and despair (believing one lacks power to change).\n\nThe phrase is traditionally recommended after the call to prayer, after difficult tasks, before challenging endeavours, and as a constant companion in dhikr. Its effect is to liberate the practitioner from the twin traps of arrogance and helplessness. By placing all capacity in God, one is simultaneously humbled and empowered.\n\nIn Sufi circles the Hawqala is associated with the station of fana (annihilation of the ego-self) because it explicitly denies the independent existence of the self as a source of power. Sheikh Al-Shadhili, founder of the Shadhili order, is said to have recited it thousands of times daily. His disciples teach that the phrase gradually erodes the illusion of the separate self, leaving only the recognition of divine agency flowing through apparently individual forms.\n\nFrom a psychological standpoint, the Hawqala addresses the core of what clinical psychologists call the locus-of-control problem. When a person believes all power rests entirely with them, anxiety increases because the burden of control is crushing. When power is acknowledged as divine, one still acts but without the weight of ultimate responsibility.\n\nThe phrase is often the last refuge in moments of complete overwhelm. Many Islamic accounts describe individuals facing death, extreme pain, or total loss who found this phrase rising to their lips, and through its repetition found not a solution but a peace that transcended their circumstances — the peace of having surrendered power back to its actual source.",
+    "tags": ["strength", "surrender", "liberation", "protection", "wisdom"],
+    "tradition": "Islamic",
+    "category": "Hawqala / Power Acknowledgment",
+    "difficulty": "intermediate",
+    "targetRepetitions": 33,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "There is no power nor strength except through God",
+      "zh": "除真主外无力无能",
+      "es": "No hay poder ni fuerza sino en Dios"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_009",
+    "name": "Ya Hayyu Ya Qayyum",
+    "english": "O Ever-Living, O Self-Sustaining",
+    "original": "يَا حَيُّ يَا قَيُّومُ",
+    "transliteration": "Yā Ḥayyu Yā Qayyūm",
+    "abstract": "Ya Hayyu Ya Qayyum invokes two of the divine names considered among the most exalted: Al-Hayy (the Ever-Living, eternally alive without beginning or end) and Al-Qayyum (the Self-Sustaining, who sustains all existence without depending on anything). These two names together appear in the Quran in Ayat al-Kursi (2:255), considered the greatest verse of the Quran.\n\nThe Prophet Muhammad is reported to have said: 'Seek assistance through Ya Hayyu Ya Qayyum.' It is specifically recommended in states of anxiety, illness, fatigue, or spiritual dryness — conditions where the practitioner feels their own life-force is depleted. By invoking the source of all life and sustenance, they access a reservoir beyond their own diminished resources.\n\nIn the science of Islamic divine names (ilm al-asma), Al-Hayy and Al-Qayyum represent the poles of divine immanence and transcendence respectively. Al-Hayy is the living pulse that animates every creature from within; Al-Qayyum is the transcendent support without which nothing could maintain its existence for an instant. Invoking them together is a complete metaphysical invocation.\n\nSufi teachers, particularly in the Naqshbandi tradition, use Ya Hayyu Ya Qayyum as a specific heart-opening practice. The heart is understood to have its own form of life distinct from biological heartbeat — a spiritual vitality that can wither under negligence and worldliness. Practitioners report a sensation of warmth and expansion in the chest that signals renewed spiritual life.\n\nPhysical healing traditions within Islamic medicine also associate these names with specific physiological effects. Ya Hayyu is associated with vitality and immune function; Ya Qayyum with structural integrity and stability. Many practitioners recite them during illness, directing the vibration of the names to affected areas of the body.",
+    "tags": ["healing", "strength", "devotion", "vitality", "unity"],
+    "tradition": "Islamic",
+    "category": "Divine Names / Asma al-Husna",
+    "difficulty": "intermediate",
+    "targetRepetitions": 100,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "O Ever-Living, O Self-Sustaining",
+      "zh": "啊，永生者，啊，自养者",
+      "es": "¡Oh Eterno Viviente! ¡Oh Sustentador de todo!"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_010",
+    "name": "Salawat",
+    "english": "O God, bestow Your blessings upon Muhammad",
+    "original": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّد",
+    "transliteration": "Allāhumma ṣalli ʿalā Muḥammad",
+    "abstract": "The Salawat — blessings upon the Prophet — is among the most beloved of Islamic practices. The Quran itself (33:56) states that God and His angels send blessings upon the Prophet and commands believers to do the same. The act of sending Salawat is therefore a participation in a divine-angelic-human chorus of blessing, an alignment of the human heart with the love that God Himself has for His messenger.\n\nThe full Ibrahimic Salawat, recited in the final sitting of every prayer, extends the blessing to all of Muhammad's family and to the lineage of Ibrahim and his family, linking the entire Abrahamic tradition in a web of divine favour. This formula was gifted, according to tradition, in response to the companions' question of how to properly greet the Prophet.\n\nIn Sufi theology the Prophet Muhammad is understood as the first light created by God — the primordial reality (haqiqa Muhammadiyya) from which all of creation unfolds. Sending Salawat is thus not merely a historical act of remembering a seventh-century person but a metaphysical act of connecting to the principle of divine mercy and guidance that the Prophet embodies.\n\nMany teachers prescribe Salawat as the most accessible entry point into love-based spirituality in Islam. Unlike fear-oriented practices that dwell on sin and judgment, Salawat orients the heart toward the beauty of divine mercy as personified in the Prophet. Sheikh Habib Umar bin Hafiz teaches that 1000 Salawat daily opens the heart to states of love that transcend ordinary emotional experience.\n\nThe effect most frequently reported by practitioners is an increase in love — for God, for the Prophet, for other human beings, and for oneself — alongside a reduction in hardness of heart (qaswat al-qalb), considered in Islamic psychology the root obstacle to spiritual development.",
+    "tags": ["love", "devotion", "healing", "gratitude", "peace"],
+    "tradition": "Islamic",
+    "category": "Salawat / Prophetic Blessings",
+    "difficulty": "beginner",
+    "targetRepetitions": 100,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "O God, bestow Your blessings upon Muhammad",
+      "zh": "真主啊，请赐福先知穆罕默德",
+      "es": "Oh Dios, bendice a Mahoma"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_011",
+    "name": "Hu",
+    "english": "He — the Ineffable Divine Presence",
+    "original": "هُو",
+    "transliteration": "Hū",
+    "abstract": "Hu is the most intimate and abbreviated of all divine invocations in Islamic mysticism — the simple pronoun 'He,' pointing to divine presence beyond all names and attributes. While the 99 divine names describe God's qualities, Hu points to the Essence itself, the pure 'I AM' behind all manifestation. The Quran uses Hu repeatedly: 'He is God' (Huwa llāh) — making it not merely a pronoun but a direct designation of ultimate reality.\n\nIn the Sufi orders, particularly the Mevlevi (whirling dervishes founded by Rumi), Hu is the central dhikr sound. During the sema ceremony, the dervishes exhale 'Huuuuuu' in a long, sustained breath that simultaneously empties the lungs and the ego, creating an opening for divine presence. Rumi's poetry is saturated with Hu: the reed flute's cry, he writes, is always saying Hu — the longing of the fragment for the Whole.\n\nThe phonetic nature of Hu is considered significant by Sufi voice teachers. The sound is made entirely in the resonant cavity of the chest before escaping through the lips with no consonantal closure — it is the most open, most resonant, most embodied of sounds. When chanted deeply from the diaphragm, it produces pronounced vibration in the heart centre and the vagus nerve.\n\nSheikh Hazrat Inayat Khan, who brought Sufi teachings to the West, taught Hu as the universal mantra — the sound that the mystics of every tradition, under different names, are ultimately discovering. He identified Hu as the primordial hum of existence itself, the sound of divine breathing that sustains creation in each moment.\n\nAdvanced practitioners sometimes use Hu in what is called 'the silent Hu' — where the tongue remains still and the name is recited internally with each heartbeat. This practice, called dhikr al-latif (subtle dhikr), is said to penetrate below the layer of conscious thought and address the heart directly, gradually transforming the unconscious until even sleep becomes a form of remembrance.",
+    "tags": ["unity", "liberation", "focus", "transformation", "mystery"],
+    "tradition": "Islamic",
+    "category": "Sufi Dhikr",
+    "difficulty": "advanced",
+    "targetRepetitions": 300,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "He — the Ineffable Divine Presence",
+      "zh": "祂——不可言说的神圣存在",
+      "es": "Él — la Presencia Divina Inefable"
+    },
+    "audioUrl": null
+  },
+  {
+    "id": "islamic_012",
+    "name": "Ya Rahman Ya Rahim",
+    "english": "O Most Gracious, O Most Merciful",
+    "original": "يَا رَحْمٰنُ يَا رَحِيمُ",
+    "transliteration": "Yā Raḥmānu Yā Raḥīm",
+    "abstract": "Ya Rahman Ya Rahim invokes the two supreme attributes of divine mercy that frame the entire Quran, appearing in the Bismillah at the opening of 113 chapters. Rahman (the Most Gracious) denotes the all-encompassing mercy that includes all beings regardless of their faith or conduct — it is cosmic, unconditional, and identical with existence itself. Rahim (the Most Merciful) denotes the specific mercy reserved for the believers — intimate, responsive, and increasingly present as the heart opens.\n\nThe distinction between Rahman and Rahim is subtle but important in Islamic spirituality. Rahman is said to be the mercy that creates — it is why anything exists at all rather than nothing. Rahim is the mercy that sustains, guides, and ultimately returns the soul to its origin. Together, invoking them places the practitioner consciously within this field of care at both the cosmic and personal level.\n\nIn Sufi practice, these two names are used as a healing invocation. Teachers prescribe Ya Rahman for conditions related to hardheartedness or disconnection from the beauty of existence — the cosmic mercy of Rahman is said to open perception to the goodness woven into creation. Ya Rahim is used for grief, loss, and longing — the intimate mercy of Rahim draws the suffering heart into the embrace of divine care.\n\nRumi's poem 'The Guest House' — welcoming every emotion as a divine messenger — is an extended meditation on Rahman and Rahim. The mercy of God arrives in unexpected forms: through joy, grief, difficulty, and grace alike. By addressing God as Rahman and Rahim, the practitioner trains the heart to recognize mercy even in unwelcome appearances.\n\nThe practice of repeating Ya Rahman Ya Rahim 100 times after Fajr (dawn) prayer is recommended by many teachers as a way of beginning the day from a ground of divine care rather than anxiety or obligation. Practitioners report that days begun with this invocation have a different quality — not that circumstances improve necessarily, but that the inner response shifts from contraction to openness.",
+    "tags": ["love", "healing", "peace", "devotion", "compassion"],
+    "tradition": "Islamic",
+    "category": "Divine Names / Asma al-Husna",
+    "difficulty": "beginner",
+    "targetRepetitions": 100,
+    "supportedLanguages": ["ar", "en"],
+    "translations": {
+      "en": "O Most Gracious, O Most Merciful",
+      "zh": "啊，至仁的，啊，至慈的",
+      "es": "¡Oh el Compasivo! ¡Oh el Misericordioso!"
+    },
+    "audioUrl": null
+  }
+]
