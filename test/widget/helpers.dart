@@ -15,12 +15,22 @@ Future<void> pumpApp(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Pumps the app, taps the first seed mantra, and starts a session.
-/// Leaves the tester on the SessionScreen.
-Future<void> pumpSession(WidgetTester tester) async {
+/// Pumps the app, taps the first seed mantra, starts a session, and
+/// stops at the target sheet (no target selected yet).
+/// Use this for tests that exercise the target sheet itself.
+Future<void> pumpSessionRaw(WidgetTester tester) async {
   await pumpApp(tester);
   await tester.tap(find.text('Om Mani Padme Hum'));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Start Session'));
+  await tester.pumpAndSettle();
+}
+
+/// Pumps the app, taps the first seed mantra, starts a session, and
+/// selects "Mantra's target" on the target sheet.
+/// Leaves the tester on the SessionScreen with a target already selected.
+Future<void> pumpSession(WidgetTester tester) async {
+  await pumpSessionRaw(tester);
+  await tester.tap(find.text("Mantra's target"));
   await tester.pumpAndSettle();
 }

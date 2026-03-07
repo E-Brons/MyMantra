@@ -65,7 +65,7 @@
 | FR-3.9 | Cancel session (with confirmation if count > 0) | P0 | ✅ | Dialog only on visible Cancel button |
 | FR-3.10 | Screen wake lock | P0 | 📋 | Prevents sleep during session |
 | FR-3.11 | Back-button cancel (Android hardware back) | P0 | ✅ | Fixed: `PopScope` wraps `SessionScreen` |
-| FR-3.12 | Session target selection sheet | P0 | 📋 | Choose user default / mantra target / custom before session starts |
+| FR-3.12 | Session target selection sheet | P0 | ✅ | Choose user default / mantra target / custom before session starts; daily/weekly accumulated reps shown as remaining |
 | FR-3.13 | Tap rate limiter (1 s minimum between counts) | P1 | 📋 | User setting, default on; prevents accidental double-counts |
 
 ### Progress Tracking
@@ -83,7 +83,7 @@
 |----|---------|----------|--------|-------|
 | FR-5.1 | Notification preferences (master on/off, sound, vibration) | P1 | ✅ | |
 | FR-5.2 | Theme (Light / Dark / System) | P1 | ✅ | |
-| FR-5.3 | Font size (Small / Medium / Large) | P1 | ✅ | |
+| FR-5.3 | Font size (Small / Medium / Large) | P1 | 🐛 | BUG-003: setting is persisted but never applied — all font sizes are hard-coded; UI fonts and mantra fonts unaffected |
 | FR-5.4 | Default target repetitions | P1 | ✅ | |
 | FR-5.5 | About screen (version, license) | P1 | ✅ | |
 | FR-5.6 | Default repetition cycle (Session / Daily / Weekly) | P1 | ✅ | `defaultRepetitionCycle` on `Settings`; UI pending |
@@ -113,6 +113,62 @@
 | FR-7.4 | Data export (JSON) | P1 | 📋 | |
 | FR-7.5 | Data import from JSON | P1 | 📋 | |
 | FR-8.1 | Built-in mantra library (375+ mantras) | P1 | 🚧 | Background agent writing JSON |
+
+---
+
+## Phase 2.0 — Usage Analytics & Mantra Feedback (Epic)
+
+All analytics are **opt-in only**, disclosed upfront, collect no PII, and default to off.
+
+### Crash & Error Telemetry
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-11.1 | Opt-in crash reporting | P0 | 📋 | Captures unhandled exceptions + stack traces; anonymised; sent on next launch with user consent |
+| FR-11.2 | Non-fatal error logging | P1 | 📋 | Records caught errors (e.g. storage read failure) with context; batched, anonymised |
+| FR-11.3 | App start / version / OS metadata | P1 | 📋 | Flutter version, platform, OS version, device class (phone/tablet); no device ID |
+
+### Feature Usage Telemetry
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-11.4 | Screen view events | P1 | 📋 | Which screens are visited and how frequently; no content, no timing below 1 s |
+| FR-11.5 | Feature adoption tracking | P1 | 📋 | Boolean flags: reminders used, library used, achievements viewed, cloud sync enabled |
+| FR-11.6 | Settings preference distribution | P2 | 📋 | Aggregate counts of theme / font-size / rep-cycle / rate-limit choices; helps prioritise UI work |
+| FR-11.7 | Notification tap-through rate | P1 | 📋 | Reminder fired vs. session started within 5 min; measures reminder effectiveness |
+
+### Session Quality Signals
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-11.8 | Session start / completion funnel | P0 | 📋 | Count sessions started, completed, cancelled at each step; identifies drop-off |
+| FR-11.9 | Session abandonment point | P1 | 📋 | At what % of target reps do users cancel; buckets: <25 %, 25–50 %, 50–75 %, >75 % |
+| FR-11.10 | Session duration distribution | P2 | 📋 | Bucketed durations (< 1 min, 1–5 min, 5–15 min, > 15 min); no raw timestamps |
+| FR-11.11 | Tap-rate limiter effectiveness | P2 | 📋 | % of sessions where limiter fired ≥ 1 time; informs whether default should stay on |
+
+### Mantra Content Feedback
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-11.12 | Library mantra like / dislike | P1 | 📋 | User stores thumbs-up or thumbs-down per library mantra locally; influences library sort order |
+| FR-11.13 | Translation / transliteration quality rating | P2 | 📋 | One-tap 1–3 star rating per language variant; stored locally; optionally submitted |
+| FR-11.14 | Mantra content issue report | P1 | 📋 | User flags a content error (wrong text, mistranslation, cultural concern, offensive content); pre-filled email / GitHub issue template opens in browser |
+| FR-11.15 | Per-mantra usage stats | P2 | 📋 | Sessions started / completed and total reps per library mantra; derived locally from session history; shown on library mantra detail |
+
+### User Satisfaction
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-11.16 | In-app review prompt (NPS-lite) | P1 | 📋 | After 7th completed session, prompt "Enjoying MyMantra?" → Yes → OS review sheet; No → in-app feedback form |
+| FR-11.17 | In-app feature request / upvote | P2 | 📋 | Minimal text field; submissions batched and optionally sent; helps surface unsolicited feature ideas |
+
+### Analytics Consent & Privacy
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-11.18 | Analytics opt-in consent screen | P0 | 📋 | Shown once on first launch; clear description of what is collected; off by default |
+| FR-11.19 | Analytics settings toggle | P0 | 📋 | Re-accessible from Settings → Privacy; user can withdraw consent and delete queued data at any time |
+| FR-11.20 | Local-only analytics mode | P1 | 📋 | All analytics computed and stored locally even when submission is off; user can view their own stats |
 
 ---
 
@@ -162,3 +218,5 @@
 | 0.2 | 2026-03-07 | Engineering | Add FR-1.6, FR-3.12, FR-3.13, FR-5.6, FR-5.7; update FR-5.4 max reps to 999; step 1 complete (data models) |
 | 0.3 | 2026-03-07 | Engineering | Step 2 complete: provider — createMantra/updateMantra/completeSession carry targetCycle; getAccumulatedReps added |
 | 0.4 | 2026-03-07 | Engineering | Step 3 complete: create/edit screen — cycle picker (Session/Daily/Weekly chips); wired to save |
+| 0.5 | 2026-03-07 | Engineering | FR-5.3 downgraded to 🐛 (BUG-003: font size setting not applied); added FR-11.x epic (Usage Analytics & Mantra Feedback, 20 features across crash telemetry, feature usage, session signals, content feedback, user satisfaction, consent) |
+| 0.6 | 2026-03-07 | Engineering | Step 4 complete: FR-3.12 ✅ — session target sheet (Your default / Mantra's target / Custom) with daily/weekly accumulated-reps support; pumpSession helper updated; 5 new widget tests |
