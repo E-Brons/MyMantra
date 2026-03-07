@@ -66,7 +66,7 @@
 | FR-3.10 | Screen wake lock | P0 | 📋 | Prevents sleep during session |
 | FR-3.11 | Back-button cancel (Android hardware back) | P0 | ✅ | Fixed: `PopScope` wraps `SessionScreen` |
 | FR-3.12 | Session target selection sheet | P0 | ✅ | Choose user default / mantra target / custom before session starts; daily/weekly accumulated reps shown as remaining |
-| FR-3.13 | Tap rate limiter (1 s minimum between counts) | P1 | 📋 | User setting, default on; prevents accidental double-counts |
+| FR-3.13 | Tap rate limiter (1 s minimum between counts) | P1 | ✅ | `limitClickRate` setting enforced in session; default on; taps < 1 s apart are silently dropped |
 
 ### Progress Tracking
 
@@ -87,7 +87,7 @@
 | FR-5.4 | Default target repetitions | P1 | ✅ | |
 | FR-5.5 | About screen (version, license) | P1 | ✅ | |
 | FR-5.6 | Default repetition cycle (Session / Daily / Weekly) | P1 | ✅ | `defaultRepetitionCycle` on `Settings`; dropdown in Practice section |
-| FR-5.7 | Tap rate limit toggle | P1 | 🚧 | `limitClickRate` on `Settings`; toggle in Practice section; enforcement pending (step 6) |
+| FR-5.7 | Tap rate limit toggle | P1 | ✅ | `limitClickRate` on `Settings`; toggle in Practice section; enforced in session screen (1 s min) |
 
 ### Navigation & Platform Behaviour
 
@@ -267,3 +267,4 @@ integration framework.
 | 0.5 | 2026-03-07 | Engineering | FR-5.3 downgraded to 🐛 (BUG-003: font size setting not applied); added FR-11.x epic (Usage Analytics & Mantra Feedback, 20 features across crash telemetry, feature usage, session signals, content feedback, user satisfaction, consent) |
 | 0.6 | 2026-03-07 | Engineering | Step 4 complete: FR-3.12 ✅ — session target sheet (Your default / Mantra's target / Custom) with daily/weekly accumulated-reps support; pumpSession helper updated; 5 new widget tests |
 | 0.7 | 2026-03-07 | Engineering | Step 5 complete: FR-5.6 ✅ FR-5.7 🚧 — Default cycle dropdown + Limit tap rate toggle in Settings Practice section; 3 widget tests; enforcement pending (step 6) |
+| 0.8 | 2026-03-07 | Engineering | Step 6 complete: FR-3.13 ✅ FR-5.7 ✅ — tap rate limiter enforced in SessionScreen; _lastTapTime guard; 2 widget tests |

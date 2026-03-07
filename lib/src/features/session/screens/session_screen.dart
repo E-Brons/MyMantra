@@ -35,6 +35,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   RepetitionCycle? _sessionCycle;
   int _alreadyDone = 0;
 
+  // Tap rate limiter — last accepted tap timestamp
+  DateTime? _lastTapTime;
+
   // Reps still needed from this session to reach the target.
   // For daily/weekly cycles this factors in reps already done earlier today/this week.
   int get _remaining {
@@ -99,6 +102,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
 
   void _handleTap(TapDownDetails details) {
     if (_isPaused || _isComplete || _sessionTarget == null) return;
+
+    // Tap rate limiter: drop taps within 1 second of the last accepted tap.
+    final settings = ref.read(appProvider).settings;
+    if (settings.limitClickRate) {
+      final now = DateTime.now();
+      if (_lastTapTime != null &&
+          now.difference(_lastTapTime!) < const Duration(seconds: 1)) {
+        return;
+      }
+      _lastTapTime = now;
+    }
 
     final pos = details.localPosition;
     setState(() {

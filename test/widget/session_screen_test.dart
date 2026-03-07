@@ -107,4 +107,27 @@ void main() {
       expect(find.text('Session Complete'), findsOneWidget);
     });
   });
+
+  group('SessionScreen — tap rate limiter', () {
+    testWidgets('two rapid taps only count once when limitClickRate is on', (tester) async {
+      await pumpSession(tester);
+      // Tap twice in immediate succession — second tap should be dropped.
+      await tester.tap(find.text('0'));
+      await tester.pump();
+      await tester.tap(find.text('1'));
+      await tester.pump();
+      expect(find.text('1'), findsOneWidget);
+    });
+
+    testWidgets('tap after 1 s is accepted when limitClickRate is on', (tester) async {
+      await pumpSession(tester);
+      await tester.tap(find.text('0'));
+      await tester.pump();
+      // Advance real time by pumping a 1-second duration so DateTime.now() moves.
+      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.text('1'));
+      await tester.pump();
+      expect(find.text('2'), findsOneWidget);
+    });
+  });
 }
