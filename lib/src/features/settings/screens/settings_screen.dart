@@ -40,7 +40,7 @@ class SettingsScreen extends ConsumerWidget {
               delegate: SliverChildListDelegate([
 
                 // ── Appearance ───────────────────────────────────────────
-                _SectionHeader('Appearance'),
+                const _SectionHeader('Appearance'),
                 _SettingCard(
                   children: [
                     _SettingRow(
@@ -81,7 +81,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
 
                 // ── Practice ─────────────────────────────────────────────
-                _SectionHeader('Practice'),
+                const _SectionHeader('Practice'),
                 _SettingCard(
                   children: [
                     _SettingRow(
@@ -91,7 +91,7 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.vibrationEnabled,
                         onChanged: (v) =>
                             notifier.updateSettings(settings.copyWith(vibrationEnabled: v)),
-                        activeColor: AppColors.violet500,
+                        activeThumbColor: AppColors.violet500,
                       ),
                     ),
                     _Divider(),
@@ -117,7 +117,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
 
                 // ── Notifications ─────────────────────────────────────────
-                _SectionHeader('Notifications'),
+                const _SectionHeader('Notifications'),
                 _SettingCard(
                   children: [
                     _SettingRow(
@@ -127,14 +127,14 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.notificationsEnabled,
                         onChanged: (v) =>
                             notifier.updateSettings(settings.copyWith(notificationsEnabled: v)),
-                        activeColor: AppColors.violet500,
+                        activeThumbColor: AppColors.violet500,
                       ),
                     ),
                   ],
                 ),
 
                 // ── About ─────────────────────────────────────────────────
-                _SectionHeader('About'),
+                const _SectionHeader('About'),
                 _SettingCard(
                   children: [
                     const _InfoRow(label: 'App', value: 'MyMantra'),
@@ -174,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
                           _MiniStat('${state.progress.totalSessions}', 'Sessions'),
                           _MiniStat('${state.progress.currentStreak}', 'Streak'),
                           _MiniStat(
-                            '${state.progress.unlockedAchievements.length}/${kAchievementCount}',
+                            '${state.progress.unlockedAchievements.length}/$kAchievementCount',
                             'Badges',
                           ),
                         ],

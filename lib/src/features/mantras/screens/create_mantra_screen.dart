@@ -97,7 +97,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         child: ListView(
           padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(context).padding.bottom + 40),
           children: [
-            _FieldLabel('Title *'),
+            const _FieldLabel('Title *'),
             const SizedBox(height: 6),
             TextFormField(
               controller: _titleCtrl,
@@ -107,7 +107,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             ),
 
             const SizedBox(height: 20),
-            _FieldLabel('Mantra text *'),
+            const _FieldLabel('Mantra text *'),
             const SizedBox(height: 6),
             TextFormField(
               controller: _textCtrl,
@@ -122,7 +122,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             ),
 
             const SizedBox(height: 20),
-            _FieldLabel('Transliteration (optional)'),
+            const _FieldLabel('Transliteration (optional)'),
             const SizedBox(height: 6),
             TextFormField(
               controller: _translCtrl,
@@ -131,7 +131,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             ),
 
             const SizedBox(height: 20),
-            _FieldLabel('Translation (optional)'),
+            const _FieldLabel('Translation (optional)'),
             const SizedBox(height: 6),
             TextFormField(
               controller: _translationCtrl,
@@ -141,7 +141,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             ),
 
             const SizedBox(height: 20),
-            _FieldLabel('Tradition (optional)'),
+            const _FieldLabel('Tradition (optional)'),
             const SizedBox(height: 6),
             TextFormField(
               controller: _traditionCtrl,
@@ -153,7 +153,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _FieldLabel('Target repetitions'),
+                const _FieldLabel('Target repetitions'),
                 Text(
                   '$_targetReps',
                   style: const TextStyle(

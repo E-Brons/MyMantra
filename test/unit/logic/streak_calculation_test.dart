@@ -57,9 +57,9 @@ void main() {
     test('consecutive build-up: null → yesterday → today produces streak 2', () {
       // Simulate two consecutive days
       final yesterday = DateTime.now().subtract(const Duration(days: 1));
-      final step1 = calculateStreak(lastSessionDate: null, currentStreak: 0);
-      // step1 gives streak=1, last=today
-      // Now pretend step1 happened "yesterday" by computing as if yesterday was today
+      calculateStreak(lastSessionDate: null, currentStreak: 0);
+      // first call gives streak=1, last=today
+      // Now pretend that happened "yesterday" by computing as if yesterday was today
       final step2 = calculateStreak(lastSessionDate: yesterday, currentStreak: 1);
       expect(step2.currentStreak, 2);
     });

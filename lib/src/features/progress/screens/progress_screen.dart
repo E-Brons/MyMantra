@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/models/achievement.dart';
-import '../../../core/models/progress.dart';
 import '../../../core/providers/app_provider.dart';
 
 class ProgressScreen extends ConsumerWidget {

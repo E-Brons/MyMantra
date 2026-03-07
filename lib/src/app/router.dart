@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../features/mantras/screens/home_screen.dart';
 import '../features/mantras/screens/mantra_detail_screen.dart';

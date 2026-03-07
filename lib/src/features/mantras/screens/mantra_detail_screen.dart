@@ -17,7 +17,6 @@ class MantraDetailScreen extends ConsumerStatefulWidget {
 
 class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
   int _activeLanguage = 0;
-  bool _showMenu = false;
   bool _showAddReminder = false;
   bool _showDelete = false;
 
@@ -61,8 +60,8 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                 leading: IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0x1A8B5CF6),
+                    decoration: const BoxDecoration(
+                      color: Color(0x1A8B5CF6),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.arrow_back, size: 18, color: AppColors.textPrimary),
@@ -348,7 +347,7 @@ class _ReminderTile extends ConsumerWidget {
             onChanged: (v) => ref
                 .read(appProvider.notifier)
                 .updateReminder(mantraId, reminder.id, enabled: v),
-            activeColor: AppColors.violet500,
+            activeThumbColor: AppColors.violet500,
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline, size: 16, color: AppColors.textMuted),
@@ -435,9 +434,8 @@ class _AddReminderSheet extends ConsumerStatefulWidget {
 
 class _AddReminderSheetState extends ConsumerState<_AddReminderSheet> {
   TimeOfDay _time = const TimeOfDay(hour: 7, minute: 0);
-  List<int> _selectedDays = List.generate(7, (i) => i);
+  final List<int> _selectedDays = List.generate(7, (i) => i);
   static const _days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  static const _dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   @override
   Widget build(BuildContext context) {

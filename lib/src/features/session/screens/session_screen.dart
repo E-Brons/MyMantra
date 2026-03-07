@@ -37,7 +37,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   late final Animation<double> _rippleRadius;
   late final Animation<double> _rippleOpacity;
   Offset _ripplePos = Offset.zero;
-  int _tapCount = 0;
 
   @override
   void initState() {
@@ -79,7 +78,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
     final pos = details.localPosition;
     setState(() {
       _ripplePos = pos;
-      _tapCount++;
     });
     _rippleCtrl.forward(from: 0);
 
@@ -213,7 +211,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                         style: const TextStyle(
                           fontFamily: 'NotoSansDevanagari',
                           fontSize: 20,
-                          color: const Color(0xE6FFFFFF),
+                          color: Color(0xE6FFFFFF),
                           shadows: [Shadow(color: Color(0x668B5CF6), blurRadius: 20)],
                         ),
                       ),
@@ -253,7 +251,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                                 child: Container(
                                   width: _rippleRadius.value * 2,
                                   height: _rippleRadius.value * 2,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.violet500,
                                     shape: BoxShape.circle,
                                   ),
@@ -501,7 +499,7 @@ class _BottomAction extends StatelessWidget {
                   : null,
             ),
             child: Icon(icon, size: 20,
-                color: color != null ? color : Colors.white60),
+                color: color ?? Colors.white60),
           ),
           const SizedBox(height: 6),
           Text(label,
