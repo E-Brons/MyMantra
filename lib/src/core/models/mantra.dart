@@ -1,3 +1,18 @@
+enum RepetitionCycle { session, daily, weekly }
+
+extension RepetitionCycleLabel on RepetitionCycle {
+  String get label {
+    switch (this) {
+      case RepetitionCycle.session:
+        return 'Session';
+      case RepetitionCycle.daily:
+        return 'Daily';
+      case RepetitionCycle.weekly:
+        return 'Weekly';
+    }
+  }
+}
+
 class Reminder {
   final String id;
   final String time; // "HH:MM"
@@ -47,6 +62,7 @@ class Mantra {
   final String? transliteration;
   final String? translation;
   final int targetRepetitions;
+  final RepetitionCycle targetCycle;
   final bool isCustom;
   final String? tradition;
   final List<Reminder> reminders;
@@ -60,6 +76,7 @@ class Mantra {
     this.transliteration,
     this.translation,
     required this.targetRepetitions,
+    this.targetCycle = RepetitionCycle.session,
     required this.isCustom,
     this.tradition,
     required this.reminders,
@@ -74,6 +91,7 @@ class Mantra {
     String? transliteration,
     String? translation,
     int? targetRepetitions,
+    RepetitionCycle? targetCycle,
     bool? isCustom,
     String? tradition,
     List<Reminder>? reminders,
@@ -87,6 +105,7 @@ class Mantra {
       transliteration: transliteration ?? this.transliteration,
       translation: translation ?? this.translation,
       targetRepetitions: targetRepetitions ?? this.targetRepetitions,
+      targetCycle: targetCycle ?? this.targetCycle,
       isCustom: isCustom ?? this.isCustom,
       tradition: tradition ?? this.tradition,
       reminders: reminders ?? this.reminders,
@@ -102,6 +121,7 @@ class Mantra {
     'transliteration': transliteration,
     'translation': translation,
     'targetRepetitions': targetRepetitions,
+    'targetCycle': targetCycle.name,
     'isCustom': isCustom,
     'tradition': tradition,
     'reminders': reminders.map((r) => r.toJson()).toList(),
@@ -116,6 +136,10 @@ class Mantra {
     transliteration: j['transliteration'] as String?,
     translation: j['translation'] as String?,
     targetRepetitions: j['targetRepetitions'] as int,
+    targetCycle: RepetitionCycle.values.firstWhere(
+      (e) => e.name == j['targetCycle'],
+      orElse: () => RepetitionCycle.session,
+    ),
     isCustom: j['isCustom'] as bool,
     tradition: j['tradition'] as String?,
     reminders: (j['reminders'] as List)

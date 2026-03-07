@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../core/models/mantra.dart';
 import '../../../core/models/settings.dart';
 import '../../../core/providers/app_provider.dart';
 
@@ -111,6 +112,34 @@ class SettingsScreen extends ConsumerWidget {
                           DropdownMenuItem(value: 108, child: Text('108')),
                           DropdownMenuItem(value: 216, child: Text('216')),
                         ],
+                      ),
+                    ),
+                    _Divider(),
+                    _SettingRow(
+                      icon: Icons.loop,
+                      label: 'Default cycle',
+                      child: DropdownButton<RepetitionCycle>(
+                        value: settings.defaultRepetitionCycle,
+                        dropdownColor: AppColors.bgSurface,
+                        underline: const SizedBox.shrink(),
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        onChanged: (v) =>
+                            notifier.updateSettings(settings.copyWith(defaultRepetitionCycle: v)),
+                        items: RepetitionCycle.values
+                            .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
+                            .toList(),
+                      ),
+                    ),
+                    _Divider(),
+                    _SettingRow(
+                      icon: Icons.touch_app,
+                      label: 'Limit tap rate',
+                      subtitle: 'Prevents double-counts (1 s min)',
+                      child: Switch(
+                        value: settings.limitClickRate,
+                        onChanged: (v) =>
+                            notifier.updateSettings(settings.copyWith(limitClickRate: v)),
+                        activeThumbColor: AppColors.violet500,
                       ),
                     ),
                   ],
@@ -234,9 +263,10 @@ class _SettingCard extends StatelessWidget {
 class _SettingRow extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String? subtitle;
   final Widget child;
 
-  const _SettingRow({required this.icon, required this.label, required this.child});
+  const _SettingRow({required this.icon, required this.label, required this.child, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +277,15 @@ class _SettingRow extends StatelessWidget {
           Icon(icon, size: 18, color: AppColors.violet400),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
+            child: subtitle != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
+                      Text(subtitle!, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    ],
+                  )
+                : Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
           ),
           child,
         ],

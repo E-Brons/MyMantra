@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/models/achievement.dart';
+import '../../../core/models/mantra.dart';
 import '../../../core/models/progress.dart';
 import '../../../core/providers/app_provider.dart';
 import '../../../core/services/haptic_service.dart';
@@ -28,6 +29,33 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   bool _showConfirmExit = false;
   List<UnlockedAchievement> _newAchievements = [];
   bool _showCelebration = false;
+
+  // Target selection — null until user picks in the target sheet
+  int? _sessionTarget;
+  RepetitionCycle? _sessionCycle;
+  int _alreadyDone = 0;
+
+  // Tap rate limiter — last accepted tap timestamp
+  DateTime? _lastTapTime;
+
+  // Reps still needed from this session to reach the target.
+  // For daily/weekly cycles this factors in reps already done earlier today/this week.
+  int get _remaining {
+    if (_sessionTarget == null) return 1;
+    if (_sessionCycle == RepetitionCycle.session) return _sessionTarget!;
+    if (_alreadyDone >= _sessionTarget!) return _sessionTarget!; // goal met → full bonus set
+    return _sessionTarget! - _alreadyDone;
+  }
+
+  // Sub-text shown beneath the counter number.
+  String get _targetSubtext {
+    if (_sessionTarget == null) return '';
+    if (_sessionCycle == RepetitionCycle.session) return 'of $_sessionTarget';
+    final period = _sessionCycle == RepetitionCycle.daily ? 'today' : 'this week';
+    if (_alreadyDone >= _sessionTarget!) return 'goal met · free practice';
+    if (_alreadyDone > 0) return '${_sessionTarget! - _alreadyDone} more $period';
+    return 'of $_sessionTarget $period';
+  }
 
   late final DateTime _startTime;
   Timer? _timer;
@@ -59,7 +87,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!_isPaused && !_isComplete) {
+      if (!_isPaused && !_isComplete && _sessionTarget != null) {
         setState(() => _duration++);
       }
     });
@@ -73,7 +101,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   }
 
   void _handleTap(TapDownDetails details) {
-    if (_isPaused || _isComplete) return;
+    if (_isPaused || _isComplete || _sessionTarget == null) return;
+
+    // Tap rate limiter: drop taps within 1 second of the last accepted tap.
+    final settings = ref.read(appProvider).settings;
+    if (settings.limitClickRate) {
+      final now = DateTime.now();
+      if (_lastTapTime != null &&
+          now.difference(_lastTapTime!) < const Duration(seconds: 1)) {
+        return;
+      }
+      _lastTapTime = now;
+    }
 
     final pos = details.localPosition;
     setState(() {
@@ -87,9 +126,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
 
     setState(() {
       _count++;
-      final mantra = ref.read(appProvider.notifier).getMantra(widget.id);
-      final target = mantra?.targetRepetitions ?? 108;
-      if (_count >= target) {
+      if (_count >= _remaining) {
         _isComplete = true;
         Future.delayed(const Duration(milliseconds: 300), () => _finishSession(_count, true));
       }
@@ -103,7 +140,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
       mantraId: mantra.id,
       mantraTitle: mantra.title,
       repsCompleted: finalCount,
-      targetReps: mantra.targetRepetitions,
+      targetReps: _sessionTarget ?? mantra.targetRepetitions,
+      targetCycle: _sessionCycle ?? RepetitionCycle.session,
       duration: _duration,
       startTime: _startTime,
       completed: completed,
@@ -139,8 +177,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
       );
     }
 
-    final target = mantra.targetRepetitions;
-    final progress = (_count / target).clamp(0.0, 1.0);
+    final target = _sessionTarget ?? mantra.targetRepetitions;
+    final progress = target > 0 ? (_count / _remaining).clamp(0.0, 1.0) : 0.0;
 
     return PopScope(
       canPop: false,
@@ -289,7 +327,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                                   ),
                                 ),
                                 Text(
-                                  'of $target',
+                                  _targetSubtext,
                                   style: const TextStyle(fontSize: 14, color: Colors.white38),
                                 ),
                               ],
@@ -339,8 +377,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                             const SizedBox(height: 8),
                             Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: List.generate(min(target, 20), (i) {
-                                final filled = i < ((_count / target) * min(target, 20)).round();
+                              children: List.generate(min(_remaining, 20), (i) {
+                                final filled = i < ((_count / _remaining) * min(_remaining, 20)).round();
                                 return Container(
                                   width: 4, height: 4,
                                   margin: const EdgeInsets.symmetric(horizontal: 1),
@@ -361,7 +399,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                           accentColor: AppColors.violet600,
                           onTap: () {
                             setState(() => _isComplete = true);
-                            _finishSession(_count, _count >= target);
+                            _finishSession(_count, _count >= _remaining);
                           },
                         ),
                       ],
@@ -370,6 +408,25 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                 ),
               ],
             ),
+
+            // ── Target selection sheet ──────────────────────────────────
+            if (_sessionTarget == null)
+              _TargetSheet(
+                defaultReps: ref.read(appProvider).settings.defaultRepetitions,
+                defaultCycle: ref.read(appProvider).settings.defaultRepetitionCycle,
+                mantraReps: mantra.targetRepetitions,
+                mantraCycle: mantra.targetCycle,
+                onSelected: (reps, cycle) {
+                  final done = ref.read(appProvider.notifier)
+                      .getAccumulatedReps(widget.id, cycle);
+                  setState(() {
+                    _sessionTarget = reps;
+                    _sessionCycle = cycle;
+                    _alreadyDone = done;
+                  });
+                },
+                onExit: () => context.pop(),
+              ),
 
             // ── Exit confirm sheet ──────────────────────────────────────
             if (_showConfirmExit)
@@ -610,6 +667,254 @@ class _SheetButton extends StatelessWidget {
           child: Text(label, style: TextStyle(fontSize: 15, color: textColor, fontWeight: FontWeight.w500)),
         ),
       ),
+    );
+  }
+}
+
+// ─── Target selection sheet ───────────────────────────────────────────────────
+
+class _TargetSheet extends StatelessWidget {
+  final int defaultReps;
+  final RepetitionCycle defaultCycle;
+  final int mantraReps;
+  final RepetitionCycle mantraCycle;
+  final void Function(int reps, RepetitionCycle cycle) onSelected;
+  final VoidCallback onExit;
+
+  const _TargetSheet({
+    required this.defaultReps,
+    required this.defaultCycle,
+    required this.mantraReps,
+    required this.mantraCycle,
+    required this.onSelected,
+    required this.onExit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xB30D0520),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          padding: EdgeInsets.fromLTRB(
+              24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
+          decoration: const BoxDecoration(
+            color: Color(0xFF0D0B1A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(top: BorderSide(color: AppColors.border)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Set your target',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _TargetOption(
+                label: 'Your default',
+                detail: '$defaultReps · ${defaultCycle.label}',
+                onTap: () => onSelected(defaultReps, defaultCycle),
+              ),
+              const SizedBox(height: 8),
+              _TargetOption(
+                label: "Mantra's target",
+                detail: '$mantraReps · ${mantraCycle.label}',
+                onTap: () => onSelected(mantraReps, mantraCycle),
+              ),
+              const SizedBox(height: 8),
+              _TargetOption(
+                label: 'Custom…',
+                detail: 'Choose your own',
+                onTap: () async {
+                  final result = await showDialog<(int, RepetitionCycle)>(
+                    context: context,
+                    builder: (_) => _CustomTargetDialog(
+                      initialReps: defaultReps,
+                      initialCycle: defaultCycle,
+                    ),
+                  );
+                  if (result != null) onSelected(result.$1, result.$2);
+                },
+              ),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: onExit,
+                child: const Center(
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(fontSize: 14, color: Colors.white38),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TargetOption extends StatelessWidget {
+  final String label;
+  final String detail;
+  final VoidCallback onTap;
+
+  const _TargetOption({
+    required this.label,
+    required this.detail,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0x0A8B5CF6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary)),
+            Text(detail,
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.violet400)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Custom target dialog ─────────────────────────────────────────────────────
+
+class _CustomTargetDialog extends StatefulWidget {
+  final int initialReps;
+  final RepetitionCycle initialCycle;
+
+  const _CustomTargetDialog({
+    required this.initialReps,
+    required this.initialCycle,
+  });
+
+  @override
+  State<_CustomTargetDialog> createState() => _CustomTargetDialogState();
+}
+
+class _CustomTargetDialogState extends State<_CustomTargetDialog> {
+  late final TextEditingController _ctrl;
+  late RepetitionCycle _cycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.initialReps.toString());
+    _cycle = widget.initialCycle;
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: const Color(0xFF0D0B1A),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text(
+        'Custom target',
+        style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 17,
+            fontWeight: FontWeight.w600),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _ctrl,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 24,
+                fontWeight: FontWeight.w700),
+            decoration: const InputDecoration(
+              hintText: '1 – 999',
+              hintStyle: TextStyle(color: Colors.white24),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Count cycle',
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: RepetitionCycle.values.map((c) {
+              final sel = _cycle == c;
+              return GestureDetector(
+                onTap: () => setState(() => _cycle = c),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: sel ? AppColors.violet600 : const Color(0x0A8B5CF6),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                        color: sel ? AppColors.violet600 : AppColors.border),
+                  ),
+                  child: Text(
+                    c.label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: sel ? Colors.white : AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel',
+              style: TextStyle(color: Colors.white38)),
+        ),
+        TextButton(
+          onPressed: () {
+            final parsed =
+                int.tryParse(_ctrl.text.trim()) ?? widget.initialReps;
+            Navigator.pop(context, (parsed.clamp(1, 999), _cycle));
+          },
+          child: const Text('Confirm',
+              style: TextStyle(
+                  color: AppColors.violet400, fontWeight: FontWeight.w600)),
+        ),
+      ],
     );
   }
 }

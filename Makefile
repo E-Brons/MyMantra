@@ -35,6 +35,13 @@ test:
 	@flutter analyze
 	@flutter test test/unit/ test/widget/ --reporter expanded
 
-# Run integration tests against the Linux desktop target (Linux only, requires xvfb)
+# Run integration tests against the Linux/MacOS target
 test-integration:
-	@xvfb-run flutter test integration_test/ -d linux
+	@if [ "$(TARGET)" = "linux" ]; then \
+		xvfb-run flutter test integration_test/ -d $(TARGET); \
+	elif [ "$(TARGET)" = "macos" ]; then \
+		flutter test integration_test/ -d $(TARGET); \
+	else \
+		echo "Error: Target '$(TARGET)' test-integration is currently unsupported."; \
+		exit 1; \
+	fi

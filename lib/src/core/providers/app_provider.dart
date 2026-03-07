@@ -127,6 +127,7 @@ class AppNotifier extends Notifier<AppState> {
     String? transliteration,
     String? translation,
     required int targetRepetitions,
+    RepetitionCycle targetCycle = RepetitionCycle.session,
     String? tradition,
   }) {
     final now = DateTime.now();
@@ -137,6 +138,7 @@ class AppNotifier extends Notifier<AppState> {
       transliteration: transliteration,
       translation: translation,
       targetRepetitions: targetRepetitions,
+      targetCycle: targetCycle,
       isCustom: true,
       tradition: tradition,
       reminders: const [],
@@ -154,6 +156,7 @@ class AppNotifier extends Notifier<AppState> {
     String? transliteration,
     String? translation,
     int? targetRepetitions,
+    RepetitionCycle? targetCycle,
     String? tradition,
   }) {
     state = state.copyWith(
@@ -165,6 +168,7 @@ class AppNotifier extends Notifier<AppState> {
           transliteration: transliteration,
           translation: translation,
           targetRepetitions: targetRepetitions,
+          targetCycle: targetCycle,
           tradition: tradition,
           updatedAt: DateTime.now(),
         );
@@ -249,6 +253,7 @@ class AppNotifier extends Notifier<AppState> {
     required String mantraTitle,
     required int repsCompleted,
     required int targetReps,
+    RepetitionCycle targetCycle = RepetitionCycle.session,
     required int duration,
     required DateTime startTime,
     required bool completed,
@@ -259,6 +264,7 @@ class AppNotifier extends Notifier<AppState> {
       mantraTitle: mantraTitle,
       repsCompleted: repsCompleted,
       targetReps: targetReps,
+      targetCycle: targetCycle,
       duration: duration,
       startTime: startTime,
       completed: completed,
@@ -317,6 +323,30 @@ class AppNotifier extends Notifier<AppState> {
       filtered = filtered.where((s) => s.mantraId == mantraId).toList();
     }
     return filtered.take(limit).toList();
+  }
+
+  /// Sum of repsCompleted for [mantraId] within the current day (daily cycle)
+  /// or ISO week starting Monday (weekly cycle).
+  /// Returns 0 for [RepetitionCycle.session] — sessions are always independent.
+  int getAccumulatedReps(String mantraId, RepetitionCycle cycle) {
+    if (cycle == RepetitionCycle.session) return 0;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    return state.sessions
+        .where((s) => s.mantraId == mantraId)
+        .where((s) {
+          final day = DateTime(s.startTime.year, s.startTime.month, s.startTime.day);
+          if (cycle == RepetitionCycle.daily) {
+            return day == today;
+          } else {
+            // ISO week: Monday (weekday=1) … Sunday (weekday=7)
+            final monday = today.subtract(Duration(days: today.weekday - 1));
+            return !day.isBefore(monday);
+          }
+        })
+        .fold(0, (sum, s) => sum + s.repsCompleted);
   }
 }
 

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mymantra/src/core/models/mantra.dart';
 import 'package:mymantra/src/core/models/session.dart';
 
 void main() {
@@ -99,6 +100,45 @@ void main() {
         completed: true,
       );
       expect(Session.fromJson(precise.toJson()).startTime, DateTime(2026, 3, 7, 23, 59, 58));
+    });
+  });
+
+  // ── targetCycle ───────────────────────────────────────────────────────────
+
+  group('Session — targetCycle serialisation', () {
+    Session makeSession({RepetitionCycle cycle = RepetitionCycle.session}) => Session(
+      id: 's-cyc', mantraId: 'm-1', mantraTitle: 'Om',
+      repsCompleted: 108, targetReps: 108, targetCycle: cycle,
+      duration: 300, startTime: DateTime(2026, 1, 1), completed: true,
+    );
+
+    test('default targetCycle is session', () {
+      final s = Session(
+        id: 's-def', mantraId: 'm-1', mantraTitle: 'Om',
+        repsCompleted: 108, targetReps: 108,
+        duration: 300, startTime: DateTime(2026, 1, 1), completed: true,
+      );
+      expect(s.targetCycle, RepetitionCycle.session);
+    });
+
+    test('session cycle survives round-trip', () {
+      expect(Session.fromJson(makeSession(cycle: RepetitionCycle.session).toJson()).targetCycle,
+          RepetitionCycle.session);
+    });
+
+    test('daily cycle survives round-trip', () {
+      expect(Session.fromJson(makeSession(cycle: RepetitionCycle.daily).toJson()).targetCycle,
+          RepetitionCycle.daily);
+    });
+
+    test('weekly cycle survives round-trip', () {
+      expect(Session.fromJson(makeSession(cycle: RepetitionCycle.weekly).toJson()).targetCycle,
+          RepetitionCycle.weekly);
+    });
+
+    test('missing targetCycle in old JSON falls back to session', () {
+      final json = makeSession().toJson()..remove('targetCycle');
+      expect(Session.fromJson(json).targetCycle, RepetitionCycle.session);
     });
   });
 }

@@ -143,5 +143,67 @@ void main() {
       expect(updated.targetRepetitions, 27);
       expect(updated.title, 'Original');
     });
+
+    test('updating targetCycle does not touch other fields', () {
+      final updated = base.copyWith(targetCycle: RepetitionCycle.weekly);
+      expect(updated.targetCycle, RepetitionCycle.weekly);
+      expect(updated.targetRepetitions, 108);
+      expect(updated.title, 'Original');
+    });
+  });
+
+  // ── RepetitionCycle ───────────────────────────────────────────────────────
+
+  group('RepetitionCycle — label', () {
+    test('session label is Session', () {
+      expect(RepetitionCycle.session.label, 'Session');
+    });
+
+    test('daily label is Daily', () {
+      expect(RepetitionCycle.daily.label, 'Daily');
+    });
+
+    test('weekly label is Weekly', () {
+      expect(RepetitionCycle.weekly.label, 'Weekly');
+    });
+  });
+
+  group('Mantra — targetCycle serialisation', () {
+    Mantra makeMantra({RepetitionCycle cycle = RepetitionCycle.session}) => Mantra(
+      id: 'cyc-1', title: 'Om', text: 'Om',
+      targetRepetitions: 108, targetCycle: cycle, isCustom: true,
+      reminders: const [],
+      createdAt: DateTime(2026, 1, 1), updatedAt: DateTime(2026, 1, 1),
+    );
+
+    test('default targetCycle is session', () {
+      final m = Mantra(
+        id: 'def-1', title: 'Om', text: 'Om',
+        targetRepetitions: 108, isCustom: true,
+        reminders: const [],
+        createdAt: DateTime(2026, 1, 1), updatedAt: DateTime(2026, 1, 1),
+      );
+      expect(m.targetCycle, RepetitionCycle.session);
+    });
+
+    test('session cycle survives round-trip', () {
+      expect(Mantra.fromJson(makeMantra(cycle: RepetitionCycle.session).toJson()).targetCycle,
+          RepetitionCycle.session);
+    });
+
+    test('daily cycle survives round-trip', () {
+      expect(Mantra.fromJson(makeMantra(cycle: RepetitionCycle.daily).toJson()).targetCycle,
+          RepetitionCycle.daily);
+    });
+
+    test('weekly cycle survives round-trip', () {
+      expect(Mantra.fromJson(makeMantra(cycle: RepetitionCycle.weekly).toJson()).targetCycle,
+          RepetitionCycle.weekly);
+    });
+
+    test('missing targetCycle in old JSON falls back to session', () {
+      final json = makeMantra().toJson()..remove('targetCycle');
+      expect(Mantra.fromJson(json).targetCycle, RepetitionCycle.session);
+    });
   });
 }

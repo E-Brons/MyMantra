@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../core/models/mantra.dart';
 import '../../../core/providers/app_provider.dart';
 
 class CreateMantraScreen extends ConsumerStatefulWidget {
@@ -20,6 +21,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
   final _translationCtrl = TextEditingController();
   final _traditionCtrl = TextEditingController();
   int _targetReps = 108;
+  RepetitionCycle _targetCycle = RepetitionCycle.session;
 
   bool get _isEditing => widget.editId != null;
 
@@ -35,6 +37,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         _translationCtrl.text = mantra.translation ?? '';
         _traditionCtrl.text = mantra.tradition ?? '';
         _targetReps = mantra.targetRepetitions;
+        _targetCycle = mantra.targetCycle;
       }
     }
   }
@@ -60,6 +63,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         transliteration: _translCtrl.text.trim().isEmpty ? null : _translCtrl.text.trim(),
         translation: _translationCtrl.text.trim().isEmpty ? null : _translationCtrl.text.trim(),
         targetRepetitions: _targetReps,
+        targetCycle: _targetCycle,
         tradition: _traditionCtrl.text.trim().isEmpty ? null : _traditionCtrl.text.trim(),
       );
       context.pop();
@@ -70,6 +74,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         transliteration: _translCtrl.text.trim().isEmpty ? null : _translCtrl.text.trim(),
         translation: _translationCtrl.text.trim().isEmpty ? null : _translationCtrl.text.trim(),
         targetRepetitions: _targetReps,
+        targetCycle: _targetCycle,
         tradition: _traditionCtrl.text.trim().isEmpty ? null : _traditionCtrl.text.trim(),
       );
       context.go('/mantras/${mantra.id}');
@@ -180,6 +185,36 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
                     ),
                     child: Text(
                       '$n',
+                      style: TextStyle(
+                        color: selected ? Colors.white : AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 20),
+            const _FieldLabel('Count cycle'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: RepetitionCycle.values.map((cycle) {
+                final selected = _targetCycle == cycle;
+                return GestureDetector(
+                  onTap: () => setState(() => _targetCycle = cycle),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: selected ? AppColors.violet600 : const Color(0x0A8B5CF6),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: selected ? AppColors.violet600 : AppColors.border,
+                      ),
+                    ),
+                    child: Text(
+                      cycle.label,
                       style: TextStyle(
                         color: selected ? Colors.white : AppColors.textSecondary,
                         fontWeight: FontWeight.w600,

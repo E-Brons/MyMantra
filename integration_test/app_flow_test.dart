@@ -45,6 +45,11 @@ void main() {
     // Start session
     await tester.tap(find.text('Start Session'));
     await tester.pumpAndSettle();
+
+    // Dismiss target sheet by selecting the default
+    expect(find.text('Set your target'), findsOneWidget);
+    await tester.tap(find.text('Your default'));
+    await tester.pumpAndSettle();
     expect(find.text('0'), findsOneWidget);
 
     // Tap Done immediately (0 reps, partial)
@@ -68,6 +73,10 @@ void main() {
     await tester.tap(find.text('Om Mani Padme Hum'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Start Session'));
+    await tester.pumpAndSettle();
+
+    // Dismiss target sheet
+    await tester.tap(find.text('Your default'));
     await tester.pumpAndSettle();
 
     // Tap once
@@ -96,6 +105,10 @@ void main() {
     await tester.tap(find.text('Om Mani Padme Hum'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Start Session'));
+    await tester.pumpAndSettle();
+
+    // Dismiss target sheet
+    await tester.tap(find.text('Your default'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('0'));
