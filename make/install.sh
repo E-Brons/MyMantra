@@ -172,6 +172,13 @@ echo "==> install: targets — $TARGETS_CSV"
 # ── common ────────────────────────────────────────────────────────────────────
 
 echo ""
+echo "==> install: asset directories"
+mkdir -p "$REPO_ROOT/assets/audio/notification-sounds" \
+         "$REPO_ROOT/assets/data" \
+         "$REPO_ROOT/assets/fonts" \
+         "$REPO_ROOT/assets/images/icons"
+
+echo ""
 echo "==> install: flutter"
 _install_flutter
 

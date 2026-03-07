@@ -29,9 +29,10 @@ debug:
 clean:
 	@bash make/clean.sh
 
-# Run unit + widget tests (no device needed — works on macOS and Linux)
+# Run lint + unit + widget tests (no device needed — works on macOS and Linux)
 # --reporter expanded prints each test name as it runs.
 test:
+	@flutter analyze
 	@flutter test test/unit/ test/widget/ --reporter expanded
 
 # Run integration tests against the Linux desktop target (Linux only, requires xvfb)
