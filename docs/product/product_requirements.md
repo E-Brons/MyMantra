@@ -105,7 +105,11 @@ Empower individuals on their spiritual journey by removing friction from daily m
 - Fields:
   - Title (required, 1-100 characters)
   - Text (required, 1-5000 characters, multi-line, Unicode support)
-  - Target repetitions (default: 108, range: 1-10,000)
+  - Target repetitions (default: 108, range: 1-999)
+  - **Repetition cycle** (Session / Daily / Weekly — default: Session)
+    - *Session*: target counts only within the current screen session
+    - *Daily*: target accumulates across all sessions for this mantra on the same calendar day
+    - *Weekly*: target accumulates across the current ISO week
 - Support for multiple languages (Sanskrit, English, Hebrew, Arabic, etc.)
 - Edit and delete capabilities
 
@@ -166,6 +170,23 @@ Empower individuals on their spiritual journey by removing friction from daily m
 - Pause/resume functionality
 - Reset counter option (with confirmation)
 - Screen wake lock (prevents sleep during session)
+
+#### FR-3.12: Session Target Selection
+- Before the timer starts, a **Target Sheet** is displayed with three options:
+  1. **Your default** — `settings.defaultRepetitions` × `settings.defaultRepetitionCycle`
+  2. **Mantra's target** — `mantra.targetRepetitions` × `mantra.targetCycle`
+  3. **Custom…** — user enters any integer ≥ 1 and picks a cycle
+- All three options are always shown (even when options 1 and 2 are equal)
+- The timer does not start until the user selects a target
+- For **Daily** or **Weekly** cycles the screen queries already-accumulated reps and shows only the *remaining* count needed to hit the target
+- If the daily/weekly target is already met, a notice is shown but the session can continue freely
+- Auto-complete fires when `current_session_count >= remaining_reps_needed`
+
+#### FR-3.13: Tap Rate Limiter
+- A minimum interval of **1 second** is enforced between accepted taps
+- Taps arriving before the interval has elapsed are silently dropped (no counter increment, no haptic, no ripple)
+- Controlled by `settings.limitClickRate` (default: `true`)
+- When disabled, all taps are accepted at any speed (preserves old behaviour)
 
 #### FR-3.2: Session Timer
 - Track active practice duration
@@ -245,6 +266,8 @@ Empower individuals on their spiritual journey by removing friction from daily m
 
 #### FR-5.3: Default Values
 - Default target repetitions for new mantras
+- **Default repetition cycle** (Session / Daily / Weekly — default: Session)
+- **Tap rate limit** toggle (default: on — 1 s minimum between counts)
 
 #### FR-5.4: About & Support
 - App version display
@@ -948,3 +971,4 @@ See [product/builtin_mantras_library.md](builtin_mantras_library.md) for the ful
 | 1.0 | 2025-11-XX | Product Team | Initial draft |
 | 2.0 | 2025-11-24 | Product Team | Updated with cloud sync, gamification, phased approach |
 | 2.1 | 2026-03-07 | Engineering | Added UF-4 (back navigation), BUG-001/002, back-nav acceptance criteria |
+| 2.2 | 2026-03-07 | Engineering | Added FR-1.6 (mantra repetition cycle), FR-3.12 (session target selection), FR-3.13 (tap rate limiter); updated FR-1.1 and FR-5.3 |

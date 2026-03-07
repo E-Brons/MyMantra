@@ -38,6 +38,7 @@
 | FR-1.3 | Mantra detail view | P0 | ✅ | Full text, reminders, session history |
 | FR-1.4 | Edit mantra | P0 | ✅ | Pre-filled form |
 | FR-1.5 | Delete mantra (with confirmation) | P0 | ✅ | Cascade-deletes reminders + sessions |
+| FR-1.6 | Per-mantra repetition cycle (Session / Daily / Weekly) | P1 | ✅ | `targetCycle` field on `Mantra`; `recommendedCycle?` on `LibraryMantra` |
 
 ### Reminders / Notifications
 
@@ -64,6 +65,8 @@
 | FR-3.9 | Cancel session (with confirmation if count > 0) | P0 | ✅ | Dialog only on visible Cancel button |
 | FR-3.10 | Screen wake lock | P0 | 📋 | Prevents sleep during session |
 | FR-3.11 | Back-button cancel (Android hardware back) | P0 | ✅ | Fixed: `PopScope` wraps `SessionScreen` |
+| FR-3.12 | Session target selection sheet | P0 | 📋 | Choose user default / mantra target / custom before session starts |
+| FR-3.13 | Tap rate limiter (1 s minimum between counts) | P1 | 📋 | User setting, default on; prevents accidental double-counts |
 
 ### Progress Tracking
 
@@ -83,6 +86,8 @@
 | FR-5.3 | Font size (Small / Medium / Large) | P1 | ✅ | |
 | FR-5.4 | Default target repetitions | P1 | ✅ | |
 | FR-5.5 | About screen (version, license) | P1 | ✅ | |
+| FR-5.6 | Default repetition cycle (Session / Daily / Weekly) | P1 | ✅ | `defaultRepetitionCycle` on `Settings`; UI pending |
+| FR-5.7 | Tap rate limit toggle | P1 | ✅ | `limitClickRate` on `Settings`; UI + enforcement pending |
 
 ### Navigation & Platform Behaviour
 
@@ -154,3 +159,4 @@
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 0.1 | 2026-03-07 | Engineering | Initial draft from PRD/SRS + current build state |
+| 0.2 | 2026-03-07 | Engineering | Add FR-1.6, FR-3.12, FR-3.13, FR-5.6, FR-5.7; update FR-5.4 max reps to 999; step 1 complete (data models) |
