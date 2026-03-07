@@ -160,3 +160,4 @@
 |---------|------|--------|---------|
 | 0.1 | 2026-03-07 | Engineering | Initial draft from PRD/SRS + current build state |
 | 0.2 | 2026-03-07 | Engineering | Add FR-1.6, FR-3.12, FR-3.13, FR-5.6, FR-5.7; update FR-5.4 max reps to 999; step 1 complete (data models) |
+| 0.3 | 2026-03-07 | Engineering | Step 2 complete: provider — createMantra/updateMantra/completeSession carry targetCycle; getAccumulatedReps added |
