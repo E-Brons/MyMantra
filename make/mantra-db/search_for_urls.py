@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-search_ddg.py — Discover mantra URLs via DuckDuckGo
+search_for_urls.py — Stage 1: Discover mantra URLs via Search Engine
 
-Searches DuckDuckGo from locales over the world using "mantra" in each local language.
-Collects up to 10 URLs per locale, deduplicates across all locales, and
-writes the result to scripts/mantra_urls.txt (one URL per line).
+Searches Web from locales over the world using "mantra" in each local
+language.  Collects up to N URLs per locale, deduplicates across all locales,
+and writes the result to tmp/mantra_urls.txt (one URL per line).
 
 Why curl instead of urllib:
     Python's urllib has a distinct TLS fingerprint that DDG detects as a bot
@@ -12,10 +12,10 @@ Why curl instead of urllib:
     (identical to a real browser) and bypasses this check.
 
 Usage:
-    python3 scripts/search_ddg.py
-    python3 scripts/search_ddg.py --no-cache
-    python3 scripts/search_ddg.py --output path/to/urls.txt
-    python3 scripts/search_ddg.py --verbose
+    python3 make/mantra-db/search_for_urls.py
+    python3 make/mantra-db/search_for_urls.py --no-cache
+    python3 make/mantra-db/search_for_urls.py --output path/to/urls.txt
+    python3 make/mantra-db/search_for_urls.py --verbose
 """
 
 import argparse
@@ -23,14 +23,23 @@ import hashlib
 import os
 import re
 import subprocess
+import sys
 import time
 import urllib.parse
+from pathlib import Path
 
+from tqdm import tqdm
+
+sys.path.insert(0, str(Path(__file__).parent))
+from settings import root_path, cfg, ROOT as _ROOT
+
+_fcfg = cfg()["search_web"]
 HERE = os.path.dirname(os.path.abspath(__file__))
-CACHE_DIR = os.path.join(HERE, "crawl_cache")
-URLS_FILE = os.path.join(HERE, "mantra_urls.txt")
-DELAY = 2.0  # seconds between requests (be polite to DDG)
-PER_LOCALE = 10  # DDG HTML endpoint returns ~10 results per page
+TMP_DIR = str(_ROOT / "tmp")
+CACHE_DIR = str(_ROOT / _fcfg["cache_dir"])
+URLS_FILE = str(root_path("search_web", "output"))
+DELAY = float(_fcfg["delay"])
+PER_LOCALE = int(_fcfg["results_per_locale"])
 
 BROWSER_UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -38,77 +47,8 @@ BROWSER_UA = (
     "Chrome/124.0.0.0 Safari/537.36"
 )
 
-# locales: (city, DDG kl code, query in local language)
-LOCALES = [
-    ("New York", "us-en", "mantra"),
-    ("Beijing", "cn-zh", "真言"),
-    ("London", "uk-en", "mantra"),
-    ("Berlin", "de-de", "Mantra"),
-    ("Tel Aviv", "il-he", "מנטרה"),
-    ("Delhi", "in-hi", "मंत्र"),
-    ("Tokyo", "jp-ja", "マントラ"),
-    ("Seoul", "kr-ko", "만트라"),
-    ("Moscow", "ru-ru", "мантра"),
-    ("Dubai", "xa-ar", "مانترا"),
-    ("Madrid", "es-es", "mantra"),
-    ("Athens", "gr-el", "μάντρα"),
-    ("Prague", "cz-cs", "mantra"),
-    ("Buenos Aires", "ar-es", "mantra"),
-    ("Cape Town", "za-en", "mantra"),
-    ("Sydney", "au-en", "mantra"),
-    ("Rome", "it-it", "mantra"),
-    ("Paris", "fr-fr", "mantra"),
-    ("Tokyo", "jp-ja", "マントラ"),
-    ("Delhi", "in-hi", "मंत्र"),
-    ("Shanghai", "cn-zh", "真言"),
-    ("Dhaka", "bd-bn", "মন্ত্র"),
-    ("Sao Paulo", "br-pt", "mantra"),
-    ("Cairo", "eg-ar", "مانترا"),
-    ("Mexico City", "mx-es", "mantra"),
-    ("Beijing", "cn-zh", "真言"),
-    ("Mumbai", "in-hi", "मंत्र"),
-    ("Osaka", "jp-ja", "マントラ"),
-    ("Chongqing", "cn-zh", "真言"),
-    ("Karachi", "pk-ur", "منتر"),
-    ("Kinshasa", "cd-fr", "mantra"),
-    ("Lagos", "ng-en", "mantra"),
-    ("Istanbul", "tr-tr", "mantra"),
-    ("Kolkata", "in-bn", "মন্ত্র"),
-    ("Buenos Aires", "ar-es", "mantra"),
-    ("Manila", "ph-tl", "mantra"),
-    ("Guangzhou", "cn-zh", "真言"),
-    ("Lahore", "pk-ur", "منتر"),
-    ("Tianjin", "cn-zh", "真言"),
-    ("Rio de Janeiro", "br-pt", "mantra"),
-    ("Shenzhen", "cn-zh", "真言"),
-    ("Bangalore", "in-kn", "ಮಂತ್ರ"),
-    ("Moscow", "ru-ru", "мантра"),
-    ("Chennai", "in-ta", "மந்திரம்"),
-    ("Bogota", "co-es", "mantra"),
-    ("Jakarta", "id-id", "mantra"),
-    ("Paris", "fr-fr", "mantra"),
-    ("Lima", "pe-es", "mantra"),
-    ("Bangkok", "th-th", "มนตรา"),
-    ("Hyderabad", "in-te", "మంత్రం"),
-    ("Seoul", "kr-ko", "만트라"),
-    ("Nagoya", "jp-ja", "マントラ"),
-    ("London", "uk-en", "mantra"),
-    ("Tehran", "ir-fa", "مانترا"),
-    ("Chicago", "us-en", "mantra"),
-    ("Chengdu", "cn-zh", "真言"),
-    ("Nanjing", "cn-zh", "真言"),
-    ("Ho Chi Minh City", "vn-vi", "mantra"),
-    ("Luanda", "ao-pt", "mantra"),
-    ("Wuhan", "cn-zh", "真言"),
-    ("Xi-an", "cn-zh", "真言"),
-    ("Ahmedabad", "in-gu", "મંત્ર"),
-    ("Kuala Lumpur", "my-ms", "mantra"),
-    ("New York City", "us-en", "mantra"),
-    ("Hangzhou", "cn-zh", "真言"),
-    ("Surat", "in-gu", "મંત્ર"),
-    ("Suzhou", "cn-zh", "真言"),
-    ("Hong Kong", "hk-zh", "真言"),
-]
+# locales: (city, DDG kl code, query in local language) — sourced from settings.yml
+LOCALES = [(c["name"], c["locale"], c["mantra"]) for c in _fcfg["cities"]]
 
 # ── curl helpers ──────────────────────────────────────────────────────────────
 
@@ -143,7 +83,7 @@ def _curl_get(url):
         if r.returncode == 0 and len(r.stdout) > 200:
             return r.stdout.decode("utf-8", errors="replace")
     except Exception as e:
-        print(f"  curl error: {e}")
+        tqdm.write(f"  curl error: {e}")
     return None
 
 
@@ -168,7 +108,7 @@ def _curl_post(url, data):
         if r.returncode == 0 and len(r.stdout) > 200:
             return r.stdout.decode("utf-8", errors="replace")
     except Exception as e:
-        print(f"  curl POST error: {e}")
+        tqdm.write(f"  curl POST error: {e}")
     return None
 
 
@@ -222,7 +162,7 @@ def search_locale(city, kl, query, use_cache, verbose):
     )
     html = fetch(first_url, use_cache)
     if not html:
-        print(f"  {city}: no response from DDG")
+        tqdm.write(f"  {city}: no response from DDG")
         return []
 
     all_urls, seen = [], set()
@@ -233,7 +173,7 @@ def search_locale(city, kl, query, use_cache, verbose):
                 seen.add(u)
                 all_urls.append(u)
                 if verbose:
-                    print(f"    {u}")
+                    tqdm.write(f"    {u}")
         if len(all_urls) >= PER_LOCALE:
             break
         form = _next_form(html)
@@ -255,7 +195,7 @@ def search_locale(city, kl, query, use_cache, verbose):
 
 def main():
     p = argparse.ArgumentParser(
-        description="Search DuckDuckGo for mantra URLs across 18 locales.",
+        description="Search DuckDuckGo for mantra URLs across locales.",
     )
     p.add_argument("--no-cache", action="store_true", help="Bypass HTML cache")
     p.add_argument(
@@ -269,20 +209,41 @@ def main():
     args = p.parse_args()
     use_cache = not args.no_cache
 
+    # ── stage banner ──────────────────────────────────────────────────────────
+    SEP = "#" * 79
+    locale_names = ", ".join(c for c, _, _ in LOCALES)
+    print(SEP)
+    print("# Stage 1  —  search_for_urls")
+    print(SEP)
+    print(f"#  engine:             {_fcfg.get('engine', 'DuckDuckGo')}")
+    print(f"#  output:             {args.output}")
+    print(f"#  locales:            {len(LOCALES)}  ({locale_names})")
+    print(f"#  results_per_locale: {PER_LOCALE}")
+    print(f"#  delay:              {DELAY} s")
+    print(f"#  cache_dir:          {CACHE_DIR}")
+    print(f"#  use_cache:          {use_cache}")
+    print(f"#  verbose:            {args.verbose}")
+    print(SEP)
+
     all_urls = []
     seen = set()
 
-    for city, kl, query in LOCALES:
-        print(f'\n[{city}]  kl={kl}  query="{query}"')
-        urls = search_locale(city, kl, query, use_cache, args.verbose)
-        before = len(seen)
-        for u in urls:
-            if u not in seen:
-                seen.add(u)
-                all_urls.append(u)
-        new = len(seen) - before
-        print(f"  {len(urls)} found, {new} new  (unique total: {len(all_urls)})")
-        time.sleep(DELAY)
+    with tqdm(LOCALES, unit="locale", ncols=80) as pbar:
+        for city, kl, query in pbar:
+            pbar.set_description(f"{city}")
+            urls = search_locale(city, kl, query, use_cache, args.verbose)
+            before = len(seen)
+            for u in urls:
+                if u not in seen:
+                    seen.add(u)
+                    all_urls.append(u)
+            new = len(seen) - before
+            tqdm.write(
+                f'  [{city}]  kl={kl}  query="{query}"'
+                f"  →  {len(urls)} found, {new} new"
+            )
+            pbar.set_postfix({"urls": len(all_urls)})
+            time.sleep(DELAY)
 
     with open(args.output, "w", encoding="utf-8") as f:
         f.write("\n".join(all_urls) + "\n")

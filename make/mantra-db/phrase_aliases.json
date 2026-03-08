@@ -1,0 +1,23 @@
+{
+  "_comment": "Maps variant phrases to their canonical form. Edit as needed.",
+
+  "prefix_rules": [
+    ["Ohm ", "Om "],
+    ["Ohn ", "Om "],
+    ["Oṃ ", "Om "],
+    ["Aum ", "Om "]
+  ],
+
+  "exact_rules": {
+    "Ohm":            "Om",
+    "Ohn":            "Om",
+    "Oṃ":             "Om",
+    "Aum":            "Om",
+    "aum":            "Om",
+    "om":             "Om",
+    "OM":             "Om",
+    "Om (ॐ)":         "Om",
+    "OM – ॐ":         "Om",
+    "OM (auch AUM)":  "Om"
+  }
+}

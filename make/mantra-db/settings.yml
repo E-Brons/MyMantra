@@ -1,0 +1,417 @@
+python:
+  packages:
+    - yaml
+    - litellm
+    - requests
+    - tqdm
+    - ddgs
+    - trafilatura
+ollama:
+  host: http://localhost
+  port: 11434
+
+search_web:
+  engine: DuckDuckGo
+  output: tmp/mantra_urls.txt
+  cities:
+    - name: "Abu Dhabi"
+      locale: "ae-ar"
+      mantra: "مانترا"
+    - name: "Ahmedabad"
+      locale: "in-gu"
+      mantra: "મંત્ર"
+    - name: "Amsterdam"
+      locale: "nl-nl"
+      mantra: "mantra"
+    - name: "Athens"
+      locale: "gr-el"
+      mantra: "μάντρα"
+    - name: "Atlanta"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Austin"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Bangalore"
+      locale: "in-kn"
+      mantra: "ಮಂತ್ರ"
+    - name: "Bangkok"
+      locale: "th-th"
+      mantra: "มนตรา"
+    - name: "Barcelona"
+      locale: "es-ca"
+      mantra: "mantra"
+    - name: "Beijing"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Berlin"
+      locale: "de-de"
+      mantra: "Mantra"
+    - name: "Bogota"
+      locale: "co-es"
+      mantra: "mantra"
+    - name: "Boston"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Brisbane"
+      locale: "au-en"
+      mantra: "mantra"
+    - name: "Brussels"
+      locale: "be-nl"
+      mantra: "mantra"
+    - name: "Buenos Aires"
+      locale: "ar-es"
+      mantra: "mantra"
+    - name: "Cairo"
+      locale: "eg-ar"
+      mantra: "مانترا"
+    - name: "Cape Town"
+      locale: "za-en"
+      mantra: "mantra"
+    - name: "Changsha"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Chengdu"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Chennai"
+      locale: "in-ta"
+      mantra: "மந்திரம்"
+    - name: "Chicago"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Chongqing"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Copenhagen"
+      locale: "dk-da"
+      mantra: "mantra"
+    - name: "Dallas"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Delhi"
+      locale: "in-hi"
+      mantra: "मंत्र"
+    - name: "Denver"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Detroit"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Dhaka"
+      locale: "bd-bn"
+      mantra: "মন্ত্র"
+    - name: "Dongguan"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Dubai"
+      locale: "xa-ar"
+      mantra: "مانترا"
+    - name: "Dublin"
+      locale: "ie-en"
+      mantra: "mantra"
+    - name: "Foshan"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Frankfurt"
+      locale: "de-de"
+      mantra: "Mantra"
+    - name: "Fukuoka"
+      locale: "jp-ja"
+      mantra: "マントラ"
+    - name: "Guangzhou"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Hamburg"
+      locale: "de-de"
+      mantra: "Mantra"
+    - name: "Hangzhou"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Helsinki"
+      locale: "fi-fi"
+      mantra: "mantra"
+    - name: "Ho Chi Minh City"
+      locale: "vn-vi"
+      mantra: "mantra"
+    - name: "Hong Kong"
+      locale: "hk-zh"
+      mantra: "真言"
+    - name: "Houston"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Hyderabad"
+      locale: "in-te"
+      mantra: "మంత్రం"
+    - name: "Istanbul"
+      locale: "tr-tr"
+      mantra: "mantra"
+    - name: "Jakarta"
+      locale: "id-id"
+      mantra: "mantra"
+    - name: "Jinan"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Karachi"
+      locale: "pk-ur"
+      mantra: "منتر"
+    - name: "Kinshasa"
+      locale: "cd-fr"
+      mantra: "mantra"
+    - name: "Kolkata"
+      locale: "in-bn"
+      mantra: "মন্ত্র"
+    - name: "Kuala Lumpur"
+      locale: "my-ms"
+      mantra: "mantra"
+    - name: "Lagos"
+      locale: "ng-en"
+      mantra: "mantra"
+    - name: "Lahore"
+      locale: "pk-ur"
+      mantra: "منتر"
+    - name: "Lima"
+      locale: "pe-es"
+      mantra: "mantra"
+    - name: "London"
+      locale: "uk-en"
+      mantra: "mantra"
+    - name: "Los Angeles"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Luanda"
+      locale: "ao-pt"
+      mantra: "mantra"
+    - name: "Madrid"
+      locale: "es-es"
+      mantra: "mantra"
+    - name: "Manila"
+      locale: "ph-tl"
+      mantra: "mantra"
+    - name: "Melbourne"
+      locale: "au-en"
+      mantra: "mantra"
+    - name: "Mexico City"
+      locale: "mx-es"
+      mantra: "mantra"
+    - name: "Milan"
+      locale: "it-it"
+      mantra: "mantra"
+    - name: "Minneapolis"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Montreal"
+      locale: "ca-fr"
+      mantra: "mantra"
+    - name: "Moscow"
+      locale: "ru-ru"
+      mantra: "мантра"
+    - name: "Mumbai"
+      locale: "in-hi"
+      mantra: "मंत्र"
+    - name: "Munich"
+      locale: "de-de"
+      mantra: "Mantra"
+    - name: "Nagoya"
+      locale: "jp-ja"
+      mantra: "マントラ"
+    - name: "Nanjing"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "New York"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "New York City"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Ningbo"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Osaka"
+      locale: "jp-ja"
+      mantra: "マントラ"
+    - name: "Oslo"
+      locale: "no-nb"
+      mantra: "mantra"
+    - name: "Paris"
+      locale: "fr-fr"
+      mantra: "mantra"
+    - name: "Perth"
+      locale: "au-en"
+      mantra: "mantra"
+    - name: "Philadelphia"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Phoenix"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Prague"
+      locale: "cz-cs"
+      mantra: "mantra"
+    - name: "Qingdao"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Rio de Janeiro"
+      locale: "br-pt"
+      mantra: "mantra"
+    - name: "Rome"
+      locale: "it-it"
+      mantra: "mantra"
+    - name: "San Diego"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "San Francisco"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "San Jose"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Sao Paulo"
+      locale: "br-pt"
+      mantra: "mantra"
+    - name: "Seattle"
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Seoul"
+      locale: "kr-ko"
+      mantra: "만트라"
+    - name: "Shanghai"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Shenzhen"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Singapore"
+      locale: "sg-en"
+      mantra: "mantra"
+    - name: "Stockholm"
+      locale: "se-sv"
+      mantra: "mantra"
+    - name: "Surat"
+      locale: "in-gu"
+      mantra: "મંત્ર"
+    - name: "Suzhou"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Sydney"
+      locale: "au-en"
+      mantra: "mantra"
+    - name: "Taipei"
+      locale: "tw-zh"
+      mantra: "真言"
+    - name: "Tehran"
+      locale: "ir-fa"
+      mantra: "مانترا"
+    - name: "Tel Aviv"
+      locale: "il-he"
+      mantra: "מנטרה"
+    - name: "Tianjin"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Tokyo"
+      locale: "jp-ja"
+      mantra: "マントラ"
+    - name: "Toronto"
+      locale: "ca-en"
+      mantra: "mantra"
+    - name: "Vancouver"
+      locale: "ca-en"
+      mantra: "mantra"
+    - name: "Vienna"
+      locale: "at-de"
+      mantra: "Mantra"
+    - name: "Washington D.C."
+      locale: "us-en"
+      mantra: "mantra"
+    - name: "Wuhan"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Wuxi"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Xi-an"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Zhengzhou"
+      locale: "cn-zh"
+      mantra: "真言"
+    - name: "Zurich"
+      locale: "ch-de"
+      mantra: "Mantra"
+  delay: 2.0 # seconds between requests (polite crawl)
+  results_per_locale: 10 # DDG returns ~10 results per page
+  cache_dir: tmp/crawl_cache
+extract_mantra:
+  llm_engines: [qwen2.5:3b-instruct]
+  llm_options:
+    temperature: 0
+    top_p: 0.9
+    num_ctx: 24576
+  input: tmp/mantra_urls.txt
+  output: tmp/mantra_index.json
+  cache_dir: tmp/crawl_cache
+  delay: 1.0
+  max_page_chars: 240000 # max chars to keep from a page (before chunking)
+  chunk_chars: 12000 # chars per chunk sent to LLM (~3-4k tokens)
+  chunk_overlap: 600 # overlap between chunks to avoid splitting mantras
+dedup_mantras:
+  aliases: phrase_aliases.json
+  input: tmp/mantra_index.json
+  output: tmp/mantra_index_deduped.json
+enrich_mantras:
+  # llm_engines: [qwen3.5:4b, qwen2.5:14b, gemma3:27b]  # Production grade?
+  # llm_combine: qwen3.5:9b                             # Production grade?
+  # llm_grader:  qwen3.5:9b                             # Production grade?
+  llm_engines: [phi3:mini, qwen2.5:1.5b, gemma3:1b] # Development only
+  llm_combine: qwen2.5:1.5b # Development only
+  llm_grader: qwen2.5:1.5b # Development only
+  llm_translator: qwen2.5:1.5b # Development only
+  translator_llm: translategemma:27b # translategemma:12b
+  translate_languages:
+    en: English
+    es: Spanish
+    fr: French
+    de: German
+    it: Italian
+    pt: Portuguese
+    ru: Russian
+    ar: Arabic
+    he: Hebrew
+    zh: Chinese
+    ja: Japanese
+    ko: Korean
+    hi: Hindi
+    sa: Sanskrit
+    ta: Tamil
+    th: Thai
+    vi: Vietnamese
+    id: Indonesian
+    tr: Turkish
+    pl: Polish
+    nl: Dutch
+    sv: Swedish
+    uk: Ukrainian
+  llm_options: # student drafts + merge: need some creativity for abstracts
+    temperature: 0.3
+    top_p: 0.9
+    num_ctx: 32768
+  grader_options: # grader: deterministic scoring
+    temperature: 0
+    num_ctx: 16384
+  translator_options: # translator: faithful, no creativity; mantras are short phrases
+    temperature: 0
+    num_ctx: 2048
+  input: tmp/mantra_index_deduped.json
+  output: tmp/enriched_mantras.json
+  max_source_chars: 10000
+  http_timeout: 12
+  grade:
+    no_accurate_translations: 25
+    abstract_quality: 25
+    other_fields_accuracy: 30
+    other_fields_quality: 20
+merge_mantras:
+  input: tmp/enriched_mantras.json
+  output: assets/data/mantras.json
+  min_abstract_chars: 300
+  min_tags: 3

@@ -2,17 +2,18 @@
 #  myMantra — Makefile
 #  Targets configured in target.json
 # ==============================================================
-#  make install  [TARGET=<name>]  install tools + verify environment
-#  make build    [TARGET=<name>]  build artifacts (all build=true targets)
-#  make run      [TARGET=<name>]  run  (TARGET required if >1 build=true)
-#  make debug    [TARGET=<name>]  debug (TARGET required if >1 debug=true)
-#  make clean                     remove all build artifacts
+#  make install     [TARGET=<name>]  install tools + verify environment
+#  make build       [TARGET=<name>]  build artifacts (all build=true targets)
+#  make run         [TARGET=<name>]  run  (TARGET required if >1 build=true)
+#  make debug       [TARGET=<name>]  debug (TARGET required if >1 debug=true)
+#  make clean                        remove all build artifacts
+#  make mantra-db                    run the full mantra discovery pipeline
 # ==============================================================
 
 TARGET ?=
 _T     := $(if $(TARGET),--target $(TARGET),)
 
-.PHONY: install build run debug clean test test-integration
+.PHONY: install build run debug clean test test-integration mantra-db
 
 install:
 	@bash make/install.sh $(_T)
@@ -45,3 +46,11 @@ test-integration:
 		echo "Error: Target '$(TARGET)' test-integration is currently unsupported."; \
 		exit 1; \
 	fi
+
+# ── mantra-db pipeline ────────────────────────────────────────────────────────
+# Delegates to make/mantra-db/Makefile — see that file for all sub-targets.
+# Full pipeline + merge: make mantra-db
+# Check prerequisites:   make mantra-db ARGS=prerequisites
+ARGS ?= all
+mantra-db:
+	@$(MAKE) -f make/mantra-db/Makefile $(ARGS)
