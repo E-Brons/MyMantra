@@ -354,62 +354,144 @@ extract_mantra:
   max_page_chars: 240000 # max chars to keep from a page (before chunking)
   chunk_chars: 12000 # chars per chunk sent to LLM (~3-4k tokens)
   chunk_overlap: 600 # overlap between chunks to avoid splitting mantras
-dedup_mantras:
+translate_n_dedup:
   aliases: phrase_aliases.json
   input: tmp/mantra_index.json
   output: tmp/mantra_index_deduped.json
+  system: >
+    You are a proffesional linguistic scholar,
+    mastering {source language} and {target language} languages and traditions.
+
+    Return your response in exactly this format:
+    Answer: <a single translation of the mantra to {target language}>
+    Grounding: <explain any nuances you might have had and why you selected this specific interpertation>
+  english:
+    task: provide the most acurate English (USA) translation of the mantra phrase
+    llm_engine: translategemma:4b # step 1: pre-dedup *quick* translate-to-English
+    llm_options:
+      temperature: 0
+      num_ctx: 2048
+      timeout: 60
+  # step 2: deduplication occurs here
+  transliteration:
+    task: >
+      Provide the most accurate romanisation with ISO 15919 (or the relevant standard)
+      diacritics of the source (e.g. "Oṃ maṇi padme hūṃ")
+    llm_engine: translategemma:12b # step 3: transliteration
+    llm_options:
+      temperature: 0
+      num_ctx: 2048
+      timeout: 60
+  translations:
+    llm_engine: translategemma:12b # step 34: full multi-language translation
+    llm_options: # faithful translation, slightly adjusted to meet language
+      temperature: 0.1
+      num_ctx: 4096
+      timeout: 60
+    languages:
+      task: >
+        Provide true-to-the-source {target language} translation of the mantra phrase
+      ar: Arabic
+      bn: Bengali
+      de: German
+      en-us: English
+      en-gb: English (UK)
+      es: Spanish
+      fr-fr: French
+      he: Hebrew
+      hi: Hindi
+      id: Indonesian
+      it: Italian
+      ja: Japanese
+      ko: Korean
+      nl: Dutch
+      pl: Polish
+      pt-br: Portuguese
+      ru: Russian
+      sv: Swedish
+      th: Thai
+      tr: Turkish
+      uk: Ukrainian
+      vi: Vietnamese
+      zh-cn: Chinese Simplified
 enrich_mantras:
   # llm_engines: [qwen3.5:4b, qwen2.5:14b, gemma3:27b]  # Production grade?
-  # llm_combine: qwen3.5:9b                             # Production grade?
   # llm_grader:  qwen3.5:9b                             # Production grade?
   llm_engines: [phi3:mini, qwen2.5:1.5b, gemma3:1b] # Development only
-  llm_combine: qwen2.5:1.5b # Development only
   llm_grader: qwen2.5:1.5b # Development only
-  llm_translator: qwen2.5:1.5b # Development only
-  translator_llm: translategemma:27b # translategemma:12b
-  translate_languages:
-    en: English
-    es: Spanish
-    fr: French
-    de: German
-    it: Italian
-    pt: Portuguese
-    ru: Russian
-    ar: Arabic
-    he: Hebrew
-    zh: Chinese
-    ja: Japanese
-    ko: Korean
-    hi: Hindi
-    sa: Sanskrit
-    ta: Tamil
-    th: Thai
-    vi: Vietnamese
-    id: Indonesian
-    tr: Turkish
-    pl: Polish
-    nl: Dutch
-    sv: Swedish
-    uk: Ukrainian
-  llm_options: # student drafts + merge: need some creativity for abstracts
-    temperature: 0.3
-    top_p: 0.9
-    num_ctx: 32768
-  grader_options: # grader: deterministic scoring
-    temperature: 0
-    num_ctx: 16384
-  translator_options: # translator: faithful, no creativity; mantras are short phrases
-    temperature: 0
-    num_ctx: 2048
+  llm_timeout: 120
+  grader_options:
+    temperature: 0.1
+    num_ctx: 4096
   input: tmp/mantra_index_deduped.json
   output: tmp/enriched_mantras.json
   max_source_chars: 10000
   http_timeout: 12
-  grade:
-    no_accurate_translations: 25
-    abstract_quality: 25
-    other_fields_accuracy: 30
-    other_fields_quality: 20
+
+  system: >
+    You are a sociology scholar of world mantra traditions.
+    Given source material about a mantra, complete the assignment below.
+    Ground every sentence in the provided sources. Do NOT fabricate
+    historical claims, attributions, or benefits not supported by the sources.
+
+    Return your response in exactly this format:
+
+    Answer: <your answer to the assignment>
+    Grounding: <for each claim, cite which source supports it and why>
+
+  assignments:
+    abstract:
+      task: >
+        Write exactly 2 paragraphs (separated by a blank line) of 3-4 sentences each
+        about this mantra. Paragraph 1: the origin, tradition, and literal meaning.
+        Paragraph 2: how practitioners use it, its spiritual or psychological effect,
+        and what benefits are attributed to it. The abstract should engage the reader
+        into wanting to practice this mantra.
+      grade: 40
+      temperature: 0.2
+      num_ctx: 4096
+
+    tags:
+      task: >
+        Provide at least 4 lowercase tags for this mantra, separated by commas.
+        Tags should be specific: tradition name, deity/figure, practice type, effect.
+        Avoid generic tags like just "meditation" or "spiritual".
+        Example: hindu, shiva, devotion, liberation, peace, vedic,
+        tantric, tibetan, zen, sufi, devotional, affirmation, psalm, dhikr,
+        healing, focus, divine, empower
+      grade: 20
+      temperature: 0
+      num_ctx: 2048
+
+    tradition:
+      task: >
+        Identify which ONE tradition this mantra belongs to.
+        Return exactly one of: Hindu, Buddhist, Islamic, Christian, Sikh, Jain,
+        Jewish, Taoist, Universal, Modern, Other.
+        Answer is ONLY the single word.
+      grade: 10
+      temperature: 0
+      num_ctx: 2048
+
+    difficulty:
+      task: >
+        Rate the difficulty of practicing this mantra.
+        Consider linguistic complexity, pronunciation, and traditional practice depth.
+        Return exactly one of: beginner, intermediate, advanced.
+        Answer is ONLY the single word.
+      grade: 10
+      temperature: 0
+      num_ctx: 2048
+
+    targetRepetitions:
+      task: >
+        How many times should this mantra traditionally be repeated in one session?
+        Return exactly one number from: 1, 3, 7, 21, 54, 108.
+        Choose based on the specific tradition and mantra type.
+        Answer is ONLY the number.
+      grade: 10
+      temperature: 0
+      num_ctx: 2048
 merge_mantras:
   input: tmp/enriched_mantras.json
   output: assets/data/mantras.json

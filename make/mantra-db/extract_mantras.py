@@ -11,7 +11,7 @@ performance can be compared fairly.  Use --limit to benchmark on a small
 sample before committing to a full run with the winning model.
 
 Results are merged into tmp/mantra_index.json.
-Duplicates are intentional — dedup_mantras handles them.
+Duplicates are intentional — translate_n_dedup handles them.
 
 Requirements:
     pip install litellm tqdm trafilatura
@@ -322,15 +322,17 @@ def extract_with_llm(
     total_elapsed = 0.0
     seen_phrases: set = set()
 
-    if len(chunks) > 1:
+    if len(chunks) > 1 and verbose:
         tqdm.write(f"    page split into {len(chunks)} chunks ({len(text)} chars)")
 
     for i, chunk in enumerate(chunks, 1):
-        tqdm.write(f"    chunk {i}/{len(chunks)}  chars={len(chunk)}  sending to LLM...")
+        if verbose:
+            tqdm.write(f"    chunk {i}/{len(chunks)}  chars={len(chunk)}  sending to LLM...")
         entries, elapsed = _call_llm_for_chunk(
             url, title, chunk, i, len(chunks), model,
         )
-        tqdm.write(f"    chunk {i}/{len(chunks)}  done in {elapsed:.1f}s  found={len(entries)}")
+        if verbose:
+            tqdm.write(f"    chunk {i}/{len(chunks)}  done in {elapsed:.1f}s  found={len(entries)}")
         total_elapsed += elapsed
         for e in entries:
             if not isinstance(e, dict):
@@ -385,16 +387,25 @@ def run_model(
     title_cache: Dict[str, str],
     text_cache: Dict[str, str],
     verbose: bool,
+    output_path: str,
+    processed_urls: set,
+    all_records: List[Dict],
 ) -> ModelStats:
-    """Run a single model over all URLs sequentially."""
+    """Run a single model over all URLs sequentially, writing after each URL."""
     stats = ModelStats(model=model)
     desc = model.split("/")[-1] if "/" in model else model
     with tqdm(total=len(urls), desc=f"  {desc[:38]}", unit="url") as pbar:
         for url in urls:
+            if url in processed_urls:
+                pbar.update(1)
+                continue
+
             html = html_cache.get(url)
             if not html:
                 stats.urls_attempted += 1
                 stats.urls_failed += 1
+                processed_urls.add(url)
+                save_index(processed_urls, all_records, output_path)
                 pbar.set_postfix(mantras=stats.mantras_found, t="skip")
                 pbar.update(1)
                 continue
@@ -426,7 +437,11 @@ def run_model(
                         "extracted_by": model,
                     }
                     stats.records.append(record)
+                    all_records.append(record)
                     stats.mantras_found += 1
+
+            processed_urls.add(url)
+            save_index(processed_urls, all_records, output_path)
 
             pbar.set_postfix(mantras=stats.mantras_found, t=f"{elapsed:.1f}s")
             pbar.update(1)
@@ -438,16 +453,25 @@ def run_model(
 # ── Index I/O ─────────────────────────────────────────────────────────────────
 
 
-def load_index(path: str) -> List[Dict]:
+def load_index(path: str) -> tuple[set, List[Dict]]:
+    """Load existing output. Returns (processed_urls, mantras)."""
     if not os.path.exists(path):
-        return []
+        return set(), []
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    # Support both old (flat list) and new (envelope) formats
+    if isinstance(data, list):
+        urls = {r.get("source_url", "") for r in data if r.get("source_url")}
+        return urls, data
+    return set(data.get("processed_urls", [])), data.get("mantras", [])
 
 
-def save_index(entries: List[Dict], path: str) -> None:
+def save_index(processed_urls: set, entries: List[Dict], path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(entries, f, ensure_ascii=False, indent=2)
+        json.dump(
+            {"processed_urls": sorted(processed_urls), "mantras": entries},
+            f, ensure_ascii=False, indent=2,
+        )
 
 
 # ── Print helpers ─────────────────────────────────────────────────────────────
@@ -615,6 +639,12 @@ def main():
     print(f"Step 2/3 — Extracting Mantras ({len(models)} model(s), sequential)")
     wall_t0 = time.perf_counter()
 
+    # Resume from existing output
+    processed_urls, all_records = load_index(args.output)
+    remaining = len([u for u in urls if u not in processed_urls])
+    if processed_urls:
+        print(f"  Resuming: {len(processed_urls)} URLs already done, {remaining} remaining.")
+
     def _set_keep_alive(model: str, seconds: int) -> None:
         """Set Ollama keep_alive for a model.  -1 = forever, 0 = unload now."""
         try:
@@ -634,6 +664,7 @@ def main():
         try:
             stats = run_model(
                 model, urls, html_cache, title_cache, text_cache, args.verbose,
+                args.output, processed_urls, all_records,
             )
         except Exception as exc:
             print(f"  Model {model} failed: {exc}")
@@ -644,13 +675,13 @@ def main():
     wall_elapsed = time.perf_counter() - wall_t0
     print()
 
-    # ── Step 3: Write index ───────────────────────────────────────────────────
-    print("Step 3/3 — Writing results")
+    # ── Step 3: Summary ────────────────────────────────────────────────────
+    print("Step 3/3 — Summary")
     all_new_records = [r for s in all_stats for r in s.records]
 
-    if all_new_records:
-        save_index(all_new_records, args.output)
-        print(f"  written to: {args.output}\n")
+    if all_records:
+        print(f"  {len(all_records)} total records in: {args.output}")
+        print(f"  {len(processed_urls)} URLs processed\n")
     else:
         print("  no mantras extracted — output file NOT written (gate: stage failed)\n")
         if os.path.exists(args.output):
@@ -659,7 +690,7 @@ def main():
     # ── End summary (table) ───────────────────────────────────────────────────
     print()
     _banner("Results: extract_mantras", _stats_table(
-        all_stats, wall_elapsed, len(all_new_records), len(all_new_records),
+        all_stats, wall_elapsed, len(all_new_records), len(all_records),
     ))
 
 

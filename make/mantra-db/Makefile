@@ -23,7 +23,7 @@ _cfg = $(shell python3 -c "import yaml; c=yaml.safe_load(open('$(SETTINGS)')); p
 
 URLS_FILE  := $(call _cfg,['search_web']['output'])
 INDEX_FILE := $(call _cfg,['extract_mantra']['output'])
-DEDUPED    := $(call _cfg,['dedup_mantras']['output'])
+DEDUPED    := $(call _cfg,['translate_n_dedup']['output'])
 ENRICHED   := $(call _cfg,['enrich_mantras']['output'])
 MERGED     := $(call _cfg,['merge_mantras']['output'])
 # Stage 5 uses a stamp file so $(MERGED) timestamp doesn't gate re-runs
@@ -57,10 +57,10 @@ $(INDEX_FILE): $(URLS_FILE) | prerequisites
 	@printf '%*s\n' $(LINE_LENGTH) '' | tr ' ' '-'
 	@python3 $(SCRIPTS)extract_mantras.py
 
-# ── stage 3: deduplicate and apply aliases ────────────────────────────────────
+# ── stage 3: translate, deduplicate and apply aliases ────────────────────────
 $(DEDUPED): $(INDEX_FILE) | prerequisites
 	@printf '%*s\n' $(LINE_LENGTH) '' | tr ' ' '-'
-	@python3 $(SCRIPTS)dedup_mantras.py
+	@python3 $(SCRIPTS)translate_n_dedup.py
 
 # ── stage 4: enrich with LLMs ────────────────────────────────────────────────
 $(ENRICHED): $(DEDUPED) | prerequisites

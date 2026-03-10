@@ -83,3 +83,4 @@ make/prerequisites.yaml
 
 # Claude Code session data
 .claude/
+**/__pycache__/**

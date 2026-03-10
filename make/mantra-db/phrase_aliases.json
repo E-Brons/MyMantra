@@ -1,23 +1,45 @@
 {
-  "_comment": "Maps variant phrases to their canonical form. Edit as needed.",
+  "_comment": "Maps variant phrases to their canonical form. Applied AFTER translate-to-English.",
 
   "prefix_rules": [
     ["Ohm ", "Om "],
     ["Ohn ", "Om "],
     ["Oṃ ", "Om "],
-    ["Aum ", "Om "]
+    ["Aum ", "Om "],
+    ["OM ", "Om "],
+    ["Oṁ ", "Om "]
   ],
 
   "exact_rules": {
-    "Ohm":            "Om",
-    "Ohn":            "Om",
-    "Oṃ":             "Om",
-    "Aum":            "Om",
-    "aum":            "Om",
-    "om":             "Om",
-    "OM":             "Om",
-    "Om (ॐ)":         "Om",
-    "OM – ॐ":         "Om",
-    "OM (auch AUM)":  "Om"
+    "Ohm":                    "Om",
+    "Ohn":                    "Om",
+    "Oṃ":                     "Om",
+    "Oṁ":                     "Om",
+    "Aum":                    "Om",
+    "aum":                    "Om",
+    "om":                     "Om",
+    "OM":                     "Om",
+    "Om (ॐ)":                 "Om",
+    "OM – ॐ":                 "Om",
+    "OM (auch AUM)":          "Om",
+    "AUM":                    "Om",
+    "OHM":                    "Om",
+
+    "Om Mani Padme Hung":     "Om Mani Padme Hum",
+    "om mani padme hum":      "Om Mani Padme Hum",
+    "OM MANI PADME HUM":      "Om Mani Padme Hum",
+    "Ohm Mani Padme Hum":     "Om Mani Padme Hum",
+    "óm mani päme hung":      "Om Mani Padme Hum",
+    "Om mani padme hum":      "Om Mani Padme Hum",
+    "Om mani padme hum (Hyllest til Avalokiteshvara)": "Om Mani Padme Hum",
+    "Hrim Om Mani Padme Hum": "Om Mani Padme Hum",
+
+    "Om Shanti Om":           "Om Shanti",
+    "SHANTI":                 "Om Shanti",
+    "Om Shanti Shanti Shanti": "Om Shanti",
+    "Om Shanti, Om Shanti Om Shanti": "Om Shanti",
+
+    "Gayatri":                "Gayatri Mantra",
+    "gayatri mantra":         "Gayatri Mantra"
   }
 }
