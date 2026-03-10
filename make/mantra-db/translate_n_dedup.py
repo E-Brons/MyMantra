@@ -69,6 +69,11 @@ MODEL_ENGLISH = ollama(_eng_cfg["llm_engine"])
 ENGLISH_KWARGS, ENGLISH_TIMEOUT = _build_kwargs(_eng_cfg.get("llm_options", {}))
 ENGLISH_TASK = _eng_cfg["task"].strip()
 
+_prof_cfg = _dcfg["filter"]
+MODEL_PROFILER = ollama(_prof_cfg["llm_engine"])
+PROFILER_KWARGS, PROFILER_TIMEOUT = _build_kwargs(_prof_cfg.get("llm_options", {}))
+PROFILER_TASK = _prof_cfg["task"].strip()
+
 _tlit_cfg = _dcfg["transliteration"]
 MODEL_TRANSLIT = ollama(_tlit_cfg["llm_engine"])
 TRANSLIT_KWARGS, TRANSLIT_TIMEOUT = _build_kwargs(_tlit_cfg.get("llm_options", {}))
@@ -131,6 +136,60 @@ async def _call_llm(model: str, system: str, user: str, timeout: int, **kwargs) 
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Filtering: heuristic pre-filter + LLM profiler
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _is_obviously_not_mantra(phrase: str) -> bool:
+    """Quick heuristic pre-filter. Returns True for obvious non-mantras."""
+    lower = phrase.lower().strip()
+    words = lower.split()
+
+    # Too long — mantras are short phrases, not paragraphs
+    if len(phrase) > 200:
+        return True
+    # Too many words
+    if len(words) > 25:
+        return True
+    # Multiple sentences (period/exclamation/question followed by uppercase or non-Latin)
+    if re.search(r"[.!?]\s+[A-Z\u0400-\u04ff\u0600-\u06ff\u0900-\u097f]", phrase):
+        return True
+    # Bare word "mantra" (with optional article/plural) or dictionary-style "mantra (noun)"
+    if re.fullmatch(r"(a\s+|the\s+)?mantras?(\s*\(.*\))?", lower):
+        return True
+    # Numbered titles like "Hanuman Gayatri Mantra 108 times"
+    if re.search(r"\d+\s+times\b", lower):
+        return True
+    # Encyclopedic sentences: contains "is a", "are a", "is the", "refers to", etc.
+    if re.search(
+        r"\b(is\s+(a|an|the|considered|defined|known)|are\s+(a|the|considered|sacred)"
+        r"|refers?\s+to|defined\s+as|meaning\s+of)\b",
+        lower,
+    ):
+        return True
+    # List/article titles: "Top N ...", "Best ... mantras", "List of ..."
+    if re.search(r"^(top\s+\d+|best\s+|list\s+of\s+|types?\s+of\s+)", lower):
+        return True
+    return False
+
+
+async def _profile_is_mantra(english: str) -> bool:
+    """LLM profiler: classifies the English translation using multi-category prompt.
+    Returns True only if the model answers 'true'."""
+    try:
+        result = await _call_llm(
+            MODEL_PROFILER,
+            PROFILER_TASK,
+            f"Text: {english}",
+            PROFILER_TIMEOUT,
+            **PROFILER_KWARGS,
+        )
+        return result.strip().lower() == "true"
+    except Exception:
+        return True  # on failure, keep it (conservative)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Step 1: Translate to English
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -156,18 +215,19 @@ async def translate_to_english(phrase: str, language: str) -> str:
         result = result.strip("\"'`").strip()
         if result.startswith("```"):
             result = result.split("\n")[1] if "\n" in result else result
-        return result if result else phrase
+        return result if result else "NOT_A_MANTRA"
     except Exception:
-        return phrase  # on failure, keep original
+        return "NOT_A_MANTRA"  # on failure, filter it out
 
 
 async def step1_translate_all(entries: list[dict]) -> dict[str, str]:
-    """Translate all phrases to English. Returns {original_phrase: english_form}.
+    """Translate all phrases to English.
+    Returns {original_phrase: english_form_or_NOT_A_MANTRA}.
     Resumes from ENGLISH_CACHE if it exists."""
     cache: dict[str, str] = {}
     if ENGLISH_CACHE.exists():
         cache = json.loads(ENGLISH_CACHE.read_text())
-        print(f"  Resuming: {len(cache)} phrases already translated.")
+        print(f"  Resuming: {len(cache)} phrases in cache.")
 
     remaining = [e for e in entries if e["phrase"] not in cache]
     if not remaining:
@@ -182,8 +242,11 @@ async def step1_translate_all(entries: list[dict]) -> dict[str, str]:
             language = entry.get("language", "Unknown")
             pbar.set_postfix_str(f"'{phrase[:35]}'")
 
-            english = await translate_to_english(phrase, language)
-            cache[phrase] = english
+            if _is_obviously_not_mantra(phrase):
+                cache[phrase] = "NOT_A_MANTRA"
+            else:
+                english = await translate_to_english(phrase, language)
+                cache[phrase] = english
 
             ENGLISH_CACHE.write_text(json.dumps(cache, indent=2, ensure_ascii=False))
             pbar.update(1)
@@ -192,7 +255,60 @@ async def step1_translate_all(entries: list[dict]) -> dict[str, str]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Step 2: Dedup
+# Step 2: Filter non-mantras (heuristic + LLM profiler)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Marker prefix for entries that passed the profiler (avoids re-profiling on resume)
+_PROFILED_OK = "_OK_"
+
+
+async def step2_filter(english_map: dict[str, str]) -> dict[str, str]:
+    """Run the LLM profiler on all translated phrases that haven't been filtered yet.
+    Modifies english_map in place and saves to ENGLISH_CACHE. Returns the same map."""
+
+    # Build work list: entries that are not yet profiled and not already filtered
+    to_profile = [
+        (phrase, english)
+        for phrase, english in english_map.items()
+        if english != "NOT_A_MANTRA" and not english.startswith(_PROFILED_OK)
+    ]
+
+    if not to_profile:
+        already_ok = sum(1 for v in english_map.values() if v.startswith(_PROFILED_OK))
+        print(f"  All {already_ok} phrases already profiled.")
+        return english_map
+
+    filtered = 0
+    with tqdm(total=len(to_profile), desc="  Filtering", unit="phrase") as pbar:
+        for phrase, english in to_profile:
+            pbar.set_postfix_str(f"'{english[:35]}'")
+
+            is_mantra = await _profile_is_mantra(english)
+            if is_mantra:
+                english_map[phrase] = _PROFILED_OK + english
+            else:
+                english_map[phrase] = "NOT_A_MANTRA"
+                filtered += 1
+
+            ENGLISH_CACHE.write_text(
+                json.dumps(english_map, indent=2, ensure_ascii=False)
+            )
+            pbar.update(1)
+
+    print(f"  Filtered {filtered}/{len(to_profile)} phrases as not-a-mantra.")
+    return english_map
+
+
+def _strip_profiled_prefix(english_map: dict[str, str]) -> dict[str, str]:
+    """Strip the _OK_ prefix from profiled entries for downstream consumption."""
+    return {
+        phrase: (english.removeprefix(_PROFILED_OK) if english != "NOT_A_MANTRA" else english)
+        for phrase, english in english_map.items()
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Step 3: Dedup
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -219,7 +335,7 @@ def canonicalize(
     return phrase
 
 
-def step2_dedup(entries: list[dict], english_map: dict[str, str]) -> dict[str, dict]:
+def step3_dedup(entries: list[dict], english_map: dict[str, str]) -> dict[str, dict]:
     """Dedup entries by English form. Returns {canonical_english: merged_record}."""
     prefix_rules, exact_rules = load_aliases()
 
@@ -307,7 +423,7 @@ def step2_dedup(entries: list[dict], english_map: dict[str, str]) -> dict[str, d
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Step 3: Transliterate
+# Step 4: Transliterate
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -325,7 +441,7 @@ async def transliterate(phrase: str, language: str) -> str:
         return phrase
 
 
-async def step3_transliterate_all(deduped: dict[str, dict]) -> None:
+async def step4_transliterate_all(deduped: dict[str, dict]) -> None:
     """Add transliteration to all entries. Modifies in place, saves after each."""
     cache: dict[str, str] = {}
     if TRANSLIT_CACHE.exists():
@@ -364,7 +480,7 @@ async def step3_transliterate_all(deduped: dict[str, dict]) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Step 4: Full translation batch
+# Step 5: Full translation batch
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -385,47 +501,56 @@ async def translate_one(
         return ""
 
 
-async def step4_translate_all(deduped: dict[str, dict]) -> None:
+async def step5_translate_all(deduped: dict[str, dict]) -> None:
     """Add translations to all deduped entries. Modifies in place, saves after each."""
-    to_translate = [
-        p
-        for p in deduped
-        if "translations" not in deduped[p]
-        or len(deduped[p]["translations"]) < len(TRANSLATE_LANGUAGES)
-    ]
-    if not to_translate:
+    # Build work list: (phrase, code, name) for each missing translation
+    work: list[tuple[str, str, str]] = []
+    for phrase, entry in deduped.items():
+        existing = entry.get("translations", {})
+        for code, name in TRANSLATE_LANGUAGES.items():
+            if not existing.get(code):
+                work.append((phrase, code, name))
+
+    if not work:
         print(f"  All {len(deduped)} entries already translated.")
         return
 
-    total_calls = len(to_translate) * len(TRANSLATE_LANGUAGES)
+    mantras_left = len({w[0] for w in work})
     print(
-        f"  Translating {len(to_translate)} entries × {len(TRANSLATE_LANGUAGES)} languages = {total_calls} calls with {MODEL_TRANSLATOR}"
+        f"  {mantras_left} mantras, {len(work)} translations remaining with {MODEL_TRANSLATOR}"
     )
 
-    with tqdm(total=len(to_translate), desc="  Translating", unit="mantra") as pbar:
-        for phrase in to_translate:
-            pbar.set_postfix_str(f"'{phrase[:35]}'")
+    with tqdm(total=len(work), desc="  Translating", unit="call") as pbar:
+        current_phrase = ""
+        for phrase, code, name in work:
+            if phrase != current_phrase:
+                current_phrase = phrase
+                pbar.set_postfix_str(f"'{phrase[:25]}' → {name}")
+            else:
+                pbar.set_postfix_str(f"'{phrase[:25]}' → {name}")
+
             entry = deduped[phrase]
             lang = (
                 entry.get("language", ["Unknown"])[0]
                 if entry.get("language")
                 else "Unknown"
             )
-            translations = entry.get("translations", {})
+            translations = entry.setdefault("translations", {})
 
-            for code, name in TRANSLATE_LANGUAGES.items():
-                if code in translations and translations[code]:
-                    continue  # already have this language
-                result = await translate_one(phrase, lang, code, name)
-                if result:
-                    translations[code] = result
-
-            entry["translations"] = translations
-            entry["supportedLanguages"] = [
-                k for k in TRANSLATE_LANGUAGES if translations.get(k)
-            ]
-            OUTPUT.write_text(json.dumps(deduped, indent=2, ensure_ascii=False))
+            result = await translate_one(phrase, lang, code, name)
+            if result:
+                translations[code] = result
             pbar.update(1)
+
+            # Check if this mantra is now complete — save and update supportedLanguages
+            remaining_for_phrase = [
+                c for c, n in TRANSLATE_LANGUAGES.items() if not translations.get(c)
+            ]
+            if not remaining_for_phrase:
+                entry["supportedLanguages"] = [
+                    k for k in TRANSLATE_LANGUAGES if translations.get(k)
+                ]
+                OUTPUT.write_text(json.dumps(deduped, indent=2, ensure_ascii=False))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -444,6 +569,7 @@ async def main() -> None:
             f"###   Output:           {OUTPUT}",
             f"###   Aliases:          {ALIASES}",
             f"###   English model:    {MODEL_ENGLISH}",
+            f"###   Profiler model:   {MODEL_PROFILER}",
             f"###   Translit model:   {MODEL_TRANSLIT}",
             f"###   Translator model: {MODEL_TRANSLATOR}",
             f"###   Languages:        {len(TRANSLATE_LANGUAGES)}",
@@ -451,18 +577,30 @@ async def main() -> None:
     )
     print()
 
-    # ── Step 1: Translate to English ─────────────────────────────────────────
-    print("Step 1/4 — Translate all phrases to English")
+    # ── Step 1: Translate to English ────────────────────────────────────────
+    print("Step 1/5 — Translate to English")
     english_map = await step1_translate_all(raw)
 
-    not_mantra = sum(1 for v in english_map.values() if v == "NOT_A_MANTRA")
+    translated = sum(1 for v in english_map.values() if v != "NOT_A_MANTRA")
+    heuristic_filtered = sum(1 for v in english_map.values() if v == "NOT_A_MANTRA")
     print(
-        f"  Done: {len(english_map)} translated, {not_mantra} marked as not-a-mantra.\n"
+        f"  Done: {len(english_map)} processed, {translated} translated,"
+        f" {heuristic_filtered} filtered by heuristic/translator.\n"
     )
 
-    # ── Step 2: Dedup ────────────────────────────────────────────────────────
-    print("Step 2/4 — Dedup by English form + aliases")
-    deduped = step2_dedup(raw, english_map)
+    # ── Step 2: Filter non-mantras (LLM profiler) ────────────────────────
+    print("Step 2/5 — Filter non-mantras")
+    english_map = await step2_filter(english_map)
+
+    not_mantra = sum(1 for v in english_map.values() if v == "NOT_A_MANTRA")
+    english_map = _strip_profiled_prefix(english_map)
+    print(
+        f"  Done: {not_mantra} total non-mantras filtered.\n"
+    )
+
+    # ── Step 3: Dedup ────────────────────────────────────────────────────────
+    print("Step 3/5 — Dedup by English form + aliases")
+    deduped = step3_dedup(raw, english_map)
     print(
         f"  Done: {len(raw)} entries → {len(deduped)} unique mantras "
         f"({len(raw) - len(deduped) - not_mantra} duplicates, {not_mantra} filtered).\n"
@@ -471,14 +609,14 @@ async def main() -> None:
     # Write deduped (without translations yet) so subsequent steps can resume
     OUTPUT.write_text(json.dumps(deduped, indent=2, ensure_ascii=False))
 
-    # ── Step 3: Transliterate ────────────────────────────────────────────────
-    print("Step 3/4 — Transliterate all phrases")
-    await step3_transliterate_all(deduped)
+    # ── Step 4: Transliterate ────────────────────────────────────────────────
+    print("Step 4/5 — Transliterate all phrases")
+    await step4_transliterate_all(deduped)
     print()
 
-    # ── Step 4: Full translation batch ───────────────────────────────────────
-    print("Step 4/4 — Full multi-language translation")
-    await step4_translate_all(deduped)
+    # ── Step 5: Full translation batch ───────────────────────────────────────
+    print("Step 5/5 — Full multi-language translation")
+    await step5_translate_all(deduped)
     print()
 
     # ── Results ──────────────────────────────────────────────────────────────

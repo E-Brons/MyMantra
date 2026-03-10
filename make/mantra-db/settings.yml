@@ -10,6 +10,7 @@ ollama:
   host: http://localhost
   port: 11434
 
+# stage 1 - search the web
 search_web:
   engine: DuckDuckGo
   output: tmp/mantra_urls.txt
@@ -341,12 +342,14 @@ search_web:
   delay: 2.0 # seconds between requests (polite crawl)
   results_per_locale: 10 # DDG returns ~10 results per page
   cache_dir: tmp/crawl_cache
+
+# stage 2 - extract_mantra
 extract_mantra:
-  llm_engines: [qwen2.5:3b-instruct]
+  llm_engines: [gemma3:12b]
   llm_options:
     temperature: 0
-    top_p: 0.9
     num_ctx: 24576
+    timeout: 240 # 3 min
   input: tmp/mantra_urls.txt
   output: tmp/mantra_index.json
   cache_dir: tmp/crawl_cache
@@ -354,6 +357,8 @@ extract_mantra:
   max_page_chars: 240000 # max chars to keep from a page (before chunking)
   chunk_chars: 12000 # chars per chunk sent to LLM (~3-4k tokens)
   chunk_overlap: 600 # overlap between chunks to avoid splitting mantras
+
+# stage 3 - translate_n_dedup
 translate_n_dedup:
   aliases: phrase_aliases.json
   input: tmp/mantra_index.json
@@ -363,34 +368,69 @@ translate_n_dedup:
     mastering {source language} and {target language} languages and traditions.
 
     Return your response in exactly this format:
-    Answer: <a single translation of the mantra to {target language}>
+    Answer: <answer>
     Grounding: <explain any nuances you might have had and why you selected this specific interpertation>
+
+  # step 1 - translate to English (align)
   english:
-    task: provide the most acurate English (USA) translation of the mantra phrase
-    llm_engine: translategemma:4b # step 1: pre-dedup *quick* translate-to-English
+    task: >
+      Provide true-to-the-source English translation of the mantra phrase.
+      Prefer the meaning of the words, not the mere sound of it (do not transliterate),
+      except for unique-tradition untranslatable terms (e.g. Om, God, etc).
+    llm_engine: translategemma:12b # step 1: pre-dedup *quick* translate-to-English
     llm_options:
       temperature: 0
       num_ctx: 2048
       timeout: 60
-  # step 2: deduplication occurs here
+
+  # step 2: filter non-mantras
+  filter:
+    task: >
+      Identify which ONE category fits the best for the given english phrase.
+      Answer if the phrase is a Mantra
+      select from the following:
+        |           CATEGORY         | IS_MANTRA |
+        |              ---           |    ---    |
+        |OVER_20_WORDS_SENTANCE      | false     |
+        |LONG_DESCRIPTION            | false     |
+        |THE_WORD_MANTRA             | false     |
+        |ENCICLOPEDIC_DEFINTION      | false     |
+        |DESCRIPTION_OF_MANTRAS_LIST | false     |
+        |EXPLANATION_ABOUT_A_MANTRA  | false     |
+        |NOT_MANTRA                  | false     |
+        |MANTRA                      | true      |
+       Write the category in your Grounding section.
+       Your Answer shall ONLY be: true or false.
+    llm_engine: qwen2.5:3b-instruct # qwen3.5:9b # step 2: *quick* categoriser for filtering
+    llm_options:
+      temperature: 0
+      num_ctx: 2048
+      timeout: 60
+
+  # step 3: deduplicate
+  # step 4: transliteration
   transliteration:
     task: >
       Provide the most accurate romanisation with ISO 15919 (or the relevant standard)
       diacritics of the source (e.g. "Oṃ maṇi padme hūṃ")
-    llm_engine: translategemma:12b # step 3: transliteration
+    llm_engine: translategemma:12b # step 3: transliteration into roman letters
     llm_options:
       temperature: 0
       num_ctx: 2048
       timeout: 60
+
+  # step 5: translate to multi-languages
   translations:
-    llm_engine: translategemma:12b # step 34: full multi-language translation
+    llm_engine: translategemma:12b # step 4: full multi-language translation
     llm_options: # faithful translation, slightly adjusted to meet language
       temperature: 0.1
       num_ctx: 4096
       timeout: 60
     languages:
       task: >
-        Provide true-to-the-source {target language} translation of the mantra phrase
+        Provide true-to-the-source {target language} translation of the mantra phrase.
+        Prefer the meaning of the words, not the mere sound of it (do not transliterate),
+        except for unique-tradition untranslatable terms (e.g. 'Om', 'God', 'Shiva' etc).
       ar: Arabic
       bn: Bengali
       de: German
@@ -414,19 +454,16 @@ translate_n_dedup:
       uk: Ukrainian
       vi: Vietnamese
       zh-cn: Chinese Simplified
+
+# stage 4 - enrich_mantras
 enrich_mantras:
-  # llm_engines: [qwen3.5:4b, qwen2.5:14b, gemma3:27b]  # Production grade?
-  # llm_grader:  qwen3.5:9b                             # Production grade?
-  llm_engines: [phi3:mini, qwen2.5:1.5b, gemma3:1b] # Development only
-  llm_grader: qwen2.5:1.5b # Development only
+  llm_engines: [phi3:14b, qwen3.5:9b, gemma3:12b]
+  llm_grader: qwen3.5:9b
   llm_timeout: 120
-  grader_options:
-    temperature: 0.1
-    num_ctx: 4096
   input: tmp/mantra_index_deduped.json
   output: tmp/enriched_mantras.json
-  max_source_chars: 10000
-  http_timeout: 12
+  max_source_chars: 20000
+  http_timeout: 10
 
   system: >
     You are a sociology scholar of world mantra traditions.
@@ -439,6 +476,7 @@ enrich_mantras:
     Answer: <your answer to the assignment>
     Grounding: <for each claim, cite which source supports it and why>
 
+  # step 1 - student assignments
   assignments:
     abstract:
       task: >
@@ -492,6 +530,13 @@ enrich_mantras:
       grade: 10
       temperature: 0
       num_ctx: 2048
+
+  # step 2 - grade and select best
+  grader_options:
+    temperature: 0.1
+    num_ctx: 65536
+
+# stage 5 - merge mantras to the final DataBase
 merge_mantras:
   input: tmp/enriched_mantras.json
   output: assets/data/mantras.json

@@ -78,22 +78,38 @@ def llm_kwargs(section: str, options_key: str = "llm_options") -> dict:
 
 
 def all_models() -> list[str]:
-    """Return every unique Ollama model name referenced in settings.yml."""
+    """Return every unique Ollama model name referenced in settings.yml.
+
+    Recursively searches all dicts for keys: llm_engine, llm_engines, llm_grader, llm_combine.
+    """
     seen: set[str] = set()
     result: list[str] = []
-    for section in cfg().values():
-        if not isinstance(section, dict):
-            continue
-        for key in ("llm_engines", "llm_combine"):
-            val = section.get(key)
-            if isinstance(val, list):
-                for m in val:
-                    if m and m not in seen:
-                        seen.add(m)
-                        result.append(m)
-            elif isinstance(val, str) and val and val not in seen:
-                seen.add(val)
-                result.append(val)
+
+    def _add(model: str) -> None:
+        if model and model not in seen:
+            seen.add(model)
+            result.append(model)
+
+    def _scan(obj) -> None:
+        if isinstance(obj, dict):
+            for key, val in obj.items():
+                if key in ("llm_engine", "llm_grader", "llm_combine"):
+                    if isinstance(val, str):
+                        _add(val)
+                elif key == "llm_engines":
+                    if isinstance(val, list):
+                        for m in val:
+                            if isinstance(m, str):
+                                _add(m)
+                    elif isinstance(val, str):
+                        _add(val)
+                else:
+                    _scan(val)
+        elif isinstance(obj, list):
+            for item in obj:
+                _scan(item)
+
+    _scan(cfg())
     return result
 
 
