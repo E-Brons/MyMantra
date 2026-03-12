@@ -68,11 +68,11 @@ ASSIGNMENTS: dict[str, dict] = {
 _grader_cfg = _ecfg["grader_options"]
 MODEL_GRADER = ollama(_grader_cfg["llm_grader"])
 GRADER_SYSTEM = _grader_cfg["system"].strip()
-GRADER_TIMEOUT = int(_grader_cfg.get("llm_timeout", 90))
 GRADER_TEMPERATURE = float(_grader_cfg.get("llm_temperature", 0))
 GRADE_WEIGHTS: dict[str, int] = _grader_cfg["weights"]
 
 HTTP_TIMEOUT = int(_ecfg.get("http_timeout", 10))
+_LLM_TIMEOUT = int(_ecfg.get("llm_timeout", 600))
 
 _SEP = "#" * 79
 
@@ -105,6 +105,24 @@ async def _warmup(model: str) -> None:
         _log.info("  %s ready.", short)
     except Exception as e:
         _log.warning("  warmup failed for %s: %s", short, e)
+
+
+MAX_RETRIES = 2
+RETRY_PAUSE = 5  # seconds
+
+
+async def _llm_call_with_retry(call_fn, label: str):
+    """Retry an async LLM call up to MAX_RETRIES times with a pause between attempts."""
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return await call_fn()
+        except Exception as e:
+            if attempt < MAX_RETRIES:
+                _log.warning("  retry %d/%d for %s: %s",
+                             attempt, MAX_RETRIES, label, e)
+                await asyncio.sleep(RETRY_PAUSE)
+            else:
+                raise
 
 
 def _expand_task(field_cfg: dict) -> str:
@@ -220,22 +238,54 @@ def fetch_all_sources(
 
 
 def _chunk_text(text: str) -> list[str]:
-    """Split text into paragraph-aligned chunks, respecting min/max chunk length."""
+    """Split text into paragraph-aligned chunks, respecting min/max chunk length.
+
+    Paragraphs longer than MAX_CHUNK_LEN are force-split at sentence
+    boundaries (or hard-cut if no sentence boundary is found).
+    """
     paragraphs = re.split(r"\n{2,}", text)
     chunks: list[str] = []
     buf = ""
+
+    def _flush(b: str) -> None:
+        if len(b) >= MIN_CHUNK_LEN:
+            chunks.append(b)
+
+    def _split_long(block: str) -> list[str]:
+        """Split a block longer than MAX_CHUNK_LEN at sentence boundaries."""
+        pieces: list[str] = []
+        while len(block) > MAX_CHUNK_LEN:
+            # Try to break at a sentence boundary within the chunk
+            cut = block.rfind(". ", 0, MAX_CHUNK_LEN)
+            if cut < MAX_CHUNK_LEN // 2:
+                cut = MAX_CHUNK_LEN  # hard-cut if no good sentence boundary
+            else:
+                cut += 1  # include the period
+            pieces.append(block[:cut].strip())
+            block = block[cut:].strip()
+        if block:
+            pieces.append(block)
+        return pieces
+
     for para in paragraphs:
         para = para.strip()
         if not para:
             continue
+        # Force-split oversized paragraphs first
+        if len(para) > MAX_CHUNK_LEN:
+            if buf:
+                _flush(buf)
+                buf = ""
+            for piece in _split_long(para):
+                _flush(piece)
+            continue
         if buf and len(buf) + len(para) + 2 > MAX_CHUNK_LEN:
-            if len(buf) >= MIN_CHUNK_LEN:
-                chunks.append(buf)
+            _flush(buf)
             buf = para
         else:
             buf = f"{buf}\n\n{para}" if buf else para
-    if buf and len(buf) >= MIN_CHUNK_LEN:
-        chunks.append(buf)
+    if buf:
+        _flush(buf)
     return chunks
 
 
@@ -243,7 +293,8 @@ async def _filter_chunk(phrase: str, chunk: str) -> bool:
     """Ask the filter model if a chunk is relevant to the mantra phrase."""
     user = f"<mantra phrase>{phrase}</mantra phrase>\n\n<text>{chunk}</text>"
     num_ctx = estimate_num_ctx(FILTER_SYSTEM, user)
-    try:
+
+    async def _call():
         response = await litellm.acompletion(
             model=FILTER_MODEL,
             messages=[
@@ -257,9 +308,12 @@ async def _filter_chunk(phrase: str, chunk: str) -> bool:
         )
         raw = (response.choices[0].message.content or "").strip()
         return raw.lower().startswith("true")
+
+    try:
+        return await _llm_call_with_retry(_call, f"filter '{phrase[:30]}' ({len(chunk)} chars)")
     except Exception as e:
         _log.warning("filter failed for chunk (%d chars): %s", len(chunk), e)
-        return True  # conservative: keep on failure
+        return False  # discard on failure — keeping it would cascade timeouts downstream
 
 
 
@@ -312,7 +366,7 @@ _AnswerKey = tuple[str, str, str]  # (phrase, field_name, model)
 async def call_student(
     model: str, phrase: str, filtered_context: str,
     existing_match: dict | None, task: str,
-    temperature: float, timeout: int,
+    temperature: float,
 ) -> str:
     """Call a student model with pre-filtered context. Returns answer only."""
     header = f"<mantra phrase>{phrase}</mantra phrase>"
@@ -328,21 +382,24 @@ async def call_student(
     _log.debug("student  model=%s  phrase='%s'  ctx=%d chars  num_ctx=%d",
                _model_short(model), phrase[:30], len(context), num_ctx)
 
-    response = await litellm.acompletion(
-        model=model,
-        messages=[
-            {"role": "system", "content": STUDENT_SYSTEM},
-            {"role": "user", "content": user_message},
-        ],
-        timeout=timeout,
-        temperature=temperature,
-        extra_body={"options": {"num_ctx": num_ctx}},
-    )
-    raw = (response.choices[0].message.content or "").strip()
-    _log.debug("student response  model=%s  len=%d:\n%s",
-               _model_short(model), len(raw), raw[:500])
-    return _parse_answer(raw)
+    async def _call():
+        response = await litellm.acompletion(
+            model=model,
+            messages=[
+                {"role": "system", "content": STUDENT_SYSTEM},
+                {"role": "user", "content": user_message},
+            ],
+            timeout=_LLM_TIMEOUT,
+            temperature=temperature,
+            extra_body={"options": {"num_ctx": num_ctx}},
+        )
+        raw = (response.choices[0].message.content or "").strip()
+        _log.debug("student response  model=%s  len=%d:\n%s",
+                   _model_short(model), len(raw), raw[:500])
+        return _parse_answer(raw)
 
+    return await _llm_call_with_retry(
+        _call, f"student {_model_short(model)} '{phrase[:30]}'")
 
 async def run_students(
     mantras: list[dict],
@@ -368,7 +425,6 @@ async def run_students(
 
                 task = _expand_task(field_cfg)
                 temperature = float(field_cfg.get("llm_temperature", 0))
-                timeout = int(field_cfg.get("llm_timeout", 120))
 
                 pbar.set_postfix_str(f"'{phrase[:20]}' {field_name} ({short})")
 
@@ -376,7 +432,7 @@ async def run_students(
                 try:
                     answer = await call_student(
                         model, phrase, filtered_context, existing_match,
-                        task, temperature, timeout,
+                        task, temperature,
                     )
                 except Exception as exc:
                     _log.warning("student %s failed '%s' %s: %s",
@@ -407,14 +463,14 @@ async def grade_answer(
     _log.debug("grader  phrase='%s'  prompt=%d chars  num_ctx=%d",
                phrase[:30], len(user_message), num_ctx)
 
-    try:
+    async def _call():
         response = await litellm.acompletion(
             model=MODEL_GRADER,
             messages=[
                 {"role": "system", "content": GRADER_SYSTEM},
                 {"role": "user", "content": user_message},
             ],
-            timeout=GRADER_TIMEOUT,
+            timeout=_LLM_TIMEOUT,
             temperature=GRADER_TEMPERATURE,
             extra_body={"options": {"num_ctx": num_ctx}},
         )
@@ -424,6 +480,9 @@ async def grade_answer(
         score_match = re.search(r"\d+", answer_text)
         score = max(0, min(100, int(score_match.group()))) if score_match else 0
         return score, raw
+
+    try:
+        return await _llm_call_with_retry(_call, f"grader '{phrase[:30]}'")
     except Exception as e:
         _log.warning("grading failed '%s': %s", phrase[:50], e)
         return 0, "grading failed"
