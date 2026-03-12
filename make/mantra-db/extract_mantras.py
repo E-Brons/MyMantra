@@ -25,11 +25,9 @@ Usage:
 """
 
 import argparse
-import hashlib
 import json
 import os
 import re
-import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
@@ -39,11 +37,11 @@ from typing import Dict, List, Optional
 
 import litellm
 from tqdm import tqdm
-import trafilatura
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ollama, ollama_base, ROOT as _ROOT, llm_kwargs, parse_fenced_json
 from log import get_logger, Timer
+from web_cache import fetch_html, extract_text as html_to_text, page_title
 
 _log = get_logger("extract_mantras")
 
@@ -53,7 +51,6 @@ _ecfg = cfg()["extract_mantra"]
 TMP_DIR = str(_ROOT / "tmp")
 URLS_FILE = str(root_path("extract_mantra", "input"))
 INDEX_FILE = str(root_path("extract_mantra", "output"))
-CACHE_DIR = str(_ROOT / _ecfg["cache_dir"])
 TODAY = str(date.today())
 DELAY = float(_ecfg["delay"])
 MAX_CHARS = int(_ecfg["max_page_chars"])
@@ -83,100 +80,6 @@ def call_llm(model: str, messages: list) -> tuple[str, float]:
                model, elapsed, len(content))
     _log.debug("LLM output:\n%s", content[:2000])
     return content, elapsed
-
-
-# ── HTML helpers ──────────────────────────────────────────────────────────────
-
-BROWSER_UA = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/124.0.0.0 Safari/537.36"
-)
-
-_CURL_CMD = [
-    "curl",
-    "-L",
-    "-s",
-    "--max-time",
-    "30",
-    "-A",
-    BROWSER_UA,
-    "-H",
-    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "-H",
-    "Accept-Language: en-US,en;q=0.9",
-    "-H",
-    "Accept-Encoding: identity",
-    "-H",
-    "Connection: keep-alive",
-]
-
-
-def _cache_path(url: str) -> str:
-    h = hashlib.md5(url.encode()).hexdigest()
-    os.makedirs(CACHE_DIR, exist_ok=True)
-    return os.path.join(CACHE_DIR, f"{h}.html")
-
-
-def fetch_html(url: str) -> Optional[str]:
-    """Fetch URL using curl (cache-first). Returns HTML string or None."""
-    cp = _cache_path(url)
-    if os.path.exists(cp):
-        with open(cp, encoding="utf-8") as f:
-            content = f.read()
-        if content.startswith("ERROR:"):
-            _log.debug("cache hit (error): %s", url)
-            return None
-        _log.debug("cache hit: %s  (%d bytes)", url, len(content))
-        return content
-    _log.debug("fetching: %s", url)
-    try:
-        r = subprocess.run(_CURL_CMD + [url], capture_output=True, timeout=60)
-        if r.returncode == 0 and len(r.stdout) > 200:
-            html = r.stdout.decode("utf-8", errors="replace")
-            with open(cp, "w", encoding="utf-8") as f:
-                f.write(html)
-            _log.debug("fetched: %s  (%d bytes)", url, len(html))
-            return html
-    except Exception as e:
-        _log.warning("fetch error for %s: %s", url, e)
-    with open(cp, "w") as f:
-        f.write(f"ERROR: {url}")
-    return None
-
-
-def html_to_text(html: str) -> str:
-    """Extract main body text from HTML using trafilatura.
-
-    Falls back to basic tag-stripping if trafilatura finds nothing
-    (e.g. single-page apps that render no static text).
-    """
-    extracted = trafilatura.extract(
-        html,
-        include_comments=False,
-        include_tables=True,
-        no_fallback=False,
-    )
-    if extracted and extracted.strip():
-        return extracted.strip()
-
-    # Fallback: strip tags manually
-    text = re.sub(
-        r"<(script|style|nav|footer|header|aside|form|iframe)[^>]*>.*?</\1>",
-        " ", html, flags=re.DOTALL | re.IGNORECASE,
-    )
-    text = re.sub(r"<!--.*?-->", " ", text, flags=re.DOTALL)
-    text = re.sub(r"<[^>]+>", " ", text)
-    text = re.sub(r"[^\S\n]+", " ", text)
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    return text.strip()
-
-
-def page_title(html: str) -> str:
-    m = re.search(r"<title[^>]*>(.*?)</title>", html, re.IGNORECASE | re.DOTALL)
-    if not m:
-        return ""
-    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", m.group(1))).strip()
 
 
 # ── LLM extraction ────────────────────────────────────────────────────────────

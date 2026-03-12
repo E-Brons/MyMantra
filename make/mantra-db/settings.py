@@ -50,6 +50,7 @@ def ollama(model: str) -> str:
 # Parameters passed directly to litellm.completion vs Ollama-specific options
 # (Ollama options must go through extra_body={"options": {...}})
 _LITELLM_PARAMS = {"temperature", "top_p", "max_tokens", "stop", "seed"}
+_SKIP_PARAMS = {"weights", "timeout"}  # not LLM params; consumed by pipeline code
 
 
 def llm_kwargs(section: str, options_key: str = "llm_options") -> dict:
@@ -68,6 +69,8 @@ def llm_kwargs(section: str, options_key: str = "llm_options") -> dict:
     kwargs: dict = {}
     ollama_opts: dict = {}
     for k, v in opts.items():
+        if k in _SKIP_PARAMS:
+            continue
         if k in _LITELLM_PARAMS:
             kwargs[k] = v
         else:
@@ -93,10 +96,10 @@ def all_models() -> list[str]:
     def _scan(obj) -> None:
         if isinstance(obj, dict):
             for key, val in obj.items():
-                if key in ("llm_engine", "llm_grader", "llm_combine"):
+                if key in ("llm_engine", "llm_grader", "llm_combine", "llm_filter"):
                     if isinstance(val, str):
                         _add(val)
-                elif key == "llm_engines":
+                elif key in ("llm_engines", "llm_students"):
                     if isinstance(val, list):
                         for m in val:
                             if isinstance(m, str):

@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 """
-merge_mantras.py — Merge enriched mantras into assets/data/mantras.json
+deploy_mantras.py — Deploy enriched mantras into the live database.
 
 Reads tmp/enriched_mantras.json (produced by enrich_mantras.py) and merges
-every valid entry into assets/data/mantras.json — a single versioned library
-file that the Flutter app can load directly.
+every valid entry into assets/data/mantras.json — the versioned library file
+that the Flutter app loads directly.
 
 Merge behaviour:
   - Entries are matched by transliteration (case-insensitive) or phrase key.
-  - New entries: quality-gated (missing fields, short abstract, too few tags,
-    unknown tradition are all rejected with a warning).
+  - New entries: quality-gated (missing required fields, unknown tradition).
   - Existing entries: fill-blanks for scalars; union for lists/dicts.
-    Abstract is updated only when the existing one is a stub (shorter than
-    min_abstract_chars) AND the incoming one is longer.
+    background/benefits are updated only when the existing value is shorter.
   - Entries with _error present are always skipped.
   - Patch version is incremented on every run (--bump-minor increments minor).
   - Pipeline metadata is recorded in the output envelope.
@@ -28,10 +26,10 @@ Output envelope:
   }
 
 Usage:
-    python3 make/mantra-db/merge_mantras.py
-    python3 make/mantra-db/merge_mantras.py --dry-run
-    python3 make/mantra-db/merge_mantras.py --notes "Hand-curated batch 2"
-    python3 make/mantra-db/merge_mantras.py --bump-minor
+    python3 make/mantra-db/deploy_mantras.py
+    python3 make/mantra-db/deploy_mantras.py --dry-run
+    python3 make/mantra-db/deploy_mantras.py --notes "Hand-curated batch 2"
+    python3 make/mantra-db/deploy_mantras.py --bump-minor
 """
 
 import argparse
@@ -45,11 +43,11 @@ sys.path.insert(0, str(Path(__file__).parent))
 from settings import cfg, root_path
 from log import get_logger
 
-_log = get_logger("merge_mantras")
+_log = get_logger("deploy_mantras")
 
 _ROOT = Path(__file__).parent.parent.parent  # make/mantra-db -> make -> project root
-ENRICHED = root_path("merge_mantras", "input")
-OUTPUT = root_path("merge_mantras", "output")
+ENRICHED = root_path("deploy", "input")
+OUTPUT = root_path("deploy", "output")
 
 _SEP = "#" * 79
 
@@ -62,7 +60,7 @@ def _banner(title: str, body_lines: list) -> None:
         _log.info(line)
     _log.info(_SEP)
 
-REQUIRED = {"name", "english", "transliteration", "abstract", "tradition"}
+REQUIRED = {"name", "english", "transliteration", "background", "tradition"}
 
 TRADITION_PREFIX = {
     "hindu": "hindu",
@@ -86,7 +84,8 @@ EMPTY_ENTRY = {
     "english": "",
     "original": "",
     "transliteration": "",
-    "abstract": "",
+    "background": "",
+    "benefits": "",
     "tags": [],
     "tradition": "",
     "category": "",
@@ -178,12 +177,12 @@ def make_id(entry: dict, existing_ids: set[str]) -> str:
         n += 1
 
 
-def merge_fields(base: dict, incoming: dict, min_abstract_chars: int) -> dict:
+def merge_fields(base: dict, incoming: dict) -> dict:
     """Return base updated with non-empty fields from incoming.
 
     For scalars: fill-blanks rule (do not overwrite non-empty existing values),
-    with one exception: abstract is updated when the existing value is a stub
-    (shorter than min_abstract_chars) AND the incoming value is longer.
+    with one exception: background/benefits are updated when the incoming value
+    is longer than the existing one.
 
     For lists: union, preserving order.
     For dicts: per-key fill-blanks.
@@ -194,15 +193,14 @@ def merge_fields(base: dict, incoming: dict, min_abstract_chars: int) -> dict:
             continue
         if key not in result:
             result[key] = value
-        elif key == "abstract":
-            # Conservative abstract update: only replace a stub
-            existing_abstract = result.get("abstract", "")
+        elif key in ("background", "benefits"):
+            # Update when incoming is longer
+            existing_val = result.get(key, "")
             if (
                 isinstance(value, str)
                 and value
-                and isinstance(existing_abstract, str)
-                and len(existing_abstract) < min_abstract_chars
-                and len(value) > len(existing_abstract)
+                and isinstance(existing_val, str)
+                and len(value) > len(existing_val)
             ):
                 result[key] = value
         elif isinstance(value, list) and value:
@@ -227,34 +225,6 @@ def merge_fields(base: dict, incoming: dict, min_abstract_chars: int) -> dict:
         elif value and not result[key]:
             result[key] = value
     return result
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Quality gates
-# ─────────────────────────────────────────────────────────────────────────────
-
-
-def gate_new_entry(
-    phrase: str, entry: dict, min_abstract_chars: int, min_tags: int
-) -> str | None:
-    """Return a rejection reason string, or None if the entry passes."""
-    missing = REQUIRED - set(entry.keys())
-    if missing:
-        return f"missing fields {missing}"
-
-    abstract = entry.get("abstract", "")
-    if len(abstract) < min_abstract_chars:
-        return f"abstract too short ({len(abstract)} < {min_abstract_chars} chars)"
-
-    tags = entry.get("tags", [])
-    if len(tags) < min_tags:
-        return f"too few tags ({len(tags)} < {min_tags})"
-
-    tradition = entry.get("tradition", "").lower()
-    if tradition not in TRADITION_PREFIX:
-        return f"unknown tradition {entry.get('tradition')!r}"
-
-    return None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -289,12 +259,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    merge_cfg = cfg().get("merge_mantras", {})
-    min_abstract = int(merge_cfg.get("min_abstract_chars", 300))
-    min_tags = int(merge_cfg.get("min_tags", 3))
-
     if not ENRICHED.exists():
-        sys.exit(f"Error: {ENRICHED} not found — run enrich_mantras.py first.")
+        sys.exit(f"Error: {ENRICHED} not found -- run enrich_mantras.py first.")
 
     enriched: dict[str, dict] = json.loads(ENRICHED.read_text())
     meta, library = load_existing_library()
@@ -303,14 +269,12 @@ def main() -> None:
     new_version = bump_version(meta.get("version", "0.1.0"), minor=args.bump_minor)
 
     _banner(
-        "Stage 5: merge_mantras",
+        "Stage 5: deploy_mantras",
         [
-            f"###   Input:              {ENRICHED}  ({len(enriched)} entries)",
-            f"###   Output:             {OUTPUT}",
-            f"###   min_abstract_chars: {min_abstract}",
-            f"###   min_tags:           {min_tags}",
-            f"###   version:            {meta.get('version', '?')} → {new_version}",
-            f"###   dry_run:            {args.dry_run}",
+            f"###   Input:     {ENRICHED}  ({len(enriched)} entries)",
+            f"###   Output:    {OUTPUT}",
+            f"###   version:   {meta.get('version', '?')} -> {new_version}",
+            f"###   dry_run:   {args.dry_run}",
         ],
     )
     _log.info("")
@@ -327,19 +291,25 @@ def main() -> None:
         existing = find_existing(incoming, library)
 
         if existing:
-            merged = merge_fields(existing, incoming, min_abstract)
+            merged = merge_fields(existing, incoming)
             idx = library.index(existing)
             library[idx] = merged
             stats["updated"] += 1
         else:
-            # Quality gate for new entries
-            reason = gate_new_entry(phrase, incoming, min_abstract, min_tags)
-            if reason:
-                _log.warning("skip (%s): %r", reason, phrase)
+            # Quality gate: required fields + known tradition
+            missing = REQUIRED - set(incoming.keys())
+            if missing:
+                _log.warning("skip (missing %s): %r", missing, phrase)
+                stats["skipped"] += 1
+                continue
+            tradition = incoming.get("tradition", "").lower()
+            if tradition not in TRADITION_PREFIX:
+                _log.warning("skip (unknown tradition %r): %r",
+                             incoming.get("tradition"), phrase)
                 stats["skipped"] += 1
                 continue
 
-            new_entry = merge_fields(dict(EMPTY_ENTRY), incoming, min_abstract)
+            new_entry = merge_fields(dict(EMPTY_ENTRY), incoming)
             new_entry["id"] = make_id(incoming, existing_ids)
             existing_ids.add(new_entry["id"])
             library.append(new_entry)
@@ -350,7 +320,7 @@ def main() -> None:
 
     total = len(library)
     _banner(
-        "Results: merge_mantras",
+        "Results: deploy_mantras",
         [
             f"###   Version:   {meta.get('version', '?')} → {new_version}",
             f"###   Library:   {total} entries total",

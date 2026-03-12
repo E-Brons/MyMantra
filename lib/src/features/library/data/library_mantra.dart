@@ -79,7 +79,7 @@ String tagWithEmoji(String tag) {
 /// A mantra entry from the curated library (assets/data/mantra_library.json).
 ///
 /// Distinct from [BuiltInMantra] — this model is JSON-serialisable and carries
-/// the richer set of fields needed by the full library (abstract, translations,
+/// the richer set of fields needed by the full library (background, benefits, translations,
 /// audio, etc.).
 class LibraryMantra {
   final String id;
@@ -96,8 +96,11 @@ class LibraryMantra {
   /// How to pronounce the original in romanised English.
   final String transliteration;
 
-  /// 4–5 paragraph history-and-meaning essay.
-  final String abstract;
+  /// Origin, tradition, and literal meaning of the mantra.
+  final String background;
+
+  /// Spiritual or psychological benefits of practising the mantra.
+  final String benefits;
 
   /// Plain tag names; pair with [kTagEmojis] for display.
   final List<String> tags;
@@ -129,7 +132,8 @@ class LibraryMantra {
     required this.english,
     required this.original,
     required this.transliteration,
-    required this.abstract,
+    required this.background,
+    required this.benefits,
     required this.tags,
     required this.tradition,
     required this.category,
@@ -146,7 +150,8 @@ class LibraryMantra {
         english: json['english'] as String,
         original: json['original'] as String,
         transliteration: json['transliteration'] as String,
-        abstract: json['abstract'] as String,
+        background: json['background'] as String,
+        benefits: json['benefits'] as String,
         tags: List<String>.from(json['tags'] as List),
         tradition: json['tradition'] as String,
         category: json['category'] as String,
@@ -168,7 +173,8 @@ class LibraryMantra {
         'english': english,
         'original': original,
         'transliteration': transliteration,
-        'abstract': abstract,
+        'background': background,
+        'benefits': benefits,
         'tags': tags,
         'tradition': tradition,
         'category': category,

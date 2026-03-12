@@ -1,27 +1,20 @@
 # Mantra DataBase Build
 
-Five-stage pipeline for discovering, deduplicating, enriching, and merging
+Five-stage pipeline for discovering, deduplicating, enriching, and deploying
 Mantras into the myMantra DataBase.
 
 tool parameters are driven by `settings.yml` — no hardcoded values exist in the scripts.
 
 ---
 
-## One-time migration — `consolidate_mantras.py`
-
-Merges the legacy per-tradition JSON files (`assets/data/mantras/*.json`) into
-the single versioned `assets/data/mantras.json` file.  Run this **once** after
-pulling a repo that still has the old per-tradition layout:
+## Usage
 
 ```bash
-python3 make/mantra-db/consolidate_mantras.py --dry-run   # preview
-python3 make/mantra-db/consolidate_mantras.py             # write + delete old files
-# or via Makefile:
-make -f make/mantra-db/Makefile consolidate
+make mantra-db                    # run stages 1–4 (default: all)
+make mantra-db ARGS=deploy        # deploy enriched mantras to assets/data/mantras.json
+make mantra-db ARGS=clean         # remove all tmp/ pipeline outputs
+make mantra-db ARGS=prerequisites # check pip packages and Ollama models
 ```
-
-After this step the `assets/data/mantras/` directory no longer exists; all
-pipeline stages read from and write to `assets/data/mantras.json`.
 
 ---
 
@@ -29,55 +22,62 @@ pipeline stages read from and write to `assets/data/mantras.json`.
 
 ```mermaid
 flowchart TD
-    subgraph internet["WWW - Public Domains"]
-        WSE[("Web Search Engine<br/>_e.g. DuckDuckGo_")]
-        WEB[("Mantra Web Pages")]
+    subgraph internet["Internet"]
+        WSE[\Web Search Engine<br/>_e.g. DuckDuckGo_/]:::web
+        WEB[\Mantra Web Pages/]:::web
     end
 
-    subgraph ollama["Ollama — Local LLMs"]
-        LLM_EXT[("Extraction model<br/>_e.g. qwen2.5:3b_")]
-        LLM_ENG[("English model<br/>_e.g. translategemma:12b_")]
-        LLM_TRN[("Translator model<br/>_e.g. translategemma:27b_")]
-        LLM_STU[("Student models<br/>_e.g. phi3:mini, gemma3:1b_")]
-        LLM_GRD[("Grader model<br/>_e.g. qwen2.5:1.5b_")]
+    subgraph OLLAMA["Local LLMs"]
+      CALSIFY[["Classify"]]:::llm
+      TRANSLATE[["Translate"]]:::llm
+      REASON[["Reason"]]:::llm
     end
 
-    S1["**Stage 1<br/> Fetch URLs**<br>search_for_urls.py"]
-    S2["**Stage 2<br/> Extract Mantras**<br>extract_mantras.py"]
-    S3["**Stage 3<br/> Translate + Dedup**<br>translate_n_dedup.py"]
-    S4["**Stage 4<br/> Enrich**<br>enrich_mantras.py"]
-    S5["**Stage 5<br/> Merge**<br>merge_mantras.py"]
+    S1(["**Stage 1<br/> Fetch URLs**<br>search_for_urls.py"]):::py
+    S2(["**Stage 2<br/> Extract Mantras**<br>extract_mantras.py"]):::py
+    S3(["**Stage 3<br/> Translate + Dedup**<br>translate_n_dedup.py"]):::py
+    S4(["**Stage 4<br/> Enrich**<br>enrich_mantras.py"]):::py
+    S5(["**Stage 5<br/> Deploy**<br>deploy_mantras.py"]):::py
 
-    subgraph filesystem["Project File System"]
-        URLS[("tmp/<br/>mantra_urls.txt")]
-        INDEX[("tmp/<br/>mantra_index.json")]
-        ENGCACHE[("tmp/<br/>mantra_english_cache.json")]
-        DEDUPED[("tmp/<br/>mantra_index_deduped.json")]
-        ENRICHED[("tmp/<br/>enriched_mantras.json")]
-        LIB[("assets/data/<br/>mantras.json")]
-        ALIASES[("make/mantra-db/<br/>phrase_aliases.json")]
+    subgraph tmpfiles["Temporary  Files"]
+        URLS[/tmp/<br/>mantra_urls.txt/]:::tmp_file
+        subgraph CACHE["URL -> Text Caching"]
+          WEB .->|fetch| CACHE_SCRIPT([web_cache.py]):::llm <--> |read +<br/>write|CACHE_FOLDER
+          CACHE_FOLDER{{tmp/web_cache/}}:::tmp_file
+        end
+        INDEX[/tmp/<br/>mantra_index.json/]:::tmp_file
+        DEDUPED[/tmp/<br/>mantra_translations.json/]:::tmp_file
+        ENRICHED[/tmp/<br/>enriched_mantras.json/]:::tmp_file
     end
 
-    S1 -->S2-->S3-->S4-->S5
+    subgraph filesystem["Project Files"]
+        ALIASES>make/mantra-db/<br/>phrase_aliases.json]:::file
+        CONFIG>make/mantra-db/<br/>settings.yml]:::file
+        LIB[("**assets/data/<br/>mantras.json**")]:::output
+    end
+
+    S1 ==>S2==>S3==>S4==>S5==>|deploy| LIB
 
     WSE .->|search| S1 .->|output| URLS
+    CACHE .->|fetch|S2
     URLS .->|input| S2
-    WEB .->|fetch| S2 .->|output| INDEX
-    LLM_EXT .->|extract| S2
+    S2 .->|output| INDEX
+    CONFIG .-> |config| OLLAMA .-o|classify| S2
     INDEX .->|input| S3
     ALIASES .->|input| S3
-    LLM_ENG .->|step 1| S3
-    LLM_TRN .->|step 3| S3
-    S3 .->|cache| ENGCACHE
+    OLLAMA .-o|classify +<br/>reason| S3
     S3 .->|output| DEDUPED
     DEDUPED .->|input| S4
-    LIB .->|existing| S4
-    WSE .->|DDG search| S4
-    WEB .->|fetch sources| S4
-    LLM_STU .->|assignments| S4
-    LLM_GRD .->|grading| S4
-    S4 .->|output| ENRICHED
-    ENRICHED .->|input| S5 .->|output| LIB
+    CACHE .->|fetch| S4
+    OLLAMA .-o|classify +<br/>reason| S4
+    S4 .->|output| ENRICHED .->|input| S5
+
+    classDef web fill:#4a90d9,stroke:#0E3E65,color:#fff
+    classDef llm fill:#9b59b6,stroke:#391846,color:#fff
+    classDef py fill:#2ecc71,stroke:#1a8a4a,color:#fff
+    classDef file fill:#f39c12,stroke:#925B02,color:#fff
+    classDef tmp_file fill:#7f8c8d,stroke:#566573,color:#fff
+    classDef output fill:#e74c3c,stroke:#5C0902,color:#fff
 ```
 
 ---
@@ -112,18 +112,12 @@ no script changes are needed.
 | 3 | `translate_n_dedup.translations` | dict | step 4 config: `llm_engine`, `llm_options`, `languages` (with `task` + `{code: name}` pairs) |
 | 4 | `enrich_mantras.input` | path | deduplicated index consumed by Stage 4 |
 | 4 | `enrich_mantras.output` | path | enriched records written by Stage 4 |
-| 4 | `enrich_mantras.llm_engines` | list | student models competing per assignment |
-| 4 | `enrich_mantras.llm_grader` | string | grader model that scores student answers |
-| 4 | `enrich_mantras.llm_timeout` | int (sec) | timeout for all LLM calls |
-| 4 | `enrich_mantras.grader_options` | dict | litellm params for grader model |
-| 4 | `enrich_mantras.system` | string | system prompt for student models |
-| 4 | `enrich_mantras.assignments` | dict | per-field tasks with `task`, `grade`, `temperature`, `num_ctx` |
-| 4 | `enrich_mantras.max_source_chars` | int | source URL text truncation limit |
 | 4 | `enrich_mantras.http_timeout` | int (sec) | HTTP timeout for source fetching |
-| 5 | `merge_mantras.input` | path | enriched records consumed by Stage 5 |
-| 5 | `merge_mantras.output` | path | final library file written by Stage 5 |
-| 5 | `merge_mantras.min_abstract_chars` | int | minimum abstract length for new entries (default 300) |
-| 5 | `merge_mantras.min_tags` | int | minimum tag count for new entries (default 3) |
+| 4 | `enrich_mantras.context_filter` | dict | step 0: `llm_filter`, `system`, `llm_timeout`, `llm_temperature`, `chunk_mode`, `min_chunk_len`, `max_chunk_len` |
+| 4 | `enrich_mantras.assignments` | dict | step 1: `llm_students`, `system`, then per-field dicts with `task`, `llm_temperature`, `llm_timeout` |
+| 4 | `enrich_mantras.grader_options` | dict | step 2: `llm_grader`, `system`, `llm_timeout`, `llm_temperature`, `weights` |
+| 5 | `deploy.input` | path | enriched records consumed by Stage 5 |
+| 5 | `deploy.output` | path | final library file written by Stage 5 |
 
 All `input`/`output` paths are relative to the project root and resolved
 to absolute paths at runtime via `settings.py`.
@@ -242,7 +236,6 @@ canonical phrase:
     "transliteration": "oṃ namaḥ śivāya",
     "original":  "ॐ नमः शिवाय",
     "english":   "I bow to Shiva",
-    "supportedLanguages": ["sa", "en", "hi"],
     "translations": { "en": "...", "es": "...", ... },
     "sources": [
       {
@@ -283,68 +276,76 @@ standalone words and decorated forms.
 
 ## Stage 4 — `enrich_mantras.py`
 
-Assignment-driven enrichment pipeline. For every entry in
+Four-step enrichment pipeline. For every entry in
 `mantra_index_deduped.json`, produces a full library record. All LLM calls
-run sequentially (one model at a time) to avoid Ollama VRAM swapping.
+use dynamic `num_ctx` sized to the actual input + 4K output reserve.
 
-**Step 1 — DDG search + source fetching**:
-Searches DuckDuckGo for `practicing mantra '<phrase>' - origin and impact`,
-then fetches up to 5 source URLs with curl + trafilatura (sharing the HTML
-cache with Stage 2).
+**Fetch — Source text extraction**:
+Fetches source URLs (already known from earlier stages) with curl +
+trafilatura, caching both HTML and extracted text under `tmp/crawl_cache/`.
 
-**Step 2 — Per-field assignments** (student models):
-Each output field (abstract, tags, tradition, category, difficulty,
-targetRepetitions) is a separate focused task defined in `settings.yml`.
-Every student model answers every assignment independently with the fetched
-source context. Students return their answer followed by a grounding
-explanation (chain-of-thought) — the grounding improves quality but is
-stripped before storage.
+**Step 0 — Context filter** (`context_filter.llm_filter`):
+Chunks all source texts per mantra into paragraphs (configurable min/max
+length). A lightweight LLM answers true/false per chunk for relevance to
+the mantra phrase. Only relevant chunks are concatenated into a single
+filtered context — shared by all students and the grader.
 
-**Step 3 — Grading + best-answer selection** (grader model):
-A grader model scores each student's answer (0–100) against the task and
-source context. The highest-scoring answer wins for each field. Scores and
-per-model metrics are saved in `_scores` for analysis.
+**Step 1 — Student assignments** (`assignments.llm_students`):
+Each student model answers every assignment (background, benefits, tags,
+tradition, difficulty, targetRepetitions) using the pre-filtered context.
+Models are batched to avoid Ollama VRAM swapping. Each field has its own
+`llm_temperature` and `llm_timeout`. Task prompts support `{key}` template
+variables (e.g. `{min_answer_len}`, `{max_tags}`). Only the answer is
+kept; grounding is discarded.
 
-Each assignment has its own `task` prompt, `grade` weight, `temperature`,
-and `num_ctx` — all configurable in `settings.yml` under
-`enrich_mantras.assignments`.
+**Step 2 — Grading** (`grader_options.llm_grader`):
+A grader model scores each student answer (0–100) using the Answer/Grounding
+format against the same filtered context. Scores and per-model metrics are
+saved for analysis.
+
+**Step 3 — Combine + statistics**:
+Best answer per field is selected. A scatter plot (`tmp/score_scatter.png`)
+with one subplot per assignment and one series per student model shows
+score vs time. A summary statistics table is logged.
 
 **Requires:**
 ```bash
-pip install litellm ddgs trafilatura tqdm
-ollama pull phi3:mini        # student
-ollama pull qwen2.5:1.5b     # student + grader
-ollama pull gemma3:1b         # student
+pip install litellm trafilatura tqdm
+ollama pull qwen2.5:3b-instruct   # context filter
+ollama pull phi3:14b               # student
+ollama pull qwen3.5:9b             # student + grader
+ollama pull gemma3:12b             # student
 ```
 
 ```bash
 python3 make/mantra-db/enrich_mantras.py
 ```
 
-The script is **crash-safe and resumable** — it writes after every entry
-and skips phrases already present in the output file.
-
-A scatter plot (`tmp/score_scatter.png`) is generated at the end showing
-each student model's speed vs weighted score per mantra.
+The script is **crash-safe and resumable** — it saves answers to
+`tmp/enrich_answers.json` after each pass and skips completed work on restart.
 
 Output: `tmp/enriched_mantras.json` — JSON object keyed by phrase.
 
 ---
 
-## Stage 5 — `merge_mantras.py`
+## Stage 5 — `deploy_mantras.py`
 
-Merges `tmp/enriched_mantras.json` into `assets/data/mantras.json` — the
-single combined library file loaded by the Flutter app.
+Deploys `tmp/enriched_mantras.json` into `assets/data/mantras.json` — the
+versioned library file loaded by the Flutter app. This is a separate,
+explicit Makefile target (`make deploy`) — not part of the default pipeline.
 
 - Existing entries are matched by transliteration or name and updated
   in-place (enriched fields fill in blanks; tags and translations are unioned)
-- New entries are appended with auto-generated IDs
+- New entries are appended with auto-generated IDs (must have required fields
+  and a known tradition)
 - Entries that failed LLM parsing are skipped with a warning
 - Output is sorted by tradition then name
 
 ```bash
-python3 make/mantra-db/merge_mantras.py --dry-run   # stats only, no write
-python3 make/mantra-db/merge_mantras.py             # write assets/data/mantras.json
+python3 make/mantra-db/deploy_mantras.py --dry-run   # stats only, no write
+python3 make/mantra-db/deploy_mantras.py              # write assets/data/mantras.json
+# or via Makefile:
+make -f make/mantra-db/Makefile deploy
 ```
 
 ---
@@ -359,6 +360,7 @@ python3 make/mantra-db/merge_mantras.py             # write assets/data/mantras.
 | `tmp/mantra_translit_cache.json` | Phrase→transliteration cache for Stage 3 step 3 (resumable) |
 | `tmp/mantra_index_deduped.json` | Deduplicated + translated index produced by Stage 3 |
 | `tmp/enriched_mantras.json` | Full library records produced by Stage 4 |
+| `tmp/enrich_answers.json` | Student/grader answer cache for Stage 4 resume |
 | `tmp/score_scatter.png` | Speed vs score scatter plot produced by Stage 4 |
 | `make/mantra-db/phrase_aliases.json` | Human-editable romanisation alias rules |
 | `make/mantra-db/settings.yml` | Single source of truth for all pipeline parameters |
@@ -367,24 +369,3 @@ python3 make/mantra-db/merge_mantras.py             # write assets/data/mantras.
 
 The crawl cache uses `md5(url)` as filename, so both scripts reuse each
 other's cached pages automatically.
-
----
-
-## Typical workflow
-
-```bash
-# Full pipeline in one command (stages 1–4)
-make mantra-db
-
-# Or run stages individually with extra options:
-python3 make/mantra-db/search_for_urls.py --verbose
-python3 make/mantra-db/extract_mantras.py --verbose
-python3 make/mantra-db/translate_n_dedup.py
-python3 make/mantra-db/enrich_mantras.py   # resumable
-
-# 5. Review tmp/enriched_mantras.json, then merge into the library
-make mantra-db-merge
-
-# Or dry-run first to see what would change:
-python3 make/mantra-db/merge_mantras.py --dry-run
-```

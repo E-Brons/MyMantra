@@ -1,14 +1,14 @@
-# ==============================================================
+# ============================================================================
 #  myMantra — Makefile
 #  Targets configured in target.json
-# ==============================================================
+# ============================================================================
 #  make install     [TARGET=<name>]  install tools + verify environment
 #  make build       [TARGET=<name>]  build artifacts (all build=true targets)
 #  make run         [TARGET=<name>]  run  (TARGET required if >1 build=true)
 #  make debug       [TARGET=<name>]  debug (TARGET required if >1 debug=true)
 #  make clean                        remove all build artifacts
 #  make mantra-db                    run the full mantra discovery pipeline
-# ==============================================================
+# ============================================================================
 
 TARGET ?=
 _T     := $(if $(TARGET),--target $(TARGET),)
@@ -49,8 +49,10 @@ test-integration:
 
 # ── mantra-db pipeline ────────────────────────────────────────────────────────
 # Delegates to make/mantra-db/Makefile — see that file for all sub-targets.
-# Full pipeline + merge: make mantra-db
-# Check prerequisites:   make mantra-db ARGS=prerequisites
+# Stages 1–4:        make mantra-db
+# Deploy to DB:      make mantra-db ARGS=deploy
+# Clean:             make mantra-db ARGS=clean
+# Check prereqs:     make mantra-db ARGS=prerequisites
 ARGS ?= all
 mantra-db:
 	@$(MAKE) -f make/mantra-db/Makefile $(ARGS)

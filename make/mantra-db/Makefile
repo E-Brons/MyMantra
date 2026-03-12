@@ -6,7 +6,8 @@
 #  Or directly:               make -f make/mantra-db/Makefile [target]
 #
 #  Targets:
-#    all            Run full pipeline (stages 1–5 → assets/data/mantras.json)
+#    all            Run pipeline stages 1–4 (enrich mantras)
+#    deploy         Deploy enriched mantras to assets/data/mantras.json
 #    clean          Remove all tmp/ pipeline outputs
 #    prerequisites  Check pip packages and Ollama models from settings.yml
 # ==============================================================================
@@ -25,17 +26,14 @@ URLS_FILE  := $(call _cfg,['search_web']['output'])
 INDEX_FILE := $(call _cfg,['extract_mantra']['output'])
 DEDUPED    := $(call _cfg,['translate_n_dedup']['output'])
 ENRICHED   := $(call _cfg,['enrich_mantras']['output'])
-MERGED     := $(call _cfg,['merge_mantras']['output'])
-# Stage 5 uses a stamp file so $(MERGED) timestamp doesn't gate re-runs
-# ($(MERGED) is updated/merged, not created fresh, so its mtime is unreliable)
-STAMP5     := $(dir $(ENRICHED)).stage5_merged
+DEPLOYED   := $(call _cfg,['deploy']['output'])
 
-PIPELINE_STR = Mantra DB Pipeline:  WWW -(1)-> $(URLS_FILE) -(2)-> ${INDEX_FILE} -(3)-> ${DEDUPED} -(4)-> ${ENRICHED} -(5)-> ${MERGED}
+PIPELINE_STR = Mantra DB Pipeline:  WWW -(1)-> $(URLS_FILE) -(2)-> ${INDEX_FILE} -(3)-> ${DEDUPED} -(4)-> ${ENRICHED} -(deploy)-> ${DEPLOYED}
 LINE_LENGTH = $(shell echo -n '$(PIPELINE_STR)' | wc -c)
 # ── phony targets ──────────────────────────────────────────────────────────────
-.PHONY: all prerequisites clean
+.PHONY: all deploy prerequisites clean
 
-all: $(STAMP5)
+all: $(ENRICHED)
 
 # ── prerequisites ─────────────────────────────────────────────────────────────
 prerequisites: $(SETTINGS)
@@ -67,15 +65,12 @@ $(ENRICHED): $(DEDUPED) | prerequisites
 	@printf '%*s\n' $(LINE_LENGTH) '' | tr ' ' '-'
 	@python3 $(SCRIPTS)enrich_mantras.py
 
-# ── stage 5: merge into library ──────────────────────────────────────────────
-# Targets a stamp file, not $(MERGED) directly — $(MERGED) is updated on each
-# run (not created fresh), so its mtime would make Make skip stage 5 forever.
-$(STAMP5): $(ENRICHED) | prerequisites
+# ── stage 5: deploy to live database (explicit target, not in default) ───────
+deploy: $(ENRICHED)
 	@printf '%*s\n' $(LINE_LENGTH) '' | tr ' ' '-'
-	@python3 $(SCRIPTS)merge_mantras.py
-	@touch $(STAMP5)
+	@python3 $(SCRIPTS)deploy_mantras.py
 
 # ── clean ─────────────────────────────────────────────────────────────────────
 clean:
-	@rm -f $(URLS_FILE) ${INDEX_FILE} ${DEDUPED} ${ENRICHED} ${STAMP5}
-	@echo "Pipeline outputs removed. ($(MERGED) kept — delete manually if needed)"
+	@rm -f $(URLS_FILE) ${INDEX_FILE} ${DEDUPED} ${ENRICHED}
+	@echo "Pipeline outputs removed. ($(DEPLOYED) kept — delete manually if needed)"
