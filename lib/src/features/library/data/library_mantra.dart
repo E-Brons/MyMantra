@@ -117,9 +117,6 @@ class LibraryMantra {
   /// Optional recommended cycle for the repetition count.
   final RepetitionCycle? recommendedCycle;
 
-  /// BCP-47 language codes supported for this mantra.
-  final List<String> supportedLanguages;
-
   /// Language-code → translated text (en, zh, es always present where possible).
   final Map<String, String> translations;
 
@@ -139,7 +136,6 @@ class LibraryMantra {
     required this.difficulty,
     this.recommendedRepetitions,
     this.recommendedCycle,
-    required this.supportedLanguages,
     required this.translations,
     this.audioUrl,
   });
@@ -155,14 +151,13 @@ class LibraryMantra {
         tradition: json['tradition'] as String,
         category: json['category'] as String,
         difficulty: json['difficulty'] as String,
-        recommendedRepetitions: json['recommendedRepetitions'] as int?,
+        recommendedRepetitions: (json['recommendedRepetitions'] ?? json['targetRepetitions']) as int?,
         recommendedCycle: json['recommendedCycle'] != null
             ? RepetitionCycle.values.firstWhere(
                 (e) => e.name == json['recommendedCycle'],
                 orElse: () => RepetitionCycle.session,
               )
             : null,
-        supportedLanguages: List<String>.from(json['supportedLanguages'] as List),
         translations: Map<String, String>.from(json['translations'] as Map),
         audioUrl: json['audioUrl'] as String?,
       );
@@ -180,7 +175,6 @@ class LibraryMantra {
         'difficulty': difficulty,
         'recommendedRepetitions': recommendedRepetitions,
         'recommendedCycle': recommendedCycle?.name,
-        'supportedLanguages': supportedLanguages,
         'translations': translations,
         'audioUrl': audioUrl,
       };

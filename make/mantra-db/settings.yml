@@ -426,11 +426,11 @@ translate_n_dedup:
       temperature: 0.1
       num_ctx: 4096
       timeout: 60
+    task: >
+      Provide true-to-the-source {target language} translation of the mantra phrase.
+      Prefer the meaning of the words, not the mere sound of it (do not transliterate),
+      except for unique-tradition untranslatable terms (e.g. 'Om', 'God', 'Shiva' etc).
     languages:
-      task: >
-        Provide true-to-the-source {target language} translation of the mantra phrase.
-        Prefer the meaning of the words, not the mere sound of it (do not transliterate),
-        except for unique-tradition untranslatable terms (e.g. 'Om', 'God', 'Shiva' etc).
       ar: Arabic
       bn: Bengali
       de: German

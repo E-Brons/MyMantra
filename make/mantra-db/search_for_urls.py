@@ -32,6 +32,9 @@ from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ROOT as _ROOT
+from log import get_logger, Timer
+
+_log = get_logger("search_for_urls")
 
 _fcfg = cfg()["search_web"]
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -78,16 +81,20 @@ def _cache_path(url):
 
 
 def _curl_get(url):
+    _log.debug("curl GET %s", url)
     try:
         r = subprocess.run(_CURL_CMD + [url], capture_output=True, timeout=60)
         if r.returncode == 0 and len(r.stdout) > 200:
+            _log.debug("curl GET %s → %d bytes", url, len(r.stdout))
             return r.stdout.decode("utf-8", errors="replace")
+        _log.debug("curl GET %s → returncode=%d, len=%d", url, r.returncode, len(r.stdout))
     except Exception as e:
-        tqdm.write(f"  curl error: {e}")
+        _log.warning("curl GET error for %s: %s", url, e)
     return None
 
 
 def _curl_post(url, data):
+    _log.debug("curl POST %s  data=%d bytes", url, len(data))
     try:
         r = subprocess.run(
             _CURL_CMD
@@ -106,9 +113,11 @@ def _curl_post(url, data):
             timeout=60,
         )
         if r.returncode == 0 and len(r.stdout) > 200:
+            _log.debug("curl POST %s → %d bytes", url, len(r.stdout))
             return r.stdout.decode("utf-8", errors="replace")
+        _log.debug("curl POST %s → returncode=%d, len=%d", url, r.returncode, len(r.stdout))
     except Exception as e:
-        tqdm.write(f"  curl POST error: {e}")
+        _log.warning("curl POST error for %s: %s", url, e)
     return None
 
 
@@ -162,7 +171,7 @@ def search_locale(city, kl, query, use_cache, verbose):
     )
     html = fetch(first_url, use_cache)
     if not html:
-        tqdm.write(f"  {city}: no response from DDG")
+        _log.warning("%s: no response from DDG", city)
         return []
 
     all_urls, seen = [], set()
@@ -173,7 +182,7 @@ def search_locale(city, kl, query, use_cache, verbose):
                 seen.add(u)
                 all_urls.append(u)
                 if verbose:
-                    tqdm.write(f"    {u}")
+                    _log.debug("    %s", u)
         if len(all_urls) >= PER_LOCALE:
             break
         form = _next_form(html)
@@ -212,22 +221,23 @@ def main():
     # ── stage banner ──────────────────────────────────────────────────────────
     SEP = "#" * 79
     locale_names = ", ".join(c for c, _, _ in LOCALES)
-    print(SEP)
-    print("# Stage 1  —  search_for_urls")
-    print(SEP)
-    print(f"#  engine:             {_fcfg.get('engine', 'DuckDuckGo')}")
-    print(f"#  output:             {args.output}")
-    print(f"#  locales:            {len(LOCALES)}  ({locale_names})")
-    print(f"#  results_per_locale: {PER_LOCALE}")
-    print(f"#  delay:              {DELAY} s")
-    print(f"#  cache_dir:          {CACHE_DIR}")
-    print(f"#  use_cache:          {use_cache}")
-    print(f"#  verbose:            {args.verbose}")
-    print(SEP)
+    _log.info(SEP)
+    _log.info("# Stage 1  —  search_for_urls")
+    _log.info(SEP)
+    _log.info("#  engine:             %s", _fcfg.get('engine', 'DuckDuckGo'))
+    _log.info("#  output:             %s", args.output)
+    _log.info("#  locales:            %d  (%s)", len(LOCALES), locale_names)
+    _log.info("#  results_per_locale: %d", PER_LOCALE)
+    _log.info("#  delay:              %s s", DELAY)
+    _log.info("#  cache_dir:          %s", CACHE_DIR)
+    _log.info("#  use_cache:          %s", use_cache)
+    _log.info("#  verbose:            %s", args.verbose)
+    _log.info(SEP)
 
     all_urls = []
     seen = set()
 
+    stage_timer = Timer().start()
     with tqdm(LOCALES, unit="locale", ncols=80) as pbar:
         for city, kl, query in pbar:
             pbar.set_description(f"{city}")
@@ -238,17 +248,23 @@ def main():
                     seen.add(u)
                     all_urls.append(u)
             new = len(seen) - before
-            tqdm.write(
-                f'  [{city}]  kl={kl}  query="{query}"'
-                f"  →  {len(urls)} found, {new} new"
+            _log.info(
+                '  [%s]  kl=%s  query="%s"'
+                '  →  %d found, %d new',
+                city, kl, query, len(urls), new,
             )
             pbar.set_postfix({"urls": len(all_urls)})
             time.sleep(DELAY)
+    stage_timer.stop()
 
     with open(args.output, "w", encoding="utf-8") as f:
         f.write("\n".join(all_urls) + "\n")
 
-    print(f"\nDone. {len(all_urls)} unique URLs written to {args.output}")
+    _log.info("")
+    _log.info("Done. %d unique URLs written to %s", len(all_urls), args.output)
+    _log.info("  Wall time: %.1f s  |  Locales: %d  |  Avg URLs/locale: %.1f",
+              stage_timer.elapsed, len(LOCALES),
+              len(all_urls) / max(len(LOCALES), 1))
 
 
 if __name__ == "__main__":

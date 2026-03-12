@@ -29,12 +29,6 @@
       "category": "theravada",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "I go to the Buddha for refuge; I go to the Dhamma for refuge; I go to the Sangha for refuge",
         "zh": "我皈依佛，我皈依法，我皈依僧",
@@ -67,12 +61,6 @@
       "category": "mahayana",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Gone, gone, gone beyond, gone completely beyond — awakening!",
         "zh": "揭谛揭谛 波罗揭谛 波罗僧揭谛 菩提萨婆诃",
@@ -105,12 +93,6 @@
       "category": "zen",
       "difficulty": "advanced",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "No / Does not have / The gateless gate",
         "zh": "無",
@@ -143,12 +125,6 @@
       "category": "mahayana",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Homage to Amitabha Buddha",
         "zh": "南无阿弥陀佛",
@@ -181,12 +157,6 @@
       "category": "theravada",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Homage to the Blessed One, the Worthy One, the Fully Enlightened One",
         "zh": "礼敬世尊、阿罗汉、正等正觉者",
@@ -219,12 +189,6 @@
       "category": "mahayana",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Devotion to the Lotus Sutra of the Wonderful Dharma",
         "zh": "南无妙法莲华经",
@@ -253,11 +217,6 @@
       "category": "Manjushri / Wisdom Mantra",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "The mantra of Manjushri — invocation of wisdom and clarity",
         "zh": "文殊菩萨心咒——智慧与清明的召唤",
@@ -290,12 +249,6 @@
       "category": "vajrayana",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Body, speech, and mind of all Buddhas",
         "zh": "嗡 啊 吽",
@@ -328,12 +281,6 @@
       "category": "tibetan",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Hail to the jewel in the lotus",
         "zh": "唵嘛呢叭咪吽",
@@ -366,12 +313,6 @@
       "category": "mahayana",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Om, Sage, Sage, Great Sage — hail!",
         "zh": "嗡 牟尼 牟尼 摩诃牟尼耶 梭哈",
@@ -404,12 +345,6 @@
       "category": "vajrayana",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Homage to Tara who liberates, protects, and swiftly fulfills",
         "zh": "嗡 达热 都达热 都热 梭哈",
@@ -441,12 +376,6 @@
       "category": "vajrayana",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Om, Indestructible Being, Hum",
         "zh": "嗡 班扎萨埵 吽",
@@ -475,11 +404,6 @@
       "category": "Vasudhara / Abundance Mantra",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Salutation to Vasudhara, Bodhisattva of abundance",
         "zh": "礼敬金刚大地菩萨，丰盛之菩萨",
@@ -512,12 +436,6 @@
       "category": "vajrayana",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "pi",
-        "bo",
-        "en"
-      ],
       "translations": {
         "en": "Eliminate pain, eliminate the great pain, O King who has transcended — so be it",
         "zh": "达雅他 嗡 贝堪泽 贝堪泽 玛哈贝堪泽 拉杂萨目嘎帝 梭哈",
@@ -547,11 +465,6 @@
       "category": "liturgical",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Lamb of God, who takes away the sins of the world, have mercy on us. Lamb of God, who takes away the sins of the world, grant us peace.",
         "zh": "天主的羔羊，除免世罪者，求你垂怜我们；天主的羔羊，除免世罪者，赐给我们平安。",
@@ -584,11 +497,6 @@
       "category": "liturgical",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Praise the Lord",
         "zh": "哈利路亚（赞美上主）",
@@ -619,11 +527,6 @@
       "category": "mystical",
       "difficulty": "advanced",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Soul of Christ, sanctify me. Body of Christ, save me. Blood of Christ, inebriate me. Water from the side of Christ, wash me.",
         "zh": "基督的灵魂，圣化我。基督的身体，拯救我。基督的宝血，陶醉我。基督肋旁流出的水，洁净我。",
@@ -654,11 +557,6 @@
       "category": "contemplative",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Hail Mary, full of grace, the Lord is with thee. Blessed art thou among women, and blessed is the fruit of thy womb, Jesus.",
         "zh": "万福玛利亚，你充满圣宠，主与你同在，你在女人中受赞颂，你的亲子耶稣同受赞颂。",
@@ -688,11 +586,6 @@
       "category": "liturgical",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Glory be to the Father, and to the Son, and to the Holy Spirit. As it was in the beginning, is now, and ever shall be, world without end. Amen.",
         "zh": "愿荣耀归于圣父、圣子、圣灵，起初如此，现在如此，直到永远。阿门。",
@@ -723,11 +616,6 @@
       "category": "orthodox",
       "difficulty": "intermediate",
       "targetRepetitions": 100,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Lord Jesus Christ, Son of God, have mercy on me, a sinner",
         "zh": "主耶稣基督，上帝之子，怜悯我这个罪人",
@@ -757,11 +645,6 @@
       "category": "liturgical",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Lord, have mercy",
         "zh": "主啊，怜悯我",
@@ -792,11 +675,6 @@
       "category": "contemplative",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Come, Lord",
         "zh": "主啊，请来",
@@ -826,11 +704,6 @@
       "category": "liturgical",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Our Father, who art in heaven, hallowed be thy name; thy kingdom come; thy will be done on earth as it is in heaven.",
         "zh": "我们在天上的父，愿人都尊你的名为圣；愿你的国降临；愿你的旨意行在地上，如同行在天上。",
@@ -861,11 +734,6 @@
       "category": "liturgical",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Holy, Holy, Holy, Lord God of hosts. Heaven and earth are full of your glory. Hosanna in the highest.",
         "zh": "圣哉，圣哉，圣哉，上主万军之神，天地充满你的荣光，和撒那于至高之处。",
@@ -895,11 +763,6 @@
       "category": "liturgical",
       "difficulty": "intermediate",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Come, Creator Spirit, visit the minds of those who are yours; fill with grace from above the hearts which you have created.",
         "zh": "来吧，创造主圣神，探访你子民的心灵，以天上的恩典充满你所造的心灵。",
@@ -929,11 +792,6 @@
       "category": "charismatic",
       "difficulty": "intermediate",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "la",
-        "el",
-        "en"
-      ],
       "translations": {
         "en": "Come, Holy Spirit, and send forth from heaven the ray of your light.",
         "zh": "圣神，请降临，从天上发射你光芒的光辉。",
@@ -968,10 +826,6 @@
       "category": "upanishadic",
       "difficulty": "advanced",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "I am Brahman. The individual self is not separate from the infinite universal consciousness; they are one and the same indivisible reality.",
         "zh": "我即梵。个体自我与无限的宇宙意识并非分离；它们是同一个不可分割的实在。",
@@ -1000,10 +854,6 @@
       "category": "Shakta / Goddess Mantra",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "We meditate on the Great Goddess Durga; may that divine Goddess illuminate our minds",
         "zh": "我们冥想大女神杜尔迦；愿那神圣女神照耀我们的心智",
@@ -1037,10 +887,6 @@
       "category": "vedic",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. O Earth, Atmosphere, and Heaven. We meditate on the glorious splendour of the divine Sun. May that divine light illuminate our intellect and inspire us toward truth.",
         "zh": "嗡。大地、空气、天空。我们冥想神圣太阳的光辉。愿那神圣之光照耀我们的智慧，引导我们走向真理。",
@@ -1075,10 +921,6 @@
       "category": "devotional",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "O divine energy of the Lord, O all-attractive Krishna, O source of all pleasure Rama — I offer my call and my heart to you.",
         "zh": "哦，主的神圣能量，哦，万物吸引的克里希纳，哦，一切快乐的源泉罗摩——我将我的呼唤和我的心献给你。",
@@ -1107,10 +949,6 @@
       "category": "Bhakti / Devotional Verse",
       "difficulty": "beginner",
       "targetRepetitions": 11,
-      "supportedLanguages": [
-        "hi",
-        "en"
-      ],
       "translations": {
         "en": "O Lord, do whatever is for my highest good — quickly — for I am Your servant",
         "zh": "主啊，为我做最有益的事——快快地——因为我是祢的仆人",
@@ -1140,10 +978,6 @@
       "category": "Shakta / Goddess Stotra",
       "difficulty": "advanced",
       "targetRepetitions": 1,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "The thousand names of the Goddess Lalitha, the supreme divine mother",
         "zh": "女神拉利塔的千种名号——至高的神圣母亲",
@@ -1172,10 +1006,6 @@
       "category": "Universal Prayer",
       "difficulty": "beginner",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "May all beings everywhere be happy and free",
         "zh": "愿一切众生皆幸福自由",
@@ -1210,10 +1040,6 @@
       "category": "vedic",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. We worship the three-eyed Lord Shiva who is fragrant and who nourishes all beings. May he liberate us from the bondage of death, as a ripe cucumber is severed from its vine, granting us immortality.",
         "zh": "嗡。我们崇拜三眼的湿婆神，他芬芳四溢，滋养一切众生。愿他将我们从死亡的束缚中解脱出来，如同成熟的黄瓜从藤蔓上被切断，赐予我们永恒。",
@@ -1244,10 +1070,6 @@
       "category": "Primordial Sound",
       "difficulty": "beginner",
       "targetRepetitions": 21,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "The primordial sound of the universe",
         "zh": "宇宙的原初之声",
@@ -1282,10 +1104,6 @@
       "category": "devotional",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. I invoke the seed energy of Ganesha. Salutations to the lord of all beginnings and remover of obstacles, who grants wisdom, success, and auspicious starts.",
         "zh": "嗡。我召唤象神伽内什的种子能量。向一切开始的主宰和障碍的移除者致敬，他赐予智慧、成功和吉祥的开端。",
@@ -1314,10 +1132,6 @@
       "category": "Tantric / Bija Mantra",
       "difficulty": "advanced",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om, divine manifestation, abundance, desire — I bow",
         "zh": "嗡，神圣显化，丰盛，愿望——礼敬",
@@ -1352,10 +1166,6 @@
       "category": "devotional",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. I bow in reverence to the auspicious Lord Shiva, the supreme consciousness who dwells within as the true self.",
         "zh": "嗡。我向吉祥的湿婆神致敬，那存在于内心深处的至高意识，即真正的自我。",
@@ -1390,10 +1200,6 @@
       "category": "devotional",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. I bow to Shiva who appears as the Guru, whose form is being-consciousness-bliss, who is beyond the phenomenal world, who is utterly peaceful, and who is the abode of divine beauty and grace.",
         "zh": "嗡。我向以上师形象显现的湿婆神致敬，他的形态是存在-意识-喜乐，他超越现象世界，他完全安宁，他是神圣美丽与恩典的住所。",
@@ -1427,10 +1233,6 @@
       "category": "devotional",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. I bow to the all-pervading Lord Vasudeva-Krishna, the supreme divine being who is the source and ground of all existence.",
         "zh": "嗡。我向无处不在的瓦苏德瓦-克里希纳神致敬，他是至高神圣的存在，是一切存在的源头和基础。",
@@ -1465,10 +1267,6 @@
       "category": "upanishadic",
       "difficulty": "advanced",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. That infinite reality is whole. This manifest universe is whole. From that wholeness, this wholeness comes forth. Even when wholeness is taken from wholeness, wholeness alone remains.",
         "zh": "嗡。那无限的实在是完整的。这个显现的宇宙也是完整的。从那完整中，涌现出这个完整。即使从完整中取走完整，留下的仍然是完整。",
@@ -1497,10 +1295,6 @@
       "category": "Shanti Patha / Peace Invocation",
       "difficulty": "intermediate",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "May we be protected and nourished together; may our study be luminous; may we not dispute with one another; Om Peace, Peace, Peace",
         "zh": "愿我们共同得到保护和滋养；愿我们的学习光辉灿烂；愿我们互不争论；嗡，平静，平静，平静",
@@ -1529,10 +1323,6 @@
       "category": "Vedic Peace Prayer",
       "difficulty": "beginner",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "May there be prosperity, peace, fullness, and auspiciousness for all beings",
         "zh": "愿一切众生皆有福祉、平静、圆满与吉祥",
@@ -1567,10 +1357,6 @@
       "category": "upanishadic",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om. Peace in the physical world, peace in the subtle and astral realms, peace in the spiritual sphere. May all afflictions cease and harmony prevail on every level of existence.",
         "zh": "嗡。物质世界中的平静，细微和星光界的平静，精神领域的平静。愿一切苦难消除，愿和谐在存在的每个层面上盛行。",
@@ -1598,10 +1384,6 @@
       "category": "Healing / Dhanvantari Mantra",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Salutation to Lord Dhanvantari, the divine healer",
         "zh": "礼敬檀梵陀利主，神圣的疗愈者",
@@ -1636,10 +1418,6 @@
       "category": "upanishadic",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "I am That. With every inhalation I affirm my identity with the universal self, and with every exhalation I release the illusion of separateness.",
         "zh": "我即那个。每次吸气时，我肯定自己与宇宙自我的同一性，每次呼气时，我释放分离的幻觉。",
@@ -1674,10 +1452,6 @@
       "category": "upanishadic",
       "difficulty": "advanced",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "That thou art. The ultimate reality — the infinite consciousness that is the ground of all existence — is not other than what you are in your deepest nature.",
         "zh": "那即是你。终极实在——作为一切存在之基础的无限意识——与你最深层本性中的你并无不同。",
@@ -1703,10 +1477,6 @@
       "category": "Tasbih / Glorification",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "All praise and thanks belong to God",
         "zh": "一切赞美归于真主",
@@ -1732,10 +1502,6 @@
       "category": "Takbir / Proclamation",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "God is the Greatest",
         "zh": "真主至大",
@@ -1761,10 +1527,6 @@
       "category": "Istighfar / Seeking Forgiveness",
       "difficulty": "beginner",
       "targetRepetitions": 70,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "I seek forgiveness from God",
         "zh": "我向真主忏悔求饶",
@@ -1790,10 +1552,6 @@
       "category": "Opening Formula",
       "difficulty": "beginner",
       "targetRepetitions": 21,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "In the name of God, the Most Gracious, the Most Merciful",
         "zh": "奉至仁至慈的真主之名",
@@ -1819,10 +1577,6 @@
       "category": "Tawakkul / Trust in God",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "God is sufficient for us, and the best disposer of affairs",
         "zh": "真主够我们所需，祂是最好的监护者",
@@ -1848,10 +1602,6 @@
       "category": "Sufi Dhikr",
       "difficulty": "advanced",
       "targetRepetitions": 300,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "He — the Ineffable Divine Presence",
         "zh": "祂——不可言说的神圣存在",
@@ -1877,10 +1627,6 @@
       "category": "Hawqala / Power Acknowledgment",
       "difficulty": "intermediate",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "There is no power nor strength except through God",
         "zh": "除真主外无力无能",
@@ -1906,10 +1652,6 @@
       "category": "Shahada / Declaration",
       "difficulty": "intermediate",
       "targetRepetitions": 100,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "There is no god but God",
         "zh": "万物非主，唯有真主",
@@ -1935,10 +1677,6 @@
       "category": "Salawat / Prophetic Blessings",
       "difficulty": "beginner",
       "targetRepetitions": 100,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "O God, bestow Your blessings upon Muhammad",
         "zh": "真主啊，请赐福先知穆罕默德",
@@ -1964,10 +1702,6 @@
       "category": "Tasbih / Glorification",
       "difficulty": "beginner",
       "targetRepetitions": 33,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "Glory be to God",
         "zh": "真主至美无暇",
@@ -1993,10 +1727,6 @@
       "category": "Divine Names / Asma al-Husna",
       "difficulty": "intermediate",
       "targetRepetitions": 100,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "O Ever-Living, O Self-Sustaining",
         "zh": "啊，永生者，啊，自养者",
@@ -2022,10 +1752,6 @@
       "category": "Divine Names / Asma al-Husna",
       "difficulty": "beginner",
       "targetRepetitions": 100,
-      "supportedLanguages": [
-        "ar",
-        "en"
-      ],
       "translations": {
         "en": "O Most Gracious, O Most Merciful",
         "zh": "啊，至仁的，啊，至慈的",
@@ -2051,10 +1777,6 @@
       "category": "Ethical Declaration",
       "difficulty": "beginner",
       "targetRepetitions": 27,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Non-violence is the highest dharma",
         "zh": "非暴力是最高的法——最高的伦理原则",
@@ -2080,10 +1802,6 @@
       "category": "Philosophical Principle",
       "difficulty": "advanced",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Many-sidedness — no single viewpoint captures the whole truth",
         "zh": "多面性——没有单一观点能捕捉全部真理",
@@ -2109,10 +1827,6 @@
       "category": "Jain Greeting / Salutation",
       "difficulty": "beginner",
       "targetRepetitions": 27,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Victory to the Jina — honor to the conquerors of the self",
         "zh": "耆那胜利——向自我征服者致敬",
@@ -2138,10 +1852,6 @@
       "category": "Devotional Salutation",
       "difficulty": "beginner",
       "targetRepetitions": 27,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Victory to Mahavira — honor to the great hero of the current age",
         "zh": "大雄胜利——向当世大英雄致敬",
@@ -2167,10 +1877,6 @@
       "category": "Forgiveness Formula",
       "difficulty": "beginner",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "pra",
-        "en"
-      ],
       "translations": {
         "en": "May all my wrongdoings be forgiven",
         "zh": "愿我所有的过失得到宽恕",
@@ -2196,11 +1902,6 @@
       "category": "Navkar / Salutation",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pra",
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Homage to the Arihantas",
         "zh": "礼敬阿利汉塔——向仍在世间的觉悟众生致敬",
@@ -2226,11 +1927,6 @@
       "category": "Navkar / Salutation",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pra",
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Homage to the Siddhas — the liberated souls beyond all worlds",
         "zh": "礼敬悉达——超越一切世界的解脱灵魂",
@@ -2256,11 +1952,6 @@
       "category": "Root Mantra / Universal Salutation",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pra",
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Homage to the Arihantas, the Siddhas, the Acharyas, the Upadhyayas, and all the Sadhus in the universe",
         "zh": "礼敬阿利汉塔、悉达、阿查里亚、乌帕贾亚以及宇宙中所有的萨杜",
@@ -2286,10 +1977,6 @@
       "category": "Sanskrit Navkar / Salutation",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Om, salutation to the Arhats, Siddhas, Acharyas, Upadhyayas, and all Sadhus",
         "zh": "唵，礼敬阿利汉特、悉达、阿查里亚、乌帕贾亚和所有萨杜",
@@ -2315,10 +2002,6 @@
       "category": "Philosophical Principle",
       "difficulty": "intermediate",
       "targetRepetitions": 12,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Living beings render service to one another",
         "zh": "众生相互服务——相互依存的法则",
@@ -2344,10 +2027,6 @@
       "category": "Liberation Path / Moksha Marga",
       "difficulty": "intermediate",
       "targetRepetitions": 27,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "Right Vision, Right Knowledge, Right Conduct",
         "zh": "正见、正知、正行——耆那教的三重道路",
@@ -2373,10 +2052,6 @@
       "category": "Adhyatma / Spiritual Contemplation",
       "difficulty": "advanced",
       "targetRepetitions": 27,
-      "supportedLanguages": [
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "I am pure — the contemplation of the soul's original nature",
         "zh": "我是纯净的——对灵魂本原本性的观想",
@@ -2402,10 +2077,6 @@
       "category": "Kabbalistic Prayer",
       "difficulty": "advanced",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "Please, with the strength of Your right hand, untie the bundled sins",
         "zh": "请凭借祢右手力量之伟大，解开那捆绑的罪",
@@ -2431,10 +2102,6 @@
       "category": "Bracha / Blessing Formula",
       "difficulty": "beginner",
       "targetRepetitions": 100,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "Blessed are You, O Lord our God",
         "zh": "有福的是祢，我们的主我们的神",
@@ -2460,10 +2127,6 @@
       "category": "Kabbalistic Meditation",
       "difficulty": "intermediate",
       "targetRepetitions": 26,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "One",
         "zh": "一",
@@ -2489,10 +2152,6 @@
       "category": "Kabbalistic Concept / Meditation",
       "difficulty": "advanced",
       "targetRepetitions": 10,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "The Infinite — Without End",
         "zh": "无限——无终无止",
@@ -2518,10 +2177,6 @@
       "category": "Divine Name",
       "difficulty": "intermediate",
       "targetRepetitions": 26,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "God — the Power of Powers, the plural unity of divine forces",
         "zh": "神——诸力之力，神圣力量的多元一体",
@@ -2547,10 +2202,6 @@
       "category": "Biblical Invocation",
       "difficulty": "beginner",
       "targetRepetitions": 18,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "Here I Am — complete, present, ready",
         "zh": "我在这里——完全、当下、准备好了",
@@ -2576,10 +2227,6 @@
       "category": "Sacred Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 18,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "To Life!",
         "zh": "为了生命！",
@@ -2605,10 +2252,6 @@
       "category": "Morning Prayer",
       "difficulty": "beginner",
       "targetRepetitions": 1,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "I offer thanks before You, living and eternal King",
         "zh": "我感谢祢，永活永存的君王",
@@ -2634,10 +2277,6 @@
       "category": "Hasidic Prayer",
       "difficulty": "beginner",
       "targetRepetitions": 10,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "Master of the Universe",
         "zh": "宇宙的主宰",
@@ -2663,10 +2302,6 @@
       "category": "Sacred Greeting / Divine Name",
       "difficulty": "beginner",
       "targetRepetitions": 36,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "Peace, Wholeness, and Complete Well-being",
         "zh": "平安、完整与全然的安康",
@@ -2692,10 +2327,6 @@
       "category": "Core Declaration",
       "difficulty": "beginner",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "Hear, O Israel: the Lord is our God, the Lord is One",
         "zh": "以色列啊，你要听：耶和华是我们的神，耶和华是唯一的",
@@ -2721,10 +2352,6 @@
       "category": "Kabbalistic Intention",
       "difficulty": "intermediate",
       "targetRepetitions": 10,
-      "supportedLanguages": [
-        "he",
-        "en"
-      ],
       "translations": {
         "en": "Repair of the World",
         "zh": "修复世界",
@@ -2753,10 +2380,6 @@
       "category": "Mangalacharan / Protective Mantra",
       "difficulty": "beginner",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "I bow to the Primal Wisdom; I bow to the Wisdom through all ages; I bow to the True Wisdom; I bow to the Great Unseen Wisdom",
         "zh": "我礼拜原初智慧；我礼拜贯穿所有时代的智慧；我礼拜真实的智慧；我礼拜伟大的无形智慧",
@@ -2782,10 +2405,6 @@
       "category": "Divine Name / Attribute",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "The Undying — Timeless Being, deathless reality",
         "zh": "不死者——永恒的存在，不死的实相",
@@ -2811,10 +2430,6 @@
       "category": "Victory Cry / Sacred Exclamation",
       "difficulty": "beginner",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "Blessed is one who says: Truth is Timeless and Supreme",
         "zh": "言此者有福了：真理是永恒的至尊",
@@ -2840,10 +2455,6 @@
       "category": "Mul Mantar / Core Principle",
       "difficulty": "intermediate",
       "targetRepetitions": 11,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "By Guru's Grace — grace as the gateway to the divine",
         "zh": "藉上师恩典——恩典是通向神圣的门户",
@@ -2869,11 +2480,6 @@
       "category": "Simran / Divine Remembrance",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pa",
-        "sa",
-        "en"
-      ],
       "translations": {
         "en": "God, God — a rhythmic invocation of the divine name",
         "zh": "神，神——神圣名号的韵律呼唤",
@@ -2899,10 +2505,6 @@
       "category": "Mul Mantar / Root Mantra",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "There is One Creator — the foundational Sikh declaration",
         "zh": "只有一位造物主——锡克教的基础宣言",
@@ -2928,10 +2530,6 @@
       "category": "Mul Mantar / Root Mantra",
       "difficulty": "intermediate",
       "targetRepetitions": 11,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "One Creator, True Name, Doer of Everything, Fearless, Without Enmity, Timeless, Unborn, Self-Illumined, by Guru's Grace",
         "zh": "一位造物主，真名，万事的执行者，无惧，无仇，永恒之形，未生，自明，藉上师恩典",
@@ -2957,10 +2555,6 @@
       "category": "Spiritual Virtue / Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 11,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "O Nanak, with God's Name comes eternal optimism and rising energy",
         "zh": "那纳克，藉神的名字而来永恒的乐观与上升的活力",
@@ -2986,10 +2580,6 @@
       "category": "Ardas / Communal Prayer",
       "difficulty": "beginner",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "Wellbeing of all",
         "zh": "愿一切众生安乐",
@@ -3015,10 +2605,6 @@
       "category": "Mul Mantar / Root Mantra",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "True Name — God's name is Truth",
         "zh": "真名——神的名字是真理",
@@ -3044,10 +2630,6 @@
       "category": "Simran / Surrender Practice",
       "difficulty": "intermediate",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "Yours, Yours — complete surrender of self to the divine",
         "zh": "祢的，祢的——将自我完全交托给神",
@@ -3073,10 +2655,6 @@
       "category": "Simran / Divine Remembrance",
       "difficulty": "beginner",
       "targetRepetitions": 108,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "Wonderful Lord — the Sikh name for God expressing awe and wonder",
         "zh": "奇妙的主——锡克教表达敬畏与惊叹的神名",
@@ -3102,10 +2680,6 @@
       "category": "Sikh Greeting / Declaration",
       "difficulty": "beginner",
       "targetRepetitions": 5,
-      "supportedLanguages": [
-        "pa",
-        "en"
-      ],
       "translations": {
         "en": "The Khalsa belongs to Waheguru, Victory belongs to Waheguru",
         "zh": "卡尔萨属于瓦赫古鲁，胜利属于瓦赫古鲁",
@@ -3131,10 +2705,6 @@
       "category": "Philosophical Contemplation",
       "difficulty": "advanced",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Hold fast to the ancient Tao, govern the affairs of today",
         "zh": "执古之道，以御今之有",
@@ -3160,10 +2730,6 @@
       "category": "Philosophical Contemplation",
       "difficulty": "advanced",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "The Tao that can be told is not the eternal Tao",
         "zh": "道可道，非常道",
@@ -3189,10 +2755,6 @@
       "category": "Inner Alchemy / Nei Dan",
       "difficulty": "advanced",
       "targetRepetitions": 36,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Primordial unified Qi — the undivided breath of the cosmos",
         "zh": "混元一气——宇宙未分的原初之气",
@@ -3218,10 +2780,6 @@
       "category": "Inner Alchemy / Three Treasures",
       "difficulty": "advanced",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Essence, Vitality, and Spirit — the three treasures of inner life",
         "zh": "精气神——内在生命的三宝",
@@ -3247,10 +2805,6 @@
       "category": "Core Symbol",
       "difficulty": "intermediate",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Uncarved Block — original simplicity and wholeness",
         "zh": "朴——原始的简单与完整",
@@ -3276,10 +2830,6 @@
       "category": "Liturgical Invocation",
       "difficulty": "intermediate",
       "targetRepetitions": 3,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Praise of the Three Pure Ones",
         "zh": "三清赞——至高三清的赞美",
@@ -3305,10 +2855,6 @@
       "category": "Philosophical Contemplation",
       "difficulty": "beginner",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Highest good is like water",
         "zh": "上善若水",
@@ -3334,10 +2880,6 @@
       "category": "Liturgical Invocation",
       "difficulty": "intermediate",
       "targetRepetitions": 36,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "The Most High Lord Lao — the deified Laozi",
         "zh": "太上老君——神化的老子",
@@ -3363,10 +2905,6 @@
       "category": "Cosmological Principle",
       "difficulty": "intermediate",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Heaven, Earth, and Humanity are One",
         "zh": "天地人合一",
@@ -3392,10 +2930,6 @@
       "category": "Cosmological Meditation",
       "difficulty": "advanced",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Without Polarity — the Absolute prior to yin and yang",
         "zh": "无极——阴阳之前的绝对",
@@ -3421,10 +2955,6 @@
       "category": "Core Principle",
       "difficulty": "intermediate",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Non-action — effortless action aligned with nature",
         "zh": "无为——与自然相契的无力之行",
@@ -3450,10 +2980,6 @@
       "category": "Core Principle",
       "difficulty": "intermediate",
       "targetRepetitions": 9,
-      "supportedLanguages": [
-        "zh",
-        "en"
-      ],
       "translations": {
         "en": "Naturalness — being self-so, following one's inherent nature",
         "zh": "自然——自如而然，顺应本性",
@@ -3478,9 +3004,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Abundance is my natural state of being.",
         "zh": "丰盛是我的自然存在状态。",
@@ -3505,9 +3028,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "All is well.",
         "zh": "一切安好。",
@@ -3532,9 +3052,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "All things are possible if only I believe.",
         "zh": "只要我相信，一切皆有可能。",
@@ -3559,9 +3076,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Attitude is everything.",
         "zh": "态度决定一切。",
@@ -3586,9 +3100,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Beauty is all around me.",
         "zh": "美丽无处不在。",
@@ -3613,9 +3124,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Believe you can and you're halfway there.",
         "zh": "相信你能做到，你就已经成功了一半。",
@@ -3640,9 +3148,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Big ideas start small.",
         "zh": "伟大的想法从小处开始。",
@@ -3667,9 +3172,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Each moment is brand new.",
         "zh": "每一刻都是全新的。",
@@ -3694,9 +3196,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "FAIL = First Attempt In Learning",
         "zh": "失败 = 学习中的第一次尝试",
@@ -3721,9 +3220,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Following my bliss is the way to freedom.",
         "zh": "追随我的喜悦是通往自由的道路。",
@@ -3748,9 +3244,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Forget the mistake, remember the lesson.",
         "zh": "忘记错误，记住教训。",
@@ -3775,9 +3268,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I am at peace with where I am.",
         "zh": "我对自己现在所处的位置感到平静。",
@@ -3802,9 +3292,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I am free to explore.",
         "zh": "我可以自由地探索。",
@@ -3829,9 +3316,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I am safe. I am calm. I can handle this.",
         "zh": "我是安全的。我是平静的。我能处理这件事。",
@@ -3856,9 +3340,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I am whole.",
         "zh": "我是完整的。",
@@ -3883,9 +3364,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I can do hard things!",
         "zh": "我能做困难的事情！",
@@ -3910,9 +3388,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I can handle change with ease.",
         "zh": "我能够轻松应对变化。",
@@ -3937,9 +3412,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I can set myself free.",
         "zh": "我可以让自己自由。",
@@ -3964,9 +3436,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I can trust my intuition.",
         "zh": "我可以信任我的直觉。",
@@ -3991,9 +3460,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I can't do it...YET!",
         "zh": "我还不会……但我会的！",
@@ -4018,9 +3484,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I have GRIT and I don't quit!",
         "zh": "我有毅力，我不会放弃！",
@@ -4045,9 +3508,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "I release any and all things that are not in alignment with my natural state of being.",
         "zh": "我释放一切与我自然存在状态不一致的事物。",
@@ -4072,9 +3532,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Keep going until you're proud.",
         "zh": "坚持下去，直到你感到骄傲。",
@@ -4099,9 +3556,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Learning is messy.",
         "zh": "学习是混乱的。",
@@ -4126,9 +3580,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Limits exist only in my mind.",
         "zh": "限制只存在于我的思维中。",
@@ -4153,9 +3604,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Mistakes are an opportunity to grow.",
         "zh": "错误是成长的机会。",
@@ -4180,9 +3628,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "My choices are made with love.",
         "zh": "我的选择是出于爱做出的。",
@@ -4207,9 +3652,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "My contributions matter here.",
         "zh": "我的贡献在这里很重要。",
@@ -4234,9 +3676,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "My heart knows what's best.",
         "zh": "我的心知道什么是最好的。",
@@ -4261,9 +3700,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Observing beauty restores my soul.",
         "zh": "观察美丽能滋养我的灵魂。",
@@ -4288,9 +3724,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Practice makes progress.",
         "zh": "练习带来进步。",
@@ -4315,9 +3748,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Sometimes you win, sometimes you learn.",
         "zh": "有时候你赢，有时候你学习。",
@@ -4342,9 +3772,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "The Divine supports my heart's desires.",
         "zh": "神圣支持我内心的渴望。",
@@ -4369,9 +3796,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "The expert in anything was once a beginner.",
         "zh": "任何领域的专家曾经都是初学者。",
@@ -4396,9 +3820,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "There is more and better in store for me.",
         "zh": "更多更好的事情在等待着我。",
@@ -4423,9 +3844,6 @@
       "category": "Feel-Good Affirmation",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "There's inspiration everywhere.",
         "zh": "灵感无处不在。",
@@ -4450,9 +3868,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "This is tough but so am I.",
         "zh": "这很艰难，但我也很坚强。",
@@ -4477,9 +3892,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Whatever happens, I'll handle it.",
         "zh": "无论发生什么，我都能应对。",
@@ -4504,9 +3916,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "You control your choices.",
         "zh": "你掌控自己的选择。",
@@ -4531,9 +3940,6 @@
       "category": "Growth Mindset",
       "difficulty": "beginner",
       "targetRepetitions": 7,
-      "supportedLanguages": [
-        "en"
-      ],
       "translations": {
         "en": "Whether you believe you can or you can't, you're right.",
         "zh": "无论你认为你能还是不能，你都是对的。",

@@ -43,6 +43,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import cfg, root_path
+from log import get_logger
+
+_log = get_logger("merge_mantras")
 
 _ROOT = Path(__file__).parent.parent.parent  # make/mantra-db -> make -> project root
 ENRICHED = root_path("merge_mantras", "input")
@@ -52,12 +55,12 @@ _SEP = "#" * 79
 
 
 def _banner(title: str, body_lines: list) -> None:
-    print(_SEP)
-    print(f"### {title}")
-    print(_SEP)
+    _log.info(_SEP)
+    _log.info("### %s", title)
+    _log.info(_SEP)
     for line in body_lines:
-        print(line)
-    print(_SEP)
+        _log.info(line)
+    _log.info(_SEP)
 
 REQUIRED = {"name", "english", "transliteration", "abstract", "tradition"}
 
@@ -89,7 +92,6 @@ EMPTY_ENTRY = {
     "category": "",
     "difficulty": "beginner",
     "targetRepetitions": 108,
-    "supportedLanguages": ["en"],
     "translations": {"en": "", "zh": "", "es": ""},
     "sources": [],
     "audioUrl": None,
@@ -311,14 +313,14 @@ def main() -> None:
             f"###   dry_run:            {args.dry_run}",
         ],
     )
-    print()
+    _log.info("")
 
     stats = {"updated": 0, "added": 0, "skipped": 0}
 
     for phrase, incoming in enriched.items():
         # Skip failed entries
         if "_error" in incoming:
-            print(f"  skip (parse error): {phrase!r}", file=sys.stderr)
+            _log.warning("skip (parse error): %r", phrase)
             stats["skipped"] += 1
             continue
 
@@ -333,7 +335,7 @@ def main() -> None:
             # Quality gate for new entries
             reason = gate_new_entry(phrase, incoming, min_abstract, min_tags)
             if reason:
-                print(f"  skip ({reason}): {phrase!r}", file=sys.stderr)
+                _log.warning("skip (%s): %r", reason, phrase)
                 stats["skipped"] += 1
                 continue
 
@@ -359,7 +361,7 @@ def main() -> None:
     )
 
     if args.dry_run:
-        print("Dry run — nothing written.")
+        _log.info("Dry run — nothing written.")
         return
 
     # Build pipeline metadata
@@ -388,8 +390,8 @@ def main() -> None:
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(envelope, indent=2, ensure_ascii=False))
-    print(f"###   Written:   {OUTPUT}")
-    print(_SEP)
+    _log.info("###   Written:   %s", OUTPUT)
+    _log.info(_SEP)
 
 
 if __name__ == "__main__":

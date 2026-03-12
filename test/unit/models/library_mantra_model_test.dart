@@ -16,7 +16,6 @@ LibraryMantra _base({int? recommendedRepetitions, RepetitionCycle? recommendedCy
       difficulty: 'beginner',
       recommendedRepetitions: recommendedRepetitions,
       recommendedCycle: recommendedCycle,
-      supportedLanguages: const ['en', 'sa'],
       translations: const {'en': 'Praise to the Jewel in the Lotus'},
     );
 

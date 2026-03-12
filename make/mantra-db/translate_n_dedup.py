@@ -26,6 +26,9 @@ from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ollama
+from log import get_logger, Timer
+
+_log = get_logger("translate_n_dedup")
 
 litellm.set_verbose = False
 
@@ -92,12 +95,12 @@ _SEP = "#" * 79
 
 
 def _banner(title: str, body_lines: list) -> None:
-    print(_SEP)
-    print(f"### {title}")
-    print(_SEP)
+    _log.info(_SEP)
+    _log.info("### %s", title)
+    _log.info(_SEP)
     for line in body_lines:
-        print(line)
-    print(_SEP)
+        _log.info(line)
+    _log.info(_SEP)
 
 
 def _parse_answer(raw: str) -> str:
@@ -122,6 +125,8 @@ def _parse_answer(raw: str) -> str:
 
 async def _call_llm(model: str, system: str, user: str, timeout: int, **kwargs) -> str:
     """Single LLM call. Returns parsed answer (grounding stripped)."""
+    _log.debug("LLM call  model=%s  user_len=%d", model, len(user))
+    _log.debug("LLM input:\n%s", user[:2000])
     response = await litellm.acompletion(
         model=model,
         messages=[
@@ -132,6 +137,7 @@ async def _call_llm(model: str, system: str, user: str, timeout: int, **kwargs) 
         **kwargs,
     )
     raw = (response.choices[0].message.content or "").strip()
+    _log.debug("LLM output  model=%s  raw_len=%d:\n%s", model, len(raw), raw[:2000])
     return _parse_answer(raw)
 
 
@@ -170,6 +176,9 @@ def _is_obviously_not_mantra(phrase: str) -> bool:
     # List/article titles: "Top N ...", "Best ... mantras", "List of ..."
     if re.search(r"^(top\s+\d+|best\s+|list\s+of\s+|types?\s+of\s+)", lower):
         return True
+    # Contains "represent" or "mantra" — usually explanations, not actual mantras
+    if re.search(r"\b(represent|mantras?)\b", lower):
+        return True
     return False
 
 
@@ -185,7 +194,8 @@ async def _profile_is_mantra(english: str) -> bool:
             **PROFILER_KWARGS,
         )
         return result.strip().lower() == "true"
-    except Exception:
+    except Exception as e:
+        _log.warning("profiler failed for '%s': %s — keeping entry", english[:50], e)
         return True  # on failure, keep it (conservative)
 
 
@@ -216,7 +226,8 @@ async def translate_to_english(phrase: str, language: str) -> str:
         if result.startswith("```"):
             result = result.split("\n")[1] if "\n" in result else result
         return result if result else "NOT_A_MANTRA"
-    except Exception:
+    except Exception as e:
+        _log.warning("translation failed for '%s' (%s): %s", phrase[:50], language, e)
         return "NOT_A_MANTRA"  # on failure, filter it out
 
 
@@ -227,11 +238,11 @@ async def step1_translate_all(entries: list[dict]) -> dict[str, str]:
     cache: dict[str, str] = {}
     if ENGLISH_CACHE.exists():
         cache = json.loads(ENGLISH_CACHE.read_text())
-        print(f"  Resuming: {len(cache)} phrases in cache.")
+        _log.info("  Resuming: %d phrases in cache.", len(cache))
 
     remaining = [e for e in entries if e["phrase"] not in cache]
     if not remaining:
-        print(f"  All {len(cache)} phrases already translated.")
+        _log.info("  All %d phrases already translated.", len(cache))
         return cache
 
     with tqdm(
@@ -275,7 +286,7 @@ async def step2_filter(english_map: dict[str, str]) -> dict[str, str]:
 
     if not to_profile:
         already_ok = sum(1 for v in english_map.values() if v.startswith(_PROFILED_OK))
-        print(f"  All {already_ok} phrases already profiled.")
+        _log.info("  All %d phrases already profiled.", already_ok)
         return english_map
 
     filtered = 0
@@ -295,7 +306,7 @@ async def step2_filter(english_map: dict[str, str]) -> dict[str, str]:
             )
             pbar.update(1)
 
-    print(f"  Filtered {filtered}/{len(to_profile)} phrases as not-a-mantra.")
+    _log.info("  Filtered %d/%d phrases as not-a-mantra.", filtered, len(to_profile))
     return english_map
 
 
@@ -350,7 +361,7 @@ def step3_dedup(entries: list[dict], english_map: dict[str, str]) -> dict[str, d
         filtered.append({**e, "_english": english})
 
     if not_mantra_count:
-        print(f"  Filtered out {not_mantra_count} non-mantra entries.")
+        _log.info("  Filtered out %d non-mantra entries.", not_mantra_count)
 
     # Group by canonical English form
     groups: dict[str, list[dict]] = defaultdict(list)
@@ -437,7 +448,8 @@ async def transliterate(phrase: str, language: str) -> str:
         return await _call_llm(
             MODEL_TRANSLIT, system, user, TRANSLIT_TIMEOUT, **TRANSLIT_KWARGS
         )
-    except Exception:
+    except Exception as e:
+        _log.warning("transliteration failed for '%s' (%s): %s", phrase[:50], language, e)
         return phrase
 
 
@@ -456,10 +468,10 @@ async def step4_transliterate_all(deduped: dict[str, dict]) -> None:
             deduped[phrase]["transliteration"] = translit
 
     if not to_do:
-        print(f"  All {len(deduped)} entries already transliterated.")
+        _log.info("  All %d entries already transliterated.", len(deduped))
         return
 
-    print(f"  Transliterating {len(to_do)} entries with {MODEL_TRANSLIT}")
+    _log.info("  Transliterating %d entries with %s", len(to_do), MODEL_TRANSLIT)
     with tqdm(total=len(to_do), desc="  Transliterating", unit="mantra") as pbar:
         for phrase in to_do:
             pbar.set_postfix_str(f"'{phrase[:35]}'")
@@ -497,7 +509,8 @@ async def translate_one(
         return await _call_llm(
             MODEL_TRANSLATOR, system, user, TRANSLATOR_TIMEOUT, **TRANSLATOR_KWARGS
         )
-    except Exception:
+    except Exception as e:
+        _log.warning("translation to %s failed for '%s': %s", target_name, phrase[:50], e)
         return ""
 
 
@@ -512,12 +525,13 @@ async def step5_translate_all(deduped: dict[str, dict]) -> None:
                 work.append((phrase, code, name))
 
     if not work:
-        print(f"  All {len(deduped)} entries already translated.")
+        _log.info("  All %d entries already translated.", len(deduped))
         return
 
     mantras_left = len({w[0] for w in work})
-    print(
-        f"  {mantras_left} mantras, {len(work)} translations remaining with {MODEL_TRANSLATOR}"
+    _log.info(
+        "  %d mantras, %d translations remaining with %s",
+        mantras_left, len(work), MODEL_TRANSLATOR,
     )
 
     with tqdm(total=len(work), desc="  Translating", unit="call") as pbar:
@@ -542,14 +556,11 @@ async def step5_translate_all(deduped: dict[str, dict]) -> None:
                 translations[code] = result
             pbar.update(1)
 
-            # Check if this mantra is now complete — save and update supportedLanguages
+            # Check if this mantra is now complete — save
             remaining_for_phrase = [
                 c for c, n in TRANSLATE_LANGUAGES.items() if not translations.get(c)
             ]
             if not remaining_for_phrase:
-                entry["supportedLanguages"] = [
-                    k for k in TRANSLATE_LANGUAGES if translations.get(k)
-                ]
                 OUTPUT.write_text(json.dumps(deduped, indent=2, ensure_ascii=False))
 
 
@@ -575,49 +586,62 @@ async def main() -> None:
             f"###   Languages:        {len(TRANSLATE_LANGUAGES)}",
         ],
     )
-    print()
+    _log.info("")
 
     # ── Step 1: Translate to English ────────────────────────────────────────
-    print("Step 1/5 — Translate to English")
+    _log.info("Step 1/5 — Translate to English")
+    step_timer = Timer().start()
     english_map = await step1_translate_all(raw)
 
     translated = sum(1 for v in english_map.values() if v != "NOT_A_MANTRA")
     heuristic_filtered = sum(1 for v in english_map.values() if v == "NOT_A_MANTRA")
-    print(
-        f"  Done: {len(english_map)} processed, {translated} translated,"
-        f" {heuristic_filtered} filtered by heuristic/translator.\n"
+    step_timer.stop()
+    _log.info(
+        "  Done: %d processed, %d translated,"
+        " %d filtered by heuristic/translator.  (%.1f s)\n",
+        len(english_map), translated, heuristic_filtered, step_timer.elapsed,
     )
 
     # ── Step 2: Filter non-mantras (LLM profiler) ────────────────────────
-    print("Step 2/5 — Filter non-mantras")
+    _log.info("Step 2/5 — Filter non-mantras")
+    step_timer = Timer().start()
     english_map = await step2_filter(english_map)
 
     not_mantra = sum(1 for v in english_map.values() if v == "NOT_A_MANTRA")
     english_map = _strip_profiled_prefix(english_map)
-    print(
-        f"  Done: {not_mantra} total non-mantras filtered.\n"
+    step_timer.stop()
+    _log.info(
+        "  Done: %d total non-mantras filtered.  (%.1f s)\n",
+        not_mantra, step_timer.elapsed,
     )
 
     # ── Step 3: Dedup ────────────────────────────────────────────────────────
-    print("Step 3/5 — Dedup by English form + aliases")
+    _log.info("Step 3/5 — Dedup by English form + aliases")
     deduped = step3_dedup(raw, english_map)
-    print(
-        f"  Done: {len(raw)} entries → {len(deduped)} unique mantras "
-        f"({len(raw) - len(deduped) - not_mantra} duplicates, {not_mantra} filtered).\n"
+    _log.info(
+        "  Done: %d entries → %d unique mantras "
+        "(%d duplicates, %d filtered).\n",
+        len(raw), len(deduped), len(raw) - len(deduped) - not_mantra, not_mantra,
     )
 
     # Write deduped (without translations yet) so subsequent steps can resume
     OUTPUT.write_text(json.dumps(deduped, indent=2, ensure_ascii=False))
 
     # ── Step 4: Transliterate ────────────────────────────────────────────────
-    print("Step 4/5 — Transliterate all phrases")
+    _log.info("Step 4/5 — Transliterate all phrases")
+    step_timer = Timer().start()
     await step4_transliterate_all(deduped)
-    print()
+    step_timer.stop()
+    _log.info("  Step 4 completed in %.1f s", step_timer.elapsed)
+    _log.info("")
 
     # ── Step 5: Full translation batch ───────────────────────────────────────
-    print("Step 5/5 — Full multi-language translation")
+    _log.info("Step 5/5 — Full multi-language translation")
+    step_timer = Timer().start()
     await step5_translate_all(deduped)
-    print()
+    step_timer.stop()
+    _log.info("  Step 5 completed in %.1f s", step_timer.elapsed)
+    _log.info("")
 
     # ── Results ──────────────────────────────────────────────────────────────
     translated = sum(1 for e in deduped.values() if "translations" in e)

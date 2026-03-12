@@ -19,6 +19,9 @@ except ImportError as e:
     print(f"[MISSING] pyyaml — run: pip install pyyaml  ({e})")
     sys.exit(1)
 
+from log import get_logger
+_log = get_logger("prerequisites")
+
 
 def check_pip(packages: list[str]) -> bool:
     ok = True
@@ -26,10 +29,11 @@ def check_pip(packages: list[str]) -> bool:
         import_name = pkg.replace("-", "_").split("[")[0]  # e.g. pyyaml → pyyaml
         try:
             __import__(import_name)
-            print(f"  [OK]      pip: {pkg}")
+            _log.info("  [OK]      pip: %s", pkg)
         except ImportError:
-            print(
-                f"  [MISSING] pip: {pkg} → run: python3 -m pip install {pkg} --user --break-system-packages"
+            _log.warning(
+                "  [MISSING] pip: %s → run: python3 -m pip install %s --user --break-system-packages",
+                pkg, pkg,
             )
             ok = False
     return ok
@@ -42,19 +46,19 @@ def check_ollama(models: list[str]) -> bool:
         )
         available = result.stdout
     except FileNotFoundError:
-        print("  [MISSING] ollama — not found in PATH")
+        _log.warning("  [MISSING] ollama — not found in PATH")
         return False
     except subprocess.CalledProcessError as e:
-        print(f"  [ERROR]   ollama list failed: {e}")
+        _log.warning("  [ERROR]   ollama list failed: %s", e)
         return False
 
     ok = True
     for model in models:
         # ollama list lines look like: "qwen2.5:14b   abc123   1.2 GB   ..."
         if model in available:
-            print(f"  [OK]      ollama: {model}")
+            _log.info("  [OK]      ollama: %s", model)
         else:
-            print(f"  [MISSING] ollama: {model}  →  run: ollama pull {model}")
+            _log.warning("  [MISSING] ollama: %s  →  run: ollama pull %s", model, model)
             ok = False
     return ok
 
@@ -64,17 +68,17 @@ def main() -> None:
     packages = c.get("python", {}).get("packages", [])
     models = all_models()
 
-    print("── Python packages ──────────────────────────────────")
+    _log.info("── Python packages ──────────────────────────────────")
     pip_ok = check_pip(packages)
 
-    print("── Ollama models ────────────────────────────────────")
+    _log.info("── Ollama models ────────────────────────────────────")
     ollama_ok = check_ollama(models)
 
-    print("─────────────────────────────────────────────────────")
+    _log.info("─────────────────────────────────────────────────────")
     if pip_ok and ollama_ok:
-        print("All prerequisites satisfied.")
+        _log.info("All prerequisites satisfied.")
     else:
-        print("Some prerequisites are missing (see above).")
+        _log.warning("Some prerequisites are missing (see above).")
         sys.exit(1)
 
 

@@ -30,6 +30,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import ROOT
+from log import get_logger
+
+_log = get_logger("consolidate")
 
 MANTRAS_DIR = ROOT / "assets" / "data" / "mantras"
 OUTPUT      = ROOT / "assets" / "data" / "mantras.json"
@@ -55,17 +58,17 @@ def main() -> None:
             # Support both {"mantras": [...]} envelope and plain dict-of-entries
             items = items.get("mantras", list(items.values()))
         mantras.extend(items)
-        print(f"  loaded {len(items):3d} entries from {path.name}")
+        _log.info("  loaded %3d entries from %s", len(items), path.name)
 
     # Sort by tradition then name for deterministic output
     mantras.sort(key=lambda e: (e.get("tradition", ""), e.get("name", "")))
 
     count = len(mantras)
     n_files = len(tradition_files)
-    print(f"\n{count} mantras from {n_files} tradition files")
+    _log.info("\n%d mantras from %d tradition files", count, n_files)
 
     if OUTPUT.exists():
-        print(f"Warning: {OUTPUT} already exists — would be overwritten.", file=sys.stderr)
+        _log.warning("Warning: %s already exists — would be overwritten.", OUTPUT)
 
     envelope = {
         "version":  "0.1.0",
@@ -76,16 +79,16 @@ def main() -> None:
     }
 
     if args.dry_run:
-        print("Dry run — nothing written or deleted.")
+        _log.info("Dry run — nothing written or deleted.")
         return
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(envelope, indent=2, ensure_ascii=False))
-    print(f"Written: {OUTPUT}")
+    _log.info("Written: %s", OUTPUT)
 
     # Remove per-tradition files and directory
     shutil.rmtree(MANTRAS_DIR)
-    print(f"Deleted: {MANTRAS_DIR}/")
+    _log.info("Deleted: %s/", MANTRAS_DIR)
 
 
 if __name__ == "__main__":

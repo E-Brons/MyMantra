@@ -43,6 +43,9 @@ import trafilatura
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ollama, ollama_base, ROOT as _ROOT, llm_kwargs, parse_fenced_json
+from log import get_logger, Timer
+
+_log = get_logger("extract_mantras")
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
@@ -64,6 +67,8 @@ LLM_KWARGS = llm_kwargs("extract_mantra")
 
 def call_llm(model: str, messages: list) -> tuple[str, float]:
     """Single completion call.  Returns (content, inference_seconds)."""
+    _log.debug("LLM call  model=%s  messages=%d  user_len=%d",
+               model, len(messages), len(messages[-1].get("content", "")))
     t0 = time.perf_counter()
     response = litellm.completion(
         model=model,
@@ -73,7 +78,11 @@ def call_llm(model: str, messages: list) -> tuple[str, float]:
         **LLM_KWARGS,
     )
     elapsed = time.perf_counter() - t0
-    return (response.choices[0].message.content or "").strip(), elapsed
+    content = (response.choices[0].message.content or "").strip()
+    _log.debug("LLM response  model=%s  elapsed=%.1fs  output_len=%d",
+               model, elapsed, len(content))
+    _log.debug("LLM output:\n%s", content[:2000])
+    return content, elapsed
 
 
 # ── HTML helpers ──────────────────────────────────────────────────────────────
@@ -115,16 +124,22 @@ def fetch_html(url: str) -> Optional[str]:
     if os.path.exists(cp):
         with open(cp, encoding="utf-8") as f:
             content = f.read()
-        return None if content.startswith("ERROR:") else content
+        if content.startswith("ERROR:"):
+            _log.debug("cache hit (error): %s", url)
+            return None
+        _log.debug("cache hit: %s  (%d bytes)", url, len(content))
+        return content
+    _log.debug("fetching: %s", url)
     try:
         r = subprocess.run(_CURL_CMD + [url], capture_output=True, timeout=60)
         if r.returncode == 0 and len(r.stdout) > 200:
             html = r.stdout.decode("utf-8", errors="replace")
             with open(cp, "w", encoding="utf-8") as f:
                 f.write(html)
+            _log.debug("fetched: %s  (%d bytes)", url, len(html))
             return html
     except Exception as e:
-        tqdm.write(f"  fetch error: {e}")
+        _log.warning("fetch error for %s: %s", url, e)
     with open(cp, "w") as f:
         f.write(f"ERROR: {url}")
     return None
@@ -186,6 +201,7 @@ or commentary about mantras.
 (e.g. "Mantras are sacred sounds"), or an instruction (e.g. "Repeat 108 \
 times"), it is NOT a mantra — skip it.
 - Preserve the original phrasing of each mantra exactly as written on the page.
+- Strip any trailing period ('.') from the extracted phrase.
 - Assign 2–5 tags per mantra chosen ONLY from the allowed list below.
 - If no mantras are found on the page, return {"mantras": []}.
 </rules>
@@ -290,7 +306,7 @@ def _call_llm_for_chunk(
             ],
         )
     except Exception as e:
-        tqdm.write(f"  LLM error: {e}")
+        _log.warning("LLM error on chunk %d/%d of %s: %s", chunk_idx, total_chunks, url, e)
         return [], 0.0
 
     try:
@@ -302,7 +318,8 @@ def _call_llm_for_chunk(
         else:
             entries = []
         return (entries if isinstance(entries, list) else []), elapsed
-    except (json.JSONDecodeError, ValueError):
+    except (json.JSONDecodeError, ValueError) as e:
+        _log.warning("JSON parse error on chunk %d/%d of %s: %s", chunk_idx, total_chunks, url, e)
         return [], elapsed
 
 
@@ -323,16 +340,16 @@ def extract_with_llm(
     seen_phrases: set = set()
 
     if len(chunks) > 1 and verbose:
-        tqdm.write(f"    page split into {len(chunks)} chunks ({len(text)} chars)")
+        _log.debug("    page split into %d chunks (%d chars)", len(chunks), len(text))
 
     for i, chunk in enumerate(chunks, 1):
         if verbose:
-            tqdm.write(f"    chunk {i}/{len(chunks)}  chars={len(chunk)}  sending to LLM...")
+            _log.debug("    chunk %d/%d  chars=%d  sending to LLM...", i, len(chunks), len(chunk))
         entries, elapsed = _call_llm_for_chunk(
             url, title, chunk, i, len(chunks), model,
         )
         if verbose:
-            tqdm.write(f"    chunk {i}/{len(chunks)}  done in {elapsed:.1f}s  found={len(entries)}")
+            _log.debug("    chunk %d/%d  done in %.1fs  found=%d", i, len(chunks), elapsed, len(entries))
         total_elapsed += elapsed
         for e in entries:
             if not isinstance(e, dict):
@@ -342,10 +359,10 @@ def extract_with_llm(
                 seen_phrases.add(phrase)
                 all_entries.append(e)
                 if verbose:
-                    tqdm.write(f"    [{e.get('language','?'):10s}] {e.get('phrase','')[:70]}")
+                    _log.debug("    [%-10s] %s", e.get('language', '?'), e.get('phrase', '')[:70])
 
     if len(chunks) > 1 and verbose:
-        tqdm.write(f"    ({len(chunks)} chunks → {len(all_entries)} mantras)")
+        _log.debug("    (%d chunks → %d mantras)", len(chunks), len(all_entries))
 
     return all_entries, total_elapsed
 
@@ -535,12 +552,12 @@ def _stats_table(
 
 
 def _banner(title: str, body_lines: List[str]) -> None:
-    print(_SEP)
-    print(f"### {title}")
-    print(_SEP)
+    _log.info(_SEP)
+    _log.info("### %s", title)
+    _log.info(_SEP)
     for line in body_lines:
-        print(line)
-    print(_SEP)
+        _log.info(line)
+    _log.info(_SEP)
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -585,8 +602,8 @@ def main():
     )
 
     if not os.path.exists(args.input):
-        print(f"Error: URL file not found: {args.input}")
-        print("Run search_ddg.py first to generate the URL list.")
+        _log.warning("Error: URL file not found: %s", args.input)
+        _log.warning("Run search_ddg.py first to generate the URL list.")
         return
 
     with open(args.input, encoding="utf-8") as f:
@@ -609,10 +626,10 @@ def main():
             f"###   verbose:           {args.verbose}",
         ],
     )
-    print()
+    _log.info("")
 
     # ── Step 1: Pre-fetch all HTML ───────────────────────────────────────────
-    print("Step 1/3 — Fetching HTML")
+    _log.info("Step 1/3 — Fetching HTML")
     html_cache: Dict[str, Optional[str]] = {}
     title_cache: Dict[str, str] = {}
     text_cache: Dict[str, str] = {}
@@ -633,17 +650,17 @@ def main():
                     fetch_failures += 1
             pbar.update(1)
 
-    print(f"  fetched: {len(title_cache)}/{len(urls)}   failed: {fetch_failures}\n")
+    _log.info("  fetched: %d/%d   failed: %d\n", len(title_cache), len(urls), fetch_failures)
 
     # ── Step 2: Sequential extraction (one model at a time) ────────────────
-    print(f"Step 2/3 — Extracting Mantras ({len(models)} model(s), sequential)")
+    _log.info("Step 2/3 — Extracting Mantras (%d model(s), sequential)", len(models))
     wall_t0 = time.perf_counter()
 
     # Resume from existing output
     processed_urls, all_records = load_index(args.output)
     remaining = len([u for u in urls if u not in processed_urls])
     if processed_urls:
-        print(f"  Resuming: {len(processed_urls)} URLs already done, {remaining} remaining.")
+        _log.info("  Resuming: %d URLs already done, %d remaining.", len(processed_urls), remaining)
 
     def _set_keep_alive(model: str, seconds: int) -> None:
         """Set Ollama keep_alive for a model.  -1 = forever, 0 = unload now."""
@@ -659,7 +676,7 @@ def main():
 
     all_stats: List[ModelStats] = []
     for model in models:
-        print(f"\n  Running: {model}")
+        _log.info("\n  Running: %s", model)
         _set_keep_alive(model, -1)  # pin model in memory for entire run
         try:
             stats = run_model(
@@ -667,28 +684,28 @@ def main():
                 args.output, processed_urls, all_records,
             )
         except Exception as exc:
-            print(f"  Model {model} failed: {exc}")
+            _log.warning("Model %s failed: %s", model, exc)
             stats = ModelStats(model=model)
         all_stats.append(stats)
         _set_keep_alive(model, 0)  # unload before loading the next model
 
     wall_elapsed = time.perf_counter() - wall_t0
-    print()
+    _log.info("")
 
     # ── Step 3: Summary ────────────────────────────────────────────────────
-    print("Step 3/3 — Summary")
+    _log.info("Step 3/3 — Summary")
     all_new_records = [r for s in all_stats for r in s.records]
 
     if all_records:
-        print(f"  {len(all_records)} total records in: {args.output}")
-        print(f"  {len(processed_urls)} URLs processed\n")
+        _log.info("  %d total records in: %s", len(all_records), args.output)
+        _log.info("  %d URLs processed\n", len(processed_urls))
     else:
-        print("  no mantras extracted — output file NOT written (gate: stage failed)\n")
+        _log.warning("  no mantras extracted — output file NOT written (gate: stage failed)\n")
         if os.path.exists(args.output):
             os.remove(args.output)
 
     # ── End summary (table) ───────────────────────────────────────────────────
-    print()
+    _log.info("")
     _banner("Results: extract_mantras", _stats_table(
         all_stats, wall_elapsed, len(all_new_records), len(all_records),
     ))

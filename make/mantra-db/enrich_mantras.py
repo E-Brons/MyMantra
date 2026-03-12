@@ -32,6 +32,9 @@ from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ollama, llm_kwargs, parse_fenced_json
+from log import get_logger, Timer
+
+_log = get_logger("enrich_mantras")
 
 litellm.set_verbose = False
 
@@ -58,12 +61,12 @@ HTTP_TIMEOUT = int(_ecfg["http_timeout"])
 
 
 def _banner(title: str, body_lines: list) -> None:
-    print(_SEP)
-    print(f"### {title}")
-    print(_SEP)
+    _log.info(_SEP)
+    _log.info("### %s", title)
+    _log.info(_SEP)
     for line in body_lines:
-        print(line)
-    print(_SEP)
+        _log.info(line)
+    _log.info(_SEP)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -80,7 +83,8 @@ def ddg_search(phrase: str) -> list[dict]:
             {"url": r.get("href", ""), "title": r.get("title", ""), "snippet": r.get("body", "")}
             for r in results if r.get("href")
         ]
-    except Exception:
+    except Exception as e:
+        _log.warning("DDG search failed for '%s': %s", phrase[:50], e)
         return []
 
 
@@ -116,7 +120,8 @@ def _fetch_html(url: str) -> str | None:
             with open(cp, "w", encoding="utf-8") as f:
                 f.write(html)
             return html
-    except Exception:
+    except Exception as e:
+        _log.warning("fetch failed for %s: %s", url, e)
         pass
     with open(cp, "w") as f:
         f.write(f"ERROR: {url}")
@@ -209,6 +214,7 @@ def _parse_answer_grounding(raw: str) -> tuple[str, str]:
 
 async def call_student(model: str, context: str, task: str, temperature: float, num_ctx: int) -> tuple[str, str]:
     """Ask a student model to complete one assignment. Returns (answer, full_response)."""
+    _log.debug("student call  model=%s  task_len=%d  context_len=%d", model, len(task), len(context))
     ollama_opts = {"num_ctx": num_ctx}
     kwargs = {"temperature": temperature, "extra_body": {"options": ollama_opts}}
     response = await litellm.acompletion(
@@ -221,6 +227,7 @@ async def call_student(model: str, context: str, task: str, temperature: float, 
         **kwargs,
     )
     raw = (response.choices[0].message.content or "").strip()
+    _log.debug("student response  model=%s  raw_len=%d:\n%s", model, len(raw), raw[:2000])
     return _parse_answer_grounding(raw)
 
 
@@ -256,9 +263,11 @@ Return ONLY valid JSON: {{"score": <0-100>, "reason": "<one sentence>"}}"""
             **GRADER_KWARGS,
         )
         raw = (response.choices[0].message.content or "").strip()
+        _log.debug("grader response  phrase='%s'  raw_len=%d:\n%s", phrase[:30], len(raw), raw[:1000])
         data = parse_fenced_json(raw)
         return max(0, min(100, int(data.get("score", 0)))), data.get("reason", "")
-    except Exception:
+    except Exception as e:
+        _log.warning("grading failed for '%s': %s", phrase[:50], e)
         return 0, "grading failed"
 
 
@@ -277,7 +286,7 @@ def plot_scores(results: dict) -> None:
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
     except ImportError:
-        print("matplotlib not installed — skipping plot.")
+        _log.warning("matplotlib not installed — skipping plot.")
         return
 
     series: dict[str, dict[str, list]] = {}
@@ -290,7 +299,7 @@ def plot_scores(results: dict) -> None:
             series[model_name]["score"].append(model_data.get("weighted_score", 0))
 
     if not series:
-        print("No eval data to plot.")
+        _log.info("No eval data to plot.")
         return
 
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -310,7 +319,7 @@ def plot_scores(results: dict) -> None:
     ax.grid(True, linestyle="--", alpha=0.4)
     fig.tight_layout()
     fig.savefig(PLOT_OUTPUT, dpi=150)
-    print(f"Scatter plot saved to {PLOT_OUTPUT}")
+    _log.info("Scatter plot saved to %s", PLOT_OUTPUT)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -341,13 +350,13 @@ async def main() -> None:
             f"###   llm_timeout:     {LLM_TIMEOUT} s",
         ],
     )
-    print()
+    _log.info("")
 
     # Resume from existing output
     results: dict[str, dict] = {}
     if OUTPUT.exists():
         results = json.loads(OUTPUT.read_text())
-        print(f"Resuming: {len(results)} entries already done, {total - len(results)} remaining.")
+        _log.info("Resuming: %d entries already done, %d remaining.", len(results), total - len(results))
 
     existing = load_existing()
 
@@ -460,7 +469,7 @@ async def main() -> None:
             pbar.set_postfix_str(f"'{phrase[:30]}' done {elapsed:.0f}s")
             pbar.update(1)
 
-    print(f"\nDone. {len(results)}/{total} entries written to {OUTPUT}")
+    _log.info("\nDone. %d/%d entries written to %s", len(results), total, OUTPUT)
     _banner(
         "Results: enrich_mantras",
         [
