@@ -335,7 +335,7 @@ def main() -> None:
         return
 
     # Build pipeline metadata
-    locales_searched = len(cfg().get("search_web", {}).get("cities", []))
+    locales_searched = len(cfg().get("search_web", {}).get("locales", []))
     pipeline_meta = {
         "locales_searched": locales_searched,
         "urls_crawled": count_urls_crawled(),

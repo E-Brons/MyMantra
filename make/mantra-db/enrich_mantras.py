@@ -407,6 +407,7 @@ async def run_students(
     contexts: dict[str, str],
     answers: dict[_AnswerKey, dict],
     pbar: tqdm,
+    save_fn,
 ) -> None:
     """Step 1: all student calls, batched by model to avoid Ollama swapping."""
     for model in STUDENT_MODELS:
@@ -441,6 +442,7 @@ async def run_students(
                 speed = time.perf_counter() - t0
 
                 answers[key] = {"answer": answer, "speed_s": round(speed, 2)}
+                save_fn()
                 pbar.update(1)
 
 
@@ -493,6 +495,7 @@ async def run_grader(
     contexts: dict[str, str],
     answers: dict[_AnswerKey, dict],
     pbar: tqdm,
+    save_fn,
 ) -> None:
     """Step 2: grade all student answers with the grader model (loaded once)."""
     for mantra in mantras:
@@ -521,6 +524,7 @@ async def run_grader(
                     entry["score"] = score
                     entry["reason"] = reason
 
+                save_fn()
                 pbar.update(1)
 
 
@@ -728,7 +732,7 @@ async def main() -> None:
             f"###   Output:          {OUTPUT}",
             f"###   Filter model:    {_model_short(FILTER_MODEL)}  (timeout {FILTER_TIMEOUT}s)",
             f"###   Student models:  {', '.join(_model_short(m) for m in STUDENT_MODELS)}",
-            f"###   Grader model:    {_model_short(MODEL_GRADER)}  (timeout {GRADER_TIMEOUT}s)",
+            f"###   Grader model:    {_model_short(MODEL_GRADER)}",
             f"###   Assignments:     {', '.join(assignment_names)}",
             f"###   Total calls:     {total_student} student + {total_grader} grader",
         ],
@@ -747,15 +751,23 @@ async def main() -> None:
               fetched, total, t.elapsed)
 
     # ── Step 0: Context filter ───────────────────────────────────────────────
-    _log.info("Step 0 -- Context filter (%s, %d mantras)",
-              _model_short(FILTER_MODEL), total)
-    await _warmup(FILTER_MODEL)
-    t = Timer().start()
-    contexts = await filter_all_contexts(mantras, sources)
-    t.stop()
-    ctx_chars = sum(len(c) for c in contexts.values())
-    _log.info("  Done: %d filtered contexts (%d chars total).  (%.1f s)\n",
-              len(contexts), ctx_chars, t.elapsed)
+    contexts_cache = OUTPUT.parent / "enrich_contexts.json"
+    if contexts_cache.exists():
+        contexts = json.loads(contexts_cache.read_text())
+        ctx_chars = sum(len(c) for c in contexts.values())
+        _log.info("Step 0 -- Context filter (cached: %d contexts, %d chars)\n",
+                  len(contexts), ctx_chars)
+    else:
+        _log.info("Step 0 -- Context filter (%s, %d mantras)",
+                  _model_short(FILTER_MODEL), total)
+        await _warmup(FILTER_MODEL)
+        t = Timer().start()
+        contexts = await filter_all_contexts(mantras, sources)
+        t.stop()
+        contexts_cache.write_text(json.dumps(contexts, ensure_ascii=False))
+        ctx_chars = sum(len(c) for c in contexts.values())
+        _log.info("  Done: %d filtered contexts (%d chars total).  (%.1f s)\n",
+                  len(contexts), ctx_chars, t.elapsed)
 
     # ── Load answer cache for resume ─────────────────────────────────────────
     answers_cache = OUTPUT.parent / "enrich_answers.json"
@@ -773,9 +785,8 @@ async def main() -> None:
     _log.info("Step 1 -- Students (%d calls, batched by model)", total_student)
     t = Timer().start()
     with tqdm(total=total_student, desc="  Students", unit="call") as pbar:
-        await run_students(mantras, sources, contexts, answers, pbar)
+        await run_students(mantras, sources, contexts, answers, pbar, _save_answers)
     t.stop()
-    _save_answers()
     _log.info("  Done.  (%.1f s)\n", t.elapsed)
 
     # ── Step 2: Grader ───────────────────────────────────────────────────────
@@ -784,9 +795,8 @@ async def main() -> None:
     await _warmup(MODEL_GRADER)
     t = Timer().start()
     with tqdm(total=total_grader, desc="  Grading", unit="call") as pbar:
-        await run_grader(mantras, contexts, answers, pbar)
+        await run_grader(mantras, contexts, answers, pbar, _save_answers)
     t.stop()
-    _save_answers()
     _log.info("  Done.  (%.1f s)\n", t.elapsed)
 
     # ── Step 3: Combine + statistics ─────────────────────────────────────────

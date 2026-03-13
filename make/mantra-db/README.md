@@ -93,9 +93,9 @@ no script changes are needed.
 | — | `ollama.host` | URL | Ollama server hostname (default `http://localhost`) |
 | — | `ollama.port` | int | Ollama server port (default `11434`) |
 | 1 | `search_web.output` | path | URL list written by Stage 1 |
-| 1 | `search_web.cities` | list of `{name, locale, mantra}` | cities and search terms for Stage 1 |
+| 1 | `search_web.locales` | list of `{locale, search}` | locales and search terms for Stage 1 |
 | 1 | `search_web.delay` | float (sec) | polite delay between WSE requests |
-| 1 | `search_web.results_per_locale` | int | max URLs fetched per city |
+| 1 | `search_web.results_per_locale` | int | max URLs fetched per search term |
 | 1 | `search_web.cache_dir` | path | HTML cache directory |
 | 2 | `extract_mantra.input` | path | URL list consumed by Stage 2 |
 | 2 | `extract_mantra.output` | path | raw mantra index written by Stage 2 |
@@ -126,9 +126,9 @@ to absolute paths at runtime via `settings.py`.
 
 ## Stage 1 — `search_for_urls.py`
 
-Searches DuckDuckGo from main cities over the world
- using "mantra" in each local language and the country locale.
-Collects ~10 URLs per locale, deduplicates across all locales, and writes
+Searches DuckDuckGo across world locales using culturally relevant search
+terms in each local language. Collects ~10 URLs per search term,
+deduplicates across all locales, and writes
 a flat URL list to `tmp/mantra_urls.txt`.
 
 ```bash

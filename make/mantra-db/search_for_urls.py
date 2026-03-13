@@ -2,9 +2,9 @@
 """
 search_for_urls.py — Stage 1: Discover mantra URLs via Search Engine
 
-Searches Web from locales over the world using "mantra" in each local
-language.  Collects up to N URLs per locale, deduplicates across all locales,
-and writes the result to tmp/mantra_urls.txt (one URL per line).
+Searches Web across locales using culturally relevant search terms in each
+local language.  Collects up to N URLs per search term, deduplicates across
+all locales, and writes the result to tmp/mantra_urls.txt (one URL per line).
 
 Why curl instead of urllib:
     Python's urllib has a distinct TLS fingerprint that DDG detects as a bot
@@ -50,8 +50,13 @@ BROWSER_UA = (
     "Chrome/124.0.0.0 Safari/537.36"
 )
 
-# locales: (city, DDG kl code, query in local language) — sourced from settings.yml
-LOCALES = [(c["name"], c["locale"], c["mantra"]) for c in _fcfg["cities"]]
+# locales: (DDG kl code, query) — sourced from settings.yml
+# Each locale entry has a list of search terms; we flatten to (locale, query) pairs.
+LOCALES = [
+    (entry["locale"], query)
+    for entry in _fcfg["locales"]
+    for query in entry["search"]
+]
 
 # ── curl helpers ──────────────────────────────────────────────────────────────
 
@@ -164,14 +169,14 @@ def _next_form(html):
     return fields or None
 
 
-def search_locale(city, kl, query, use_cache, verbose):
+def search_locale(kl, query, use_cache, verbose):
     """Return up to PER_LOCALE unique URLs from DDG for this locale."""
     first_url = "https://html.duckduckgo.com/html/?" + urllib.parse.urlencode(
         {"q": query, "kl": kl}
     )
     html = fetch(first_url, use_cache)
     if not html:
-        _log.warning("%s: no response from DDG", city)
+        _log.warning("%s %r: no response from DDG", kl, query)
         return []
 
     all_urls, seen = [], set()
@@ -220,13 +225,15 @@ def main():
 
     # ── stage banner ──────────────────────────────────────────────────────────
     SEP = "#" * 79
-    locale_names = ", ".join(c for c, _, _ in LOCALES)
+    unique_locales = list(dict.fromkeys(kl for kl, _ in LOCALES))
+    locale_names = ", ".join(unique_locales)
     _log.info(SEP)
     _log.info("# Stage 1  —  search_for_urls")
     _log.info(SEP)
     _log.info("#  engine:             %s", _fcfg.get('engine', 'DuckDuckGo'))
     _log.info("#  output:             %s", args.output)
-    _log.info("#  locales:            %d  (%s)", len(LOCALES), locale_names)
+    _log.info("#  locales:            %d  (%s)", len(unique_locales), locale_names)
+    _log.info("#  search terms:       %d", len(LOCALES))
     _log.info("#  results_per_locale: %d", PER_LOCALE)
     _log.info("#  delay:              %s s", DELAY)
     _log.info("#  cache_dir:          %s", CACHE_DIR)
@@ -238,10 +245,10 @@ def main():
     seen = set()
 
     stage_timer = Timer().start()
-    with tqdm(LOCALES, unit="locale", ncols=80) as pbar:
-        for city, kl, query in pbar:
-            pbar.set_description(f"{city}")
-            urls = search_locale(city, kl, query, use_cache, args.verbose)
+    with tqdm(LOCALES, unit="query", ncols=80) as pbar:
+        for kl, query in pbar:
+            pbar.set_description(f"{kl} {query[:20]}")
+            urls = search_locale(kl, query, use_cache, args.verbose)
             before = len(seen)
             for u in urls:
                 if u not in seen:
@@ -249,9 +256,9 @@ def main():
                     all_urls.append(u)
             new = len(seen) - before
             _log.info(
-                '  [%s]  kl=%s  query="%s"'
+                '  [%s]  query="%s"'
                 '  →  %d found, %d new',
-                city, kl, query, len(urls), new,
+                kl, query, len(urls), new,
             )
             pbar.set_postfix({"urls": len(all_urls)})
             time.sleep(DELAY)
@@ -262,7 +269,7 @@ def main():
 
     _log.info("")
     _log.info("Done. %d unique URLs written to %s", len(all_urls), args.output)
-    _log.info("  Wall time: %.1f s  |  Locales: %d  |  Avg URLs/locale: %.1f",
+    _log.info("  Wall time: %.1f s  |  Search terms: %d  |  Avg URLs/term: %.1f",
               stage_timer.elapsed, len(LOCALES),
               len(all_urls) / max(len(LOCALES), 1))
 
