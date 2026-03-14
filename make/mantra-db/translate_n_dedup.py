@@ -85,11 +85,8 @@ TRANSLIT_TASK = _tlit_cfg["task"].strip()
 _trans_cfg = _dcfg["translations"]
 MODEL_TRANSLATOR = ollama(_trans_cfg["llm_engine"])
 TRANSLATOR_KWARGS, TRANSLATOR_TIMEOUT = _build_kwargs(_trans_cfg.get("llm_options", {}))
-_lang_cfg = _trans_cfg["languages"]
-TRANSLATE_TASK = _lang_cfg["task"].strip()
-TRANSLATE_LANGUAGES: dict[str, str] = {
-    k: v for k, v in _lang_cfg.items() if k != "task"
-}
+TRANSLATE_TASK = _trans_cfg["task"].strip()
+TRANSLATE_LANGUAGES: dict[str, str] = _trans_cfg["languages"]
 
 _SEP = "#" * 79
 
