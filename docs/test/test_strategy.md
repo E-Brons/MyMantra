@@ -51,10 +51,39 @@
 
 ### 3.3 Integration Tests (`integration_test/`)
 
-- Run on a real target (macOS preferred)
-- `flutter test integration_test/ -d macos`
+- Functional flows: `flutter test integration_test/ -d $(TARGET)`
+- Rendering checks: `flutter drive --driver=test/driver/integration_test_driver.dart --target=integration_test/emoji_screenshot_integration_test.dart`
 - Speed: <120 s per suite
-- Scope: user-visible flows and platform-specific navigation
+- Scope: user-visible flows, platform-specific navigation, and visual correctness
+
+
+#### Rendering Regression Strategy (NEW)
+
+For rendering issues (emoji fallback, missing glyphs, clipped text, font artifacts), we use a host-driven integration pipeline.
+
+**Device/App side (Flutter integration target)**
+
+- The integration test drives the UI to deterministic states and calls screenshot capture for each named checkpoint.
+- Each checkpoint name is treated as a test contract (for example, `mantra_library`, `progress`, `session_complete`).
+
+**Host/Driver side (source of truth for pass/fail)**
+
+- `integration_test_driver.dart` receives screenshot bytes through `onScreenshot`.
+- The driver writes each image under `tmp/` on the host machine.
+- The driver then executes a host validator command (Python today; bash wrapper optional) and waits for exit code.
+- Exit code contract: `0` = rendering check passed, non-zero = failed checkpoint and failed integration run.
+
+**Host orchestration options**
+
+- Direct command: run `flutter drive` with the custom driver.
+- Wrapper command: run the bash script, which invokes `flutter drive` and centralizes target/device flags.
+- Python validator: analyzes the saved screenshot (OCR/image rules) and reports missing glyphs or rendering anomalies.
+
+**Why this is the strategy**
+
+- Widget assertions cannot reliably detect pixel-level or glyph-rendering failures.
+- Keeping image analysis on the host decouples heavy dependencies (OCR/image libs, external binaries) from app runtime.
+- The same host driver contract can support future validators (Python, shell tools, or additional scripts) without changing app-side test logic.
 
 ---
 
@@ -70,100 +99,71 @@
 
 ---
 
-## 5. Known Bug Targeted by Tests
-
-### BUG-001: macOS — MantraDetailScreen navigation blocked
-
-**Symptom:** On macOS, tapping the back arrow on `/mantras/:id` does nothing (cannot leave
-the screen). The route sits outside the `ShellRoute` and `context.pop()` has no parent entry
-in go_router's history when the user arrives from a cold launch or direct URL.
-
-**Related screens:** `MantraDetailScreen`, `CreateMantraScreen`, `SessionScreen`
-
-**Affected platform:** macOS (confirmed). May also affect Web deep-link entry.
-
-**Likely cause:** The route outside `ShellRoute` has no predecessor on the Navigator stack
-when entered directly. `context.canPop()` returns `false`; the button still calls
-`context.pop()` which is a no-op.
-
-**Fix approach (not implemented yet):** Wrap the back action in
-`if (context.canPop()) context.pop() else context.go('/')`. Also consider `PopScope`
-for consistent behaviour across all back sources.
-
----
-
-### BUG-002: Android — hardware back button not wired to session confirmation
-
-**Symptom:** Pressing the Android hardware/gesture back during an active session (counter > 0)
-dismisses the screen without the "Discard session?" confirmation dialog defined in SR-3.5.
-
-**Affected screen:** `SessionScreen`
-
-**Likely cause:** `WillPopScope` / `PopScope` is not used; only the visible Cancel button
-shows the confirmation dialog.
-
-**Fix approach (not implemented yet):** Add `PopScope(onPopInvoked: ...)` to
-`SessionScreen` to intercept the system back event.
-
----
-
-## 6. Test Tooling
+## 5. Test Tooling
 
 | Tool | Purpose |
 |------|---------|
-| `flutter test` | Unit + Widget |
-| `flutter test integration_test/ -d macos` | macOS integration |
-| `flutter test integration_test/ -d emulator-*` | Android emulator |
 | `flutter analyze` | Static analysis (run before any test suite) |
+| `flutter test` | Unit + Widget |
+| `flutter test integration_test/ -d <target>` | Functional integration suites |
+| `flutter drive --driver=test/driver/integration_test_driver.dart --target=integration_test/emoji_screenshot_integration_test.dart` | Rendering integration with host-side screenshot validation |
+| `test/driver/emoji_test.sh [--device-id <id>]` | Bash wrapper to run rendering checks with consistent flags |
+| `test/driver/integration_test_driver.dart` | Host driver: saves screenshots and launches host validators |
+| `python3 test/driver/emoji_screenshots_test.py <screen_name> <image_path>` | Rendering validator (OCR/image analysis, exit-code based) |
+| `pytesseract` + system `tesseract` | OCR engine used by Python validator |
 | `lcov` + `genhtml` | Coverage HTML report (optional) |
 
-Generate coverage report:
+Rendering flow (host-oriented):
 ```bash
+./test/driver/emoji_test.sh --device-id <id>
+```
+
+Equivalent direct command:
+```bash
+flutter drive \
+  --driver=test/driver/integration_test_driver.dart \
+  --target=integration_test/emoji_screenshot_integration_test.dart \
+  --device-id <id>
+```
+
+Generate coverage report:
+``` bash
 flutter test --coverage
 genhtml coverage/lcov.info -o coverage/html
 open coverage/html/index.html
 ```
 
----
-
-## 7. Test File Layout (Target Structure)
+## 6. Test Folders
 
 ```
-test/
-  unit/
-    models/
-      mantra_model_test.dart
-      session_model_test.dart
-      progress_model_test.dart
-      reminder_model_test.dart
-    logic/
-      streak_calculation_test.dart
-      achievement_unlock_test.dart
-      session_timer_test.dart
-    services/
-      storage_service_test.dart
-      mantra_library_service_test.dart
-
-  widget/
-    home_screen_test.dart
-    mantra_detail_screen_test.dart
-    create_mantra_screen_test.dart
-    session_screen_test.dart
-    progress_screen_test.dart
-    library_screen_test.dart
-    back_navigation_widget_test.dart
+docs/
+  test/
+    test_cases.md
+    test_strategy.md
+    specific_test_details/
+      bug-004-emoji_rendering-ios.md
 
 integration_test/
-  full_session_flow_test.dart
-  mantra_crud_flow_test.dart
-  back_navigation_macos_test.dart
-  back_navigation_android_test.dart
-  counter_stress_test.dart
+  app_flow_test.dart
+  emoji_screenshot_integration_test.dart
+
+test/
+  driver/
+    integration_test_driver.dart
+    emoji_test.sh
+    emoji_screenshots_test.py
+  unit/
+    ... unit test files
+  widget/
+    ... widget test files
+
+tmp/
+  *.png (runtime screenshot artifacts written by host driver)
 ```
 
 ---
 
-## 8. Entry Criteria for Each Level
+## 7. Entry Criteria for Each Level
 
 | Level | Entry Criteria |
 |-------|---------------|
@@ -173,18 +173,9 @@ integration_test/
 
 ---
 
-## 9. Open Questions
-
-1. Should the integration tests run on Android emulator in addition to macOS, or defer to a
-   future CI stage?
-2. Should `flutter_test` golden files be added for key screens (session counter, progress
-   dashboard)?
-3. Are mutation tests (`stryker`-equivalent) worth the overhead for the streak algorithm?
-
----
-
 **Change Log**
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 0.1 | 2026-03-07 | Engineering | Initial draft |
+| 0.2 | 2026-03-14 | Copilot | Added general visual regression strategy (Python + external tools) section |

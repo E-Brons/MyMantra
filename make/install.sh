@@ -49,6 +49,33 @@ _install_python() {
         echo "  installing pyenv (Python version manager)..."
         brew install pyenv
     fi
+
+    local req_file="$REPO_ROOT/test/driver/python_requirements.txt"
+    local venv_dir="$REPO_ROOT/.venv"
+
+    if [[ ! -f "$req_file" ]]; then
+        echo "  no driver python requirements found at test/driver/python_requirements.txt — skipping"
+        return
+    fi
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "  python3 is required to create a virtual environment" >&2
+        exit 1
+    fi
+
+    if [[ ! -d "$venv_dir" ]]; then
+        echo "  creating python virtual environment: $venv_dir"
+        python3 -m venv "$venv_dir"
+    else
+        echo "  python virtual environment already exists: $venv_dir"
+    fi
+
+    echo "  activating venv and installing test/driver python packages..."
+    # shellcheck disable=SC1091
+    source "$venv_dir/bin/activate"
+    python -m pip install --upgrade pip
+    python -m pip install -r "$req_file"
+    deactivate || true
 }
 
 _install_xcodes() {
@@ -223,6 +250,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     echo ""
     echo "==> install: python (pyenv)"
     _install_python
+
+    echo ""
+    echo "==> install: tesseract (OCR engine)"
+    if ! command -v tesseract >/dev/null 2>&1; then
+        echo "  installing tesseract via homebrew..."
+        brew install tesseract
+    else
+        echo "  tesseract already installed: $(tesseract --version | head -1)"
+    fi
 
     echo ""
     echo "==> install: xcodes"

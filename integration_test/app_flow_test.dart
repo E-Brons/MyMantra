@@ -65,8 +65,7 @@ void main() {
 
   // ── TC-I-2: Session with tap → Discard ────────────────────────────────────
 
-  testWidgets(
-      'session: tap once → X → Discard exits cleanly to MantraDetail',
+  testWidgets('session: tap once → X → Discard exits cleanly to MantraDetail',
       (tester) async {
     await launchApp(tester);
 
@@ -97,8 +96,7 @@ void main() {
 
   // ── TC-I-3: Session with tap → Save as partial ────────────────────────────
 
-  testWidgets(
-      'session: tap once → X → Save records a partial session',
+  testWidgets('session: tap once → X → Save records a partial session',
       (tester) async {
     await launchApp(tester);
 

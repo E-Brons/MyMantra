@@ -195,7 +195,7 @@ File: `test/widget/progress_screen_test.dart`
 
 ---
 
-## TC-I: Integration Tests (macOS target)
+## TC-I: Integration Tests (primary macOS + targeted iOS)
 
 Run with: `flutter test integration_test/ -d macos`
 
@@ -266,14 +266,28 @@ File: `integration_test/counter_stress_test.dart`
 
 ---
 
+### TC-I-06 — Emoji Rendering (iOS host-driven visual check)
+
+File: `integration_test/emoji_screenshot_integration_test.dart`
+
+This suite specifically targets **BUG-004**.
+
+| # | Steps | Expected | Status |
+|---|-------|----------|--------|
+| I-06-1 | Run `flutter drive` with `test/driver/integration_test_driver.dart` on iOS simulator; capture `mantra_library` screenshot | OCR validator finds all expected emoji glyphs | 🔴 (BUG-004) |
+| I-06-2 | Capture `progress` screenshot in same run | OCR validator finds all expected emoji glyphs | 🔴 (BUG-004) |
+| I-06-3 | Capture `session_complete` screenshot in same run | OCR validator finds all expected emoji glyphs | 🔴 (BUG-004) |
+
+---
+
 ## Summary
 
 | Category | Total Cases | 🟢 Expected Pass | 🔴 Known Fail | 🟡 Unverifiable |
 |----------|------------|-----------------|--------------|-----------------|
 | Unit | 34 | 27 | 0 | 7 |
 | Widget | 28 | 20 | 5 | 3 |
-| Integration | 16 | 8 | 7 | 1 |
-| **Total** | **78** | **55** | **12** | **11** |
+| Integration | 19 | 8 | 10 | 1 |
+| **Total** | **81** | **55** | **15** | **11** |
 
 ### Known failures requiring implementation before they can pass
 
@@ -281,6 +295,7 @@ File: `integration_test/counter_stress_test.dart`
 |-----|---------------|------------|
 | BUG-001 (macOS back) | W-02-4, W-05-1, I-03-1..5 | `canPop()` guard + `PopScope` |
 | BUG-002 (Android back in session) | W-03-8, W-05-5, I-04-3..5 | `PopScope` on SessionScreen |
+| BUG-004 (iOS emoji rendering) | I-06-1..3 | Fix iOS glyph/font rendering and keep screenshot validator green |
 | Unsaved-changes guard | W-04-5 | Navigation intercept on CreateMantraScreen |
 
 ---

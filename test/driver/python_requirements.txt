@@ -1,0 +1,4 @@
+# Python requirements for emoji screenshot test
+Pillow
+tesseract
+pytesseract

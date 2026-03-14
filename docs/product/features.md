@@ -272,6 +272,4 @@ integration framework.
 # 🐛 BUG: Emoji Rendering on iOS
 | ID | Bug | Priority | Status | Notes |
 |----|-----|----------|--------|-------|
-| BUG-004 | Emoji icons (Progress, Achievements) show '?' placeholder on iOS | P0 | 🚧 |
-- Affects: Progress screen, Achievements, session overlay, home empty state
-- Symptoms: Emoji icons (🔥, ⭐, 🧘, 🙏, 🔒) render as '?' on iOS, but work on web/Android|
+| BUG-004 | Emoji icons (Progress, Achievements) show '?' placeholder on iOS | P0 | 🚧 | (🔥, ⭐, 🧘, 🙏, 🔒) render <br/>Affects: Progress screen, Achievements, session overlay, home empty state
