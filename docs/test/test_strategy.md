@@ -12,10 +12,11 @@
 
 | Goal | Detail |
 |------|--------|
-| Catch regressions early | No CI/CD required — tests run locally with `flutter test` |
+| Catch regressions early | Tests run locally and progressively in CI (Linux-first rollout) |
 | Verify cross-platform nav | Confirm back-button/escape behaviour on macOS & Android |
 | Cover core business logic | Streak calculation, session counting, achievement unlocking |
 | Keep friction low | Every suite must run in <60 s on a developer laptop |
+| Define target ownership clearly | Each integration suite declares Device, Native, and Web applicability |
 
 ---
 
@@ -30,6 +31,32 @@
 
 > **For this stage, macOS is the primary integration test target.** A passing macOS integration
 > suite is a sufficient gate before shipping to iOS/Android.
+
+### 2.1 Integration Target Types
+
+Integration suites are grouped by target type:
+
+| Target Type | Targets | Rule |
+|-------------|---------|------|
+| Device | iOS simulator, Android emulator | Runs on emulated/simulated mobile targets |
+| Native | macOS, Linux | Runs only when host OS matches target OS |
+| Web | Chrome/Web runtime | Runs in browser runtime with web-compatible test code |
+
+### 2.2 Environment Assumptions
+
+| Environment | Host OS | Notes |
+|-------------|---------|-------|
+| Developer workstation | macOS | Primary local development and iOS simulator runs |
+| CI | Linux | Native Linux integration, plus emulator-based Android runs (iOS simulator is TODO) |
+
+### 2.3 Integration Coverage Manifest
+
+- Source of truth: `integration_test/targets_matrix.yaml`
+- The manifest declares, per integration suite:
+  - whether it is implemented
+  - which targets it can run on
+  - where it is mandatory to pass
+  - CI TODO items for missing target automation
 
 ---
 
@@ -55,6 +82,7 @@
 - Rendering checks: `flutter drive --driver=test/driver/integration_test_driver.dart --target=integration_test/emoji_screenshot_integration_test.dart`
 - Speed: <120 s per suite
 - Scope: user-visible flows, platform-specific navigation, and visual correctness
+- Target declaration: every suite must define Device, Native, and Web applicability in `docs/test/test_cases.md` and `integration_test/targets_matrix.yaml`
 
 
 #### Rendering Regression Strategy (NEW)
@@ -95,7 +123,7 @@ For rendering issues (emoji fallback, missing glyphs, clipped text, font artifac
 | Push notifications | Requires device + OS permission flow |
 | Voice recording | Phase 2.0, requires microphone |
 | Social sharing | Phase 3.0 |
-| CI pipeline | Infrastructure not set up; all tests run manually |
+| iOS simulator integration in CI | TODO: requires macOS CI runners/device boot orchestration |
 
 ---
 

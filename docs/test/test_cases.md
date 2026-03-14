@@ -199,9 +199,19 @@ File: `test/widget/progress_screen_test.dart`
 
 Run with: `flutter test integration_test/ -d macos`
 
+Target type legend:
+- Mandatory = must pass for release gate on this target type
+- Implemented = runnable today but not a release gate
+- Planned = not implemented yet
+- N/A = intentionally not applicable
+
 ### TC-I-01 — Full Session Flow
 
 File: `integration_test/full_session_flow_test.dart`
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Mandatory | Mandatory (macOS), Planned (Linux CI) | Planned |
 
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
@@ -214,6 +224,10 @@ File: `integration_test/full_session_flow_test.dart`
 ### TC-I-02 — Mantra CRUD Flow
 
 File: `integration_test/mantra_crud_flow_test.dart`
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Implemented | Implemented (macOS), Planned (Linux CI) | Planned |
 
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
@@ -230,6 +244,10 @@ File: `integration_test/back_navigation_macos_test.dart`
 
 This suite specifically targets **BUG-001**.
 
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| N/A | Mandatory (macOS), N/A (Linux) | N/A |
+
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
 | I-03-1 | Home → tap mantra → tap back arrow | HomeScreen rendered | 🔴 (BUG-001) |
@@ -243,6 +261,10 @@ This suite specifically targets **BUG-001**.
 ### TC-I-04 — Back Navigation (Android emulator)
 
 File: `integration_test/back_navigation_android_test.dart`
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Mandatory (Android), N/A (iOS) | N/A | N/A |
 
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
@@ -258,6 +280,10 @@ File: `integration_test/back_navigation_android_test.dart`
 
 File: `integration_test/counter_stress_test.dart`
 
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Implemented | Implemented (macOS), Planned (Linux CI) | Planned |
+
 | # | Description | Expected | Status |
 |---|-------------|----------|--------|
 | I-05-1 | 108 rapid taps → counter = 108 | no missed taps | 🟢 |
@@ -271,6 +297,10 @@ File: `integration_test/counter_stress_test.dart`
 File: `integration_test/emoji_screenshot_integration_test.dart`
 
 This suite specifically targets **BUG-004**.
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Mandatory (iOS), Implemented (Android) | Planned (macOS/Linux desktop screenshot path) | N/A |
 
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
