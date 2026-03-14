@@ -137,6 +137,7 @@ _install_fonts() {
     _dl "$GF/notosanssc/NotoSansSC%5Bwght%5D.ttf"                       NotoSansSC-Variable.ttf
     _dl "$GF/notosansjp/NotoSansJP%5Bwght%5D.ttf"                       NotoSansJP-Variable.ttf
     _dl "$GF/notosanskr/NotoSansKR%5Bwght%5D.ttf"                       NotoSansKR-Variable.ttf
+    _dl "$GF/notocoloremoji/NotoColorEmoji-Regular.ttf"                 NotoColorEmoji.ttf
     _dl "$GF/inter/Inter%5Bopsz,wght%5D.ttf"                            Inter-Variable.ttf
     _dl "$GF/plusjakartasans/PlusJakartaSans%5Bwght%5D.ttf"             PlusJakartaSans-Variable.ttf
     _dl "$GF/outfit/Outfit%5Bwght%5D.ttf"                               Outfit-Variable.ttf
