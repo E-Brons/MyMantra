@@ -30,6 +30,34 @@ _install_flutter() {
     fi
 }
 
+_install_ruby() {
+    if ! command -v rbenv >/dev/null 2>&1; then
+        echo "  installing rbenv and ruby-build..."
+        brew install rbenv ruby-build
+    fi
+}
+
+_install_github_cli() {
+    if ! command -v gh >/dev/null 2>&1; then
+        echo "  installing GitHub CLI..."
+        brew install gh
+    fi
+}
+
+_install_python() {
+    if ! command -v pyenv >/dev/null 2>&1; then
+        echo "  installing pyenv (Python version manager)..."
+        brew install pyenv
+    fi
+}
+
+_install_xcodes() {
+    if ! command -v xcodes >/dev/null 2>&1; then
+        echo "  installing xcodes (iOS runtime manager)..."
+        brew install xcodes
+    fi
+}
+
 _scaffold() {
     if [[ ! -d "$REPO_ROOT/ios" && ! -d "$REPO_ROOT/android" ]]; then
         echo "  scaffolding platform directories..."
@@ -181,6 +209,27 @@ mkdir -p "$REPO_ROOT/assets/audio/notification-sounds" \
 echo ""
 echo "==> install: flutter"
 _install_flutter
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo ""
+    echo "==> install: ruby (rbenv)"
+    _install_ruby
+
+    echo ""
+    echo "==> install: github cli"
+    _install_github_cli
+
+    echo ""
+    echo "==> install: python (pyenv)"
+    _install_python
+
+    echo ""
+    echo "==> install: xcodes"
+    _install_xcodes
+else
+    echo ""
+    echo "==> install: skipping macOS-only tools (rbenv, gh, pyenv, xcodes) on $OSTYPE"
+fi
 
 echo ""
 echo "==> install: scaffold"
