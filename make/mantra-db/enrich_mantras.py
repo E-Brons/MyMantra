@@ -56,13 +56,35 @@ MAX_CHUNK_LEN = int(_filter_cfg.get("max_chunk_len", 2000))
 
 # ── Config: student assignments (step 1) ─────────────────────────────────────
 _assign_cfg = _ecfg["assignments"]
-STUDENT_MODELS = [ollama(e) for e in _assign_cfg["llm_students"]]
 STUDENT_SYSTEM = _assign_cfg["system"].strip()
 _NON_ASSIGNMENT_KEYS = {"llm_students", "system"}
 ASSIGNMENTS: dict[str, dict] = {
     k: v for k, v in _assign_cfg.items()
     if k not in _NON_ASSIGNMENT_KEYS and isinstance(v, dict)
 }
+
+# Per-assignment student models (fall back to top-level if present)
+_default_students = _assign_cfg.get("llm_students", [])
+if isinstance(_default_students, str):
+    _default_students = [_default_students]
+
+
+def students_for(field_name: str) -> list[str]:
+    """Return the ollama-prefixed student model list for a given assignment."""
+    raw = ASSIGNMENTS[field_name].get("llm_students", _default_students)
+    if isinstance(raw, str):
+        raw = [raw]
+    return [ollama(m) for m in raw]
+
+
+# Union of all student models (for warmup, statistics, etc.)
+STUDENT_MODELS: list[str] = []
+_seen_models: set[str] = set()
+for _fn in ASSIGNMENTS:
+    for _m in students_for(_fn):
+        if _m not in _seen_models:
+            _seen_models.add(_m)
+            STUDENT_MODELS.append(_m)
 
 # ── Config: grader (step 2) ──────────────────────────────────────────────────
 _grader_cfg = _ecfg["grader_options"]
@@ -419,6 +441,10 @@ async def run_students(
             filtered_context = contexts.get(phrase, "")
 
             for field_name, field_cfg in ASSIGNMENTS.items():
+                # Skip assignments this model is not assigned to
+                if model not in students_for(field_name):
+                    continue
+
                 key = (phrase, field_name, model)
                 if key in answers:
                     pbar.update(1)
@@ -497,14 +523,28 @@ async def run_grader(
     pbar: tqdm,
     save_fn,
 ) -> None:
-    """Step 2: grade all student answers with the grader model (loaded once)."""
+    """Step 2: grade student answers. Skip assignments with only one student."""
     for mantra in mantras:
         phrase = mantra["phrase"]
         filtered_context = contexts.get(phrase, "")
 
         for field_name, field_cfg in ASSIGNMENTS.items():
+            models = students_for(field_name)
+
+            # Single student — no grading needed, auto-score 100
+            if len(models) <= 1:
+                for model in models:
+                    key = (phrase, field_name, model)
+                    entry = answers.get(key)
+                    if entry and "score" not in entry:
+                        entry["score"] = 100 if entry["answer"] else 0
+                        entry["reason"] = "single student — auto-accepted"
+                        save_fn()
+                    pbar.update(1)
+                continue
+
             task = _expand_task(field_cfg)
-            for model in STUDENT_MODELS:
+            for model in models:
                 key = (phrase, field_name, model)
                 entry = answers.get(key)
                 if not entry or "score" in entry:
@@ -557,8 +597,9 @@ def pick_winners(
         for field_name in ASSIGNMENTS:
             weight = GRADE_WEIGHTS.get(field_name, 0)
             best_answer, best_score, best_model = "", -1, ""
+            models = students_for(field_name)
 
-            for model in STUDENT_MODELS:
+            for model in models:
                 key = (phrase, field_name, model)
                 a = answers.get(key, {})
                 answer = a.get("answer", "")
@@ -622,14 +663,18 @@ def log_statistics(answers: dict[_AnswerKey, dict]) -> None:
 
     # Data rows
     for field_name in ASSIGNMENTS:
+        models = students_for(field_name)
         row = f"{field_name:<20}"
         for model in STUDENT_MODELS:
-            data = table.get(field_name, {}).get(model, {"scores": [], "times": []})
-            scores, times = data["scores"], data["times"]
-            n = len(scores)
-            avg_s = sum(scores) / n if n else 0
-            avg_t = sum(times) / n if n else 0
-            row += f" | {avg_s:6.1f} {avg_t:5.1f}s {n:4d}"
+            if model in models:
+                data = table.get(field_name, {}).get(model, {"scores": [], "times": []})
+                scores, times = data["scores"], data["times"]
+                n = len(scores)
+                avg_s = sum(scores) / n if n else 0
+                avg_t = sum(times) / n if n else 0
+                row += f" | {avg_s:6.1f} {avg_t:5.1f}s {n:4d}"
+            else:
+                row += f" | {'—':^{col_w}}"
         _log.info(row)
 
     # Totals row
@@ -639,6 +684,8 @@ def log_statistics(answers: dict[_AnswerKey, dict]) -> None:
         all_scores = []
         all_times = []
         for field_name in ASSIGNMENTS:
+            if model not in students_for(field_name):
+                continue
             data = table.get(field_name, {}).get(model, {"scores": [], "times": []})
             all_scores.extend(data["scores"])
             all_times.extend(data["times"])
@@ -681,7 +728,8 @@ def plot_scores(answers: dict[_AnswerKey, dict]) -> None:
         ax.set_ylabel("Score (0-100)")
         ax.grid(True, linestyle="--", alpha=0.4)
 
-        for i, model in enumerate(STUDENT_MODELS):
+        models = students_for(field_name)
+        for i, model in enumerate(models):
             short = _model_short(model)
             xs, ys = [], []
             for (phrase, field, m), entry in answers.items():
@@ -721,9 +769,19 @@ async def main() -> None:
     total = len(mantras)
 
     assignment_names = list(ASSIGNMENTS.keys())
-    n_students = len(STUDENT_MODELS)
-    total_student = total * len(ASSIGNMENTS) * n_students
-    total_grader = total_student
+    total_student = sum(
+        total * len(students_for(fn)) for fn in assignment_names
+    )
+    total_grader = sum(
+        total * len(students_for(fn))
+        for fn in assignment_names if len(students_for(fn)) > 1
+    )
+
+    student_summary = ", ".join(
+        f"{fn}=[{', '.join(_model_short(m) for m in students_for(fn))}]"
+        for fn in assignment_names
+    )
+    grader_info = _model_short(MODEL_GRADER) + " (only for multi-student assignments)"
 
     _banner(
         "Stage 4: enrich_mantras",
@@ -731,8 +789,8 @@ async def main() -> None:
             f"###   Input:           {DEDUPED}  ({total} phrases)",
             f"###   Output:          {OUTPUT}",
             f"###   Filter model:    {_model_short(FILTER_MODEL)}  (timeout {FILTER_TIMEOUT}s)",
-            f"###   Student models:  {', '.join(_model_short(m) for m in STUDENT_MODELS)}",
-            f"###   Grader model:    {_model_short(MODEL_GRADER)}",
+            f"###   Students:        {student_summary}",
+            f"###   Grader model:    {grader_info}",
             f"###   Assignments:     {', '.join(assignment_names)}",
             f"###   Total calls:     {total_student} student + {total_grader} grader",
         ],
