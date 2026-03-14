@@ -39,6 +39,7 @@ Achievement Badges:
     Mac: Icons.laptop_mac
     Linux: Icons.terminal
     Web: Icons.filter_drama
+    Creator: Icons.lightbulb
 
 Other:
     Locked achievement: Icons.lock_outline

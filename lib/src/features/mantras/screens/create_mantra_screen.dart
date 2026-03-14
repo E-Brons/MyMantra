@@ -93,7 +93,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Save', style: TextStyle(color: AppColors.violet400, fontWeight: FontWeight.w600)),
+            child: Text('Save', style: TextStyle(color: AppColors.violet400, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -106,7 +106,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             const SizedBox(height: 6),
             TextFormField(
               controller: _titleCtrl,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(hintText: 'e.g. Om Namah Shivaya'),
               validator: (v) => (v?.trim().isEmpty ?? true) ? 'Title is required' : null,
             ),
@@ -116,7 +116,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             const SizedBox(height: 6),
             TextFormField(
               controller: _textCtrl,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontFamily: 'NotoSansDevanagari',
                 fontSize: 18,
@@ -131,7 +131,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             const SizedBox(height: 6),
             TextFormField(
               controller: _translCtrl,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(hintText: 'e.g. oṃ namaḥ śivāya'),
             ),
 
@@ -140,7 +140,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             const SizedBox(height: 6),
             TextFormField(
               controller: _translationCtrl,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(hintText: 'English meaning'),
               maxLines: 2,
             ),
@@ -150,7 +150,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
             const SizedBox(height: 6),
             TextFormField(
               controller: _traditionCtrl,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(hintText: 'e.g. Shaivism, Tibetan Buddhism'),
             ),
 
@@ -161,7 +161,7 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
                 const _FieldLabel('Target repetitions'),
                 Text(
                   '$_targetReps',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.violet400,
                   ),
                 ),
@@ -254,6 +254,6 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: const TextStyle(fontSize: 13, color: AppColors.textMuted));
+    return Text(text, style: TextStyle(fontSize: 13, color: AppColors.textMuted));
   }
 }

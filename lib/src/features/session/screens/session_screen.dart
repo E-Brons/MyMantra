@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
-import '../../../shared/widgets/emoji_text.dart';
+import '../../../core/services/icon_registry.dart';
 import '../../../core/models/achievement.dart';
 import '../../../core/models/mantra.dart';
 import '../../../core/models/progress.dart';
@@ -173,7 +173,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   Widget build(BuildContext context) {
     final mantra = ref.read(appProvider.notifier).getMantra(widget.id);
     if (mantra == null) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: Text('Mantra not found.', style: TextStyle(color: AppColors.textSecondary))),
       );
     }
@@ -290,10 +290,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                                 child: Container(
                                   width: _rippleRadius.value * 2,
                                   height: _rippleRadius.value * 2,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.violet500,
-                                    shape: BoxShape.circle,
-                                  ),
+                                  decoration: BoxDecoration(color: AppColors.violet500, shape: BoxShape.circle,),
                                 ),
                               ),
                             );
@@ -487,9 +484,7 @@ class _RingPainter extends CustomPainter {
       final sweepAngle = 2 * pi * progress;
       final rect = Rect.fromCircle(center: center, radius: radius);
       final paint = Paint()
-        ..shader = const LinearGradient(
-          colors: [AppColors.violet600, AppColors.violet400],
-        ).createShader(rect)
+        ..shader = LinearGradient(colors: [AppColors.violet600, AppColors.violet400],).createShader(rect)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round;
@@ -591,20 +586,20 @@ class _ExitSheet extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         child: Container(
           padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
-          decoration: const BoxDecoration(
-            color: Color(0xFF0D0B1A),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0D0B1A),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Exit Session?',
+              Text('Exit Session?',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
               const SizedBox(height: 8),
               Text('You have $count repetitions. Save as partial session?',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+                  style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
               const SizedBox(height: 20),
               _SheetButton(
                 label: 'Save & Exit',
@@ -700,16 +695,16 @@ class _TargetSheet extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.fromLTRB(
               24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
-          decoration: const BoxDecoration(
-            color: Color(0xFF0D0B1A),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0D0B1A),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Set your target',
                 style: TextStyle(
                   fontSize: 18,
@@ -789,12 +784,12 @@ class _TargetOption extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textPrimary)),
             Text(detail,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.violet400)),
@@ -842,7 +837,7 @@ class _CustomTargetDialogState extends State<_CustomTargetDialog> {
     return AlertDialog(
       backgroundColor: const Color(0xFF0D0B1A),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
+      title: Text(
         'Custom target',
         style: TextStyle(
             color: AppColors.textPrimary,
@@ -857,7 +852,7 @@ class _CustomTargetDialogState extends State<_CustomTargetDialog> {
             controller: _ctrl,
             keyboardType: TextInputType.number,
             autofocus: true,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 24,
                 fontWeight: FontWeight.w700),
@@ -867,7 +862,7 @@ class _CustomTargetDialogState extends State<_CustomTargetDialog> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text('Count cycle',
+          Text('Count cycle',
               style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
           const SizedBox(height: 8),
           Wrap(
@@ -911,7 +906,7 @@ class _CustomTargetDialogState extends State<_CustomTargetDialog> {
                 int.tryParse(_ctrl.text.trim()) ?? widget.initialReps;
             Navigator.pop(context, (parsed.clamp(1, 999), _cycle));
           },
-          child: const Text('Confirm',
+          child: Text('Confirm',
               style: TextStyle(
                   color: AppColors.violet400, fontWeight: FontWeight.w600)),
         ),
@@ -989,9 +984,10 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  EmojiText(
-                    '🙏',
+                  Icon(
+                    IconRegistry.instance.icon('Other', 'Session complete') ?? Icons.thumb_up,
                     size: 72,
+                    color: AppColors.violet400,
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -1006,13 +1002,13 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay>
                   const SizedBox(height: 8),
                   Text(
                     '${widget.count} repetitions · ${formatTime(widget.duration)}',
-                    style: const TextStyle(fontSize: 16, color: AppColors.violet300),
+                    style: TextStyle(fontSize: 16, color: AppColors.violet300),
                   ),
                   if (achievementDefs.isNotEmpty) ...[
                     const SizedBox(height: 24),
                     Text(
                       'Achievement${achievementDefs.length > 1 ? 's' : ''} Unlocked!',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.amber),
                     ),
                     const SizedBox(height: 12),
@@ -1026,12 +1022,10 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay>
                           ),
                           child: Row(
                             children: [
-                              Text(
-                                ach.emoji,
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontFamilyFallback: ['NotoColorEmoji'],
-                                ),
+                              Icon(
+                                ach.icon,
+                                size: 28,
+                                color: const Color(0xFFFBBF24),
                               ),
                               const SizedBox(width: 12),
                               Expanded(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
-import '../../../shared/widgets/emoji_text.dart';
+import '../../../core/services/icon_registry.dart';
 import '../../../core/models/mantra.dart';
 import '../../../core/providers/app_provider.dart';
 
@@ -51,7 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -87,13 +87,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     child: TextField(
                       onChanged: (v) => setState(() => _query = v),
-                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                      style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: 'Search mantras...',
-                        prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.textMuted),
+                        prefixIcon: Icon(Icons.search, size: 18, color: AppColors.textMuted),
                         suffixIcon: _query.isNotEmpty
                             ? IconButton(
-                                icon: const Icon(Icons.close, size: 16, color: AppColors.textMuted),
+                                icon: Icon(Icons.close, size: 16, color: AppColors.textMuted),
                                 onPressed: () => setState(() => _query = ''),
                               )
                             : null,
@@ -220,7 +220,7 @@ class _MantraCard extends StatelessWidget {
                 children: [
                   Text(
                     mantra.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
@@ -231,7 +231,7 @@ class _MantraCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     mantra.text.split('\n').first,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'NotoSansDevanagari',
                       fontSize: 16,
                       color: AppColors.textSecondary,
@@ -243,7 +243,7 @@ class _MantraCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       mantra.translation!,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -252,11 +252,11 @@ class _MantraCard extends StatelessWidget {
                   Row(
                     children: [
                       if (mantra.reminders.isNotEmpty) ...[
-                        const Icon(Icons.notifications_outlined, size: 12, color: AppColors.textMuted),
+                        Icon(Icons.notifications_outlined, size: 12, color: AppColors.textMuted),
                         const SizedBox(width: 3),
                         Text(
                           '${mantra.reminders.length} reminder${mantra.reminders.length != 1 ? 's' : ''}',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                          style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                         ),
                         const SizedBox(width: 10),
                       ],
@@ -269,7 +269,7 @@ class _MantraCard extends StatelessWidget {
                           ),
                           child: Text(
                             mantra.tradition!,
-                            style: const TextStyle(fontSize: 11, color: AppColors.violet400),
+                            style: TextStyle(fontSize: 11, color: AppColors.violet400),
                           ),
                         ),
                     ],
@@ -285,7 +285,7 @@ class _MantraCard extends StatelessWidget {
               ),
               child: Text(
                 '${mantra.targetRepetitions}×',
-                style: const TextStyle(fontSize: 12, color: AppColors.violet300),
+                style: TextStyle(fontSize: 12, color: AppColors.violet300),
               ),
             ),
           ],
@@ -315,12 +315,12 @@ class _EmptyState extends StatelessWidget {
           children: [
             Text(
               'No mantras found for "$query"',
-              style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 12),
             TextButton(
               onPressed: onClear,
-              child: const Text('Clear search', style: TextStyle(color: AppColors.violet400)),
+              child: Text('Clear search', style: TextStyle(color: AppColors.violet400)),
             ),
           ],
         ),
@@ -342,19 +342,20 @@ class _EmptyState extends StatelessWidget {
                 border: Border.all(color: const Color(0x338B5CF6)),
               ),
               child: Center(
-                child: EmojiText(
-                  '🙏',
+                child: Icon(
+                  IconRegistry.instance.icon('Other', 'Session complete') ?? Icons.self_improvement,
                   size: 28,
+                  color: AppColors.violet400,
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Start your journey',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Create your first mantra or explore the library',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: AppColors.textSecondary),

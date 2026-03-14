@@ -145,21 +145,19 @@ void main() {
     expect(find.text('Start Session'), findsNothing);
   });
 
-  // ── TC-I-5: Emoji icons include fallback fonts so iOS doesn't show missing glyphs ──
+  // ── TC-I-5: Icons render as Material Icon widgets (no emoji) ──
 
-  testWidgets('emoji icons use NotoColorEmoji as fallback', (tester) async {
+  testWidgets('progress screen uses Material Icon widgets instead of emoji', (tester) async {
     await launchApp(tester);
 
-    // Navigate to the Progress screen where emoji icons are displayed.
+    // Navigate to the Progress screen.
     await tester.tap(find.byIcon(Icons.bar_chart_outlined));
     await tester.pumpAndSettle();
 
-    // Verify the flame emoji uses the bundled NotoColorEmoji font for consistency across platforms.
-    final fireText = tester.widget<Text>(find.text('🔥').first);
-    expect(fireText.style?.fontFamily, 'NotoColorEmoji');
+    // Stat cards now use Material Icon widgets resolved from icons.yml.
+    expect(find.byIcon(Icons.whatshot), findsOneWidget);
 
-    // The lock icon should also use the same emoji font so it's rendered with color glyphs.
-    final lockText = tester.widget<Text>(find.text('🔒').first);
-    expect(lockText.style?.fontFamily, 'NotoColorEmoji');
+    // Locked achievements use lock_outline icon.
+    expect(find.byIcon(Icons.lock_outline), findsWidgets);
   });
 }

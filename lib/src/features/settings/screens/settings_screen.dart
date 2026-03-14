@@ -23,7 +23,7 @@ class SettingsScreen extends ConsumerWidget {
                 top: MediaQuery.of(context).padding.top + 16,
                 left: 20, right: 20, bottom: 8,
               ),
-              child: const Text(
+              child: Text(
                 'Settings',
                 style: TextStyle(
                   fontFamily: 'Cinzel',
@@ -51,7 +51,7 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.theme,
                         dropdownColor: AppColors.bgSurface,
                         underline: const SizedBox.shrink(),
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                         onChanged: (v) => notifier.updateSettings(settings.copyWith(theme: v)),
                         items: const [
                           DropdownMenuItem(value: AppThemeMode.dark, child: Text('Dark')),
@@ -68,7 +68,7 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.fontSize,
                         dropdownColor: AppColors.bgSurface,
                         underline: const SizedBox.shrink(),
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                         onChanged: (v) =>
                             notifier.updateSettings(settings.copyWith(fontSize: v)),
                         items: const [
@@ -103,7 +103,7 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.defaultRepetitions,
                         dropdownColor: AppColors.bgSurface,
                         underline: const SizedBox.shrink(),
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                         onChanged: (v) =>
                             notifier.updateSettings(settings.copyWith(defaultRepetitions: v)),
                         items: const [
@@ -122,7 +122,7 @@ class SettingsScreen extends ConsumerWidget {
                         value: settings.defaultRepetitionCycle,
                         dropdownColor: AppColors.bgSurface,
                         underline: const SizedBox.shrink(),
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                         onChanged: (v) =>
                             notifier.updateSettings(settings.copyWith(defaultRepetitionCycle: v)),
                         items: RepetitionCycle.values
@@ -192,7 +192,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     children: [
-                      const Text('Your Practice', style: TextStyle(
+                      Text('Your Practice', style: TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary,
                       )),
                       const SizedBox(height: 12),
@@ -232,7 +232,7 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 20, 0, 8),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           color: AppColors.textMuted,
@@ -281,11 +281,11 @@ class _SettingRow extends StatelessWidget {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
-                      Text(subtitle!, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                      Text(label, style: TextStyle(fontSize: 14, color: AppColors.textPrimary)),
+                      Text(subtitle!, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                     ],
                   )
-                : Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
+                : Text(label, style: TextStyle(fontSize: 14, color: AppColors.textPrimary)),
           ),
           child,
         ],
@@ -306,8 +306,8 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-          Text(value, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
+          Text(label, style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+          Text(value, style: TextStyle(fontSize: 14, color: AppColors.textPrimary)),
         ],
       ),
     );
@@ -331,10 +331,10 @@ class _MiniStat extends StatelessWidget {
     return Column(
       children: [
         Text(value,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.violet400)),
         Text(label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
       ],
     );
   }
