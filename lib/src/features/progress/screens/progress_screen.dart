@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/models/achievement.dart';
 import '../../../core/providers/app_provider.dart';
+import '../../../shared/widgets/emoji_text.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({super.key});
@@ -99,7 +100,10 @@ class ProgressScreen extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        const Text('🙏', style: TextStyle(fontSize: 20)),
+                        EmojiText(
+                          '🙏',
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +143,7 @@ class ProgressScreen extends ConsumerWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio: 1.2,
+                childAspectRatio: 1.0,
               ),
               itemCount: kAchievements.length,
               itemBuilder: (_, i) {
@@ -197,7 +201,10 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
+          EmojiText(
+            emoji,
+            size: 24,
+          ),
           const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -246,12 +253,16 @@ class _AchievementCard extends StatelessWidget {
             achievement.emoji,
             style: TextStyle(
               fontSize: 28,
+              fontFamilyFallback: ['NotoColorEmoji'],
               color: unlocked ? null : const Color(0x00000000),
-              shadows: unlocked ? null : [],
+              shadows: unlocked ? null : const [],
             ),
           ),
           if (!unlocked)
-            const Text('🔒', style: TextStyle(fontSize: 28)),
+            EmojiText(
+              '🔒',
+              size: 28,
+            ),
           const SizedBox(height: 8),
           Text(
             achievement.title,

@@ -114,6 +114,6 @@ flutter:
       fonts:
         - asset: assets/fonts/NotoSansKR-Variable.ttf
 
-    - family: Noto Color Emoji
+    - family: NotoColorEmoji           # Color emoji
       fonts:
         - asset: assets/fonts/NotoColorEmoji.ttf

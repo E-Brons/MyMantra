@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../shared/widgets/emoji_text.dart';
 import '../../../core/models/mantra.dart';
 import '../../../core/providers/app_provider.dart';
 
@@ -340,7 +341,12 @@ class _EmptyState extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0x338B5CF6)),
               ),
-              child: const Center(child: Text('🙏', style: TextStyle(fontSize: 28))),
+              child: Center(
+                child: EmojiText(
+                  '🙏',
+                  size: 28,
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             const Text(

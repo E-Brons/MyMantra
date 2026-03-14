@@ -268,3 +268,10 @@ integration framework.
 | 0.6 | 2026-03-07 | Engineering | Step 4 complete: FR-3.12 ✅ — session target sheet (Your default / Mantra's target / Custom) with daily/weekly accumulated-reps support; pumpSession helper updated; 5 new widget tests |
 | 0.7 | 2026-03-07 | Engineering | Step 5 complete: FR-5.6 ✅ FR-5.7 🚧 — Default cycle dropdown + Limit tap rate toggle in Settings Practice section; 3 widget tests; enforcement pending (step 6) |
 | 0.8 | 2026-03-07 | Engineering | Step 6 complete: FR-3.13 ✅ FR-5.7 ✅ — tap rate limiter enforced in SessionScreen; _lastTapTime guard; 2 widget tests |
+
+# 🐛 BUG: Emoji Rendering on iOS
+| ID | Bug | Priority | Status | Notes |
+|----|-----|----------|--------|-------|
+| BUG-004 | Emoji icons (Progress, Achievements) show '?' placeholder on iOS | P0 | 🚧 |
+- Affects: Progress screen, Achievements, session overlay, home empty state
+- Symptoms: Emoji icons (🔥, ⭐, 🧘, 🙏, 🔒) render as '?' on iOS, but work on web/Android|

@@ -47,12 +47,12 @@ class AppTheme {
         headlineMedium: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
         titleLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
         titleMedium: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
-        bodyLarge: TextStyle(color: AppColors.textPrimary),
-        bodyMedium: TextStyle(color: AppColors.textSecondary),
-        bodySmall: TextStyle(color: AppColors.textMuted),
-        labelLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        labelMedium: TextStyle(color: AppColors.textSecondary),
-        labelSmall: TextStyle(color: AppColors.textMuted),
+        bodyLarge: TextStyle(color: AppColors.textPrimary, fontFamilyFallback: ['NotoColorEmoji']),
+        bodyMedium: TextStyle(color: AppColors.textSecondary, fontFamilyFallback: ['NotoColorEmoji']),
+        bodySmall: TextStyle(color: AppColors.textMuted, fontFamilyFallback: ['NotoColorEmoji']),
+        labelLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontFamilyFallback: ['NotoColorEmoji']),
+        labelMedium: TextStyle(color: AppColors.textSecondary, fontFamilyFallback: ['NotoColorEmoji']),
+        labelSmall: TextStyle(color: AppColors.textMuted, fontFamilyFallback: ['NotoColorEmoji']),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -111,6 +111,16 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.violet600,
         brightness: Brightness.light,
+      ),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(fontFamily: 'Cinzel'),
+        displayMedium: TextStyle(fontFamily: 'Cinzel'),
+        bodyLarge: TextStyle(fontFamilyFallback: ['NotoColorEmoji']),
+        bodyMedium: TextStyle(fontFamilyFallback: ['NotoColorEmoji']),
+        bodySmall: TextStyle(fontFamilyFallback: ['NotoColorEmoji']),
+        labelLarge: TextStyle(fontWeight: FontWeight.w600, fontFamilyFallback: ['NotoColorEmoji']),
+        labelMedium: TextStyle(fontFamilyFallback: ['NotoColorEmoji']),
+        labelSmall: TextStyle(fontFamilyFallback: ['NotoColorEmoji']),
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {

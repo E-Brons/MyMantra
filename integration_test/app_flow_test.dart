@@ -146,4 +146,22 @@ void main() {
     expect(find.text('MyMantra'), findsOneWidget);
     expect(find.text('Start Session'), findsNothing);
   });
+
+  // ── TC-I-5: Emoji icons include fallback fonts so iOS doesn't show missing glyphs ──
+
+  testWidgets('emoji icons use NotoColorEmoji as fallback', (tester) async {
+    await launchApp(tester);
+
+    // Navigate to the Progress screen where emoji icons are displayed.
+    await tester.tap(find.byIcon(Icons.bar_chart_outlined));
+    await tester.pumpAndSettle();
+
+    // Verify the flame emoji uses the bundled NotoColorEmoji font for consistency across platforms.
+    final fireText = tester.widget<Text>(find.text('🔥').first);
+    expect(fireText.style?.fontFamily, 'NotoColorEmoji');
+
+    // The lock icon should also use the same emoji font so it's rendered with color glyphs.
+    final lockText = tester.widget<Text>(find.text('🔒').first);
+    expect(lockText.style?.fontFamily, 'NotoColorEmoji');
+  });
 }

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../shared/widgets/emoji_text.dart';
 import '../../../core/models/achievement.dart';
 import '../../../core/models/mantra.dart';
 import '../../../core/models/progress.dart';
@@ -988,7 +989,10 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('🙏', style: TextStyle(fontSize: 72)),
+                  EmojiText(
+                    '🙏',
+                    size: 72,
+                  ),
                   const SizedBox(height: 16),
                   const Text(
                     'Session Complete',
@@ -1022,7 +1026,13 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay>
                           ),
                           child: Row(
                             children: [
-                              Text(ach.emoji, style: const TextStyle(fontSize: 28)),
+                              Text(
+                                ach.emoji,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontFamilyFallback: ['NotoColorEmoji'],
+                                ),
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
