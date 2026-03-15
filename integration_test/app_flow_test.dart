@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mymantra/src/app/app.dart';
 import 'package:mymantra/src/app/router.dart';
+import 'package:mymantra/src/core/services/icon_registry.dart';
+import 'package:mymantra/src/core/services/theme_registry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -21,6 +23,10 @@ void main() {
   });
 
   Future<void> launchApp(WidgetTester tester) async {
+    await Future.wait([
+      IconRegistry.instance.init(),
+      ThemeRegistry.instance.init(),
+    ]);
     await tester.pumpWidget(const ProviderScope(child: MyMantraApp()));
     await tester.pumpAndSettle();
     appRouter.go('/');
@@ -65,8 +71,7 @@ void main() {
 
   // ── TC-I-2: Session with tap → Discard ────────────────────────────────────
 
-  testWidgets(
-      'session: tap once → X → Discard exits cleanly to MantraDetail',
+  testWidgets('session: tap once → X → Discard exits cleanly to MantraDetail',
       (tester) async {
     await launchApp(tester);
 
@@ -97,8 +102,7 @@ void main() {
 
   // ── TC-I-3: Session with tap → Save as partial ────────────────────────────
 
-  testWidgets(
-      'session: tap once → X → Save records a partial session',
+  testWidgets('session: tap once → X → Save records a partial session',
       (tester) async {
     await launchApp(tester);
 
@@ -145,5 +149,21 @@ void main() {
 
     expect(find.text('MyMantra'), findsOneWidget);
     expect(find.text('Start Session'), findsNothing);
+  });
+
+  // ── TC-I-5: Icons render as Material Icon widgets ──
+
+  testWidgets('progress screen uses Material Icon widgets', (tester) async {
+    await launchApp(tester);
+
+    // Navigate to the Progress screen.
+    await tester.tap(find.byIcon(Icons.bar_chart_outlined));
+    await tester.pumpAndSettle();
+
+    // Stat cards now use Material Icon widgets resolved from icons.yml.
+    expect(find.byIcon(Icons.whatshot), findsOneWidget);
+
+    // Locked achievements use lock_outline icon.
+    expect(find.byIcon(Icons.lock_outline), findsWidgets);
   });
 }

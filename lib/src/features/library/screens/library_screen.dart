@@ -41,7 +41,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Mantra Library',
                     style: TextStyle(
                       fontFamily: 'Cinzel',
@@ -51,7 +51,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Sacred texts across traditions',
                     style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                   ),
@@ -65,14 +65,14 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     ),
                     child: TextField(
                       onChanged: (v) => setState(() => _query = v),
-                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                      decoration: InputDecoration(
                         hintText: 'Search library...',
                         prefixIcon: Icon(Icons.search, size: 18, color: AppColors.textMuted),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),
@@ -82,9 +82,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: kCategories.map((cat) {
-                        final selected = _selectedCategory == cat['id'];
+                        final selected = _selectedCategory == cat.id;
                         return GestureDetector(
-                          onTap: () => setState(() => _selectedCategory = cat['id']!),
+                          onTap: () => setState(() => _selectedCategory = cat.id),
                           child: Container(
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -98,10 +98,11 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(cat['emoji']!, style: const TextStyle(fontSize: 13)),
+                                Icon(cat.icon, size: 14,
+                                    color: selected ? Colors.white : AppColors.textSecondary),
                                 const SizedBox(width: 6),
                                 Text(
-                                  cat['label']!,
+                                  cat.label,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: selected ? Colors.white : AppColors.textSecondary,
@@ -174,18 +175,18 @@ class _LibraryCard extends ConsumerWidget {
                           color: const Color(0x338B5CF6),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text('★ Signature',
+                        child: Text('★ Signature',
                             style: TextStyle(fontSize: 11, color: AppColors.violet300)),
                       ),
                     Text(
                       mantra.shortTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       mantra.source,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -198,7 +199,7 @@ class _LibraryCard extends ConsumerWidget {
                 ),
                 child: Text(
                   mantra.difficulty,
-                  style: const TextStyle(fontSize: 11, color: AppColors.violet400),
+                  style: TextStyle(fontSize: 11, color: AppColors.violet400),
                 ),
               ),
             ],
@@ -206,7 +207,7 @@ class _LibraryCard extends ConsumerWidget {
           const SizedBox(height: 10),
           Text(
             mantra.primaryText.split('\n').first,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'NotoSansDevanagari',
               fontSize: 18,
               color: AppColors.textPrimary,
@@ -217,7 +218,7 @@ class _LibraryCard extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               mantra.englishTranslation!,
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -234,7 +235,7 @@ class _LibraryCard extends ConsumerWidget {
                       color: const Color(0x0A8B5CF6),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text('#$tag', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    child: Text('#$tag', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                   )).toList(),
                 ),
               ),

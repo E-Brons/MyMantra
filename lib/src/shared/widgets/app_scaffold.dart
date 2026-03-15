@@ -21,9 +21,7 @@ class AppScaffold extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.borderSubtle)),
-        ),
+        decoration: BoxDecoration(border: Border(top: BorderSide(color: AppColors.borderSubtle)),),
         child: BottomNavigationBar(
           currentIndex: currentIndex,
           onTap: (index) {

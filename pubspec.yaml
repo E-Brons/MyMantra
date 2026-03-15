@@ -22,6 +22,7 @@ dependencies:
   # Utilities
   uuid: ^4.5.1
   intl: ^0.20.2
+  yaml: ^3.1.2
 
   # Icons
   cupertino_icons: ^1.0.8
@@ -114,6 +115,6 @@ flutter:
       fonts:
         - asset: assets/fonts/NotoSansKR-Variable.ttf
 
-    - family: Noto Color Emoji
+    - family: NotoColorEmoji           # Color emoji
       fonts:
         - asset: assets/fonts/NotoColorEmoji.ttf

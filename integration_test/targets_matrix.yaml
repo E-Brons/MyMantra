@@ -1,0 +1,124 @@
+version: 0.1
+updated: 2026-03-14
+
+hosts:
+  developer_system: macos
+  ci_system: linux
+
+target_types:
+  device:
+    description: iOS simulator and Android emulator runs
+    targets: [ios, android]
+  native:
+    description: Desktop targets; runnable only when host equals target
+    targets: [macos, linux]
+  web:
+    description: Browser-based integration runtime
+    targets: [web]
+
+integration_suites:
+  - id: TC-I-01
+    name: Full Session Flow
+    file: integration_test/app_flow_test.dart
+    implemented: true
+    targets:
+      ios: true
+      android: true
+      macos: true
+      linux: false
+      web: false
+    mandatory:
+      device: true
+      native: true
+      web: false
+
+  - id: TC-I-02
+    name: Mantra CRUD Flow
+    file: integration_test/app_flow_test.dart
+    implemented: true
+    targets:
+      ios: true
+      android: true
+      macos: true
+      linux: false
+      web: false
+    mandatory:
+      device: false
+      native: false
+      web: false
+
+  - id: TC-I-03
+    name: Back Navigation (macOS)
+    file: integration_test/app_flow_test.dart
+    implemented: true
+    targets:
+      ios: false
+      android: false
+      macos: true
+      linux: false
+      web: false
+    mandatory:
+      device: false
+      native: true
+      web: false
+
+  - id: TC-I-04
+    name: Back Navigation (Android emulator)
+    file: integration_test/app_flow_test.dart
+    implemented: true
+    targets:
+      ios: false
+      android: true
+      macos: false
+      linux: false
+      web: false
+    mandatory:
+      device: true
+      native: false
+      web: false
+
+  - id: TC-I-05
+    name: Counter Stress Test
+    file: integration_test/app_flow_test.dart
+    implemented: true
+    targets:
+      ios: true
+      android: true
+      macos: true
+      linux: false
+      web: false
+    mandatory:
+      device: false
+      native: false
+      web: false
+
+  - id: TC-I-06
+    name: Icon Placement Integration Check
+    file: integration_test/icon_placement_integration_test.dart
+    implemented: true
+    targets:
+      ios: true
+      android: true
+      macos: false
+      linux: false
+      web: false
+    mandatory:
+      device: true
+      native: false
+      web: false
+
+ci_todo:
+  - id: CI-TODO-001
+    title: Run Android emulator integration suites in Linux CI
+    status: todo
+    notes: Configure AVD boot and run flutter drive for mandatory device suites.
+
+  - id: CI-TODO-002
+    title: Run iOS simulator integration suites in CI
+    status: todo
+    notes: Requires macOS runners and simulator orchestration.
+
+  - id: CI-TODO-003
+    title: Add Linux native integration execution
+    status: todo
+    notes: Enable linux target in target.json and gate with xvfb-run.
