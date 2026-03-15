@@ -31,6 +31,9 @@ class ThemeRegistry {
   /// brightness, falling back to the dark palette if the light palette
   /// doesn't define it.
   Color color(String key, Brightness brightness) {
+    if (!_ready) {
+      return const Color(0xFFFF00FF); // magenta = missing/uninitialized
+    }
     final map = brightness == Brightness.dark ? _darkColors : _lightColors;
     return map[key] ?? _darkColors[key] ?? const Color(0xFFFF00FF); // magenta = missing
   }

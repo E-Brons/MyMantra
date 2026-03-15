@@ -17,7 +17,7 @@ Future<void> main() => integrationDriver(
 
         final file = File('tmp/$screenshotName.png');
         await file.writeAsBytes(screenshotBytes);
-        print('[driver] Screenshot saved: ${file.path}');
+        stdout.writeln('[driver] Screenshot saved: ${file.path}');
 
         final venvPython = File('.venv/bin/python');
         final pythonExec = venvPython.existsSync() ? venvPython.path : 'python3';
@@ -28,17 +28,20 @@ Future<void> main() => integrationDriver(
           file.path,
         ]);
 
-        print(result.stdout);
+        final out = result.stdout.toString();
+        if (out.isNotEmpty) {
+          stdout.write(out);
+        }
         if (result.stderr != null && (result.stderr as String).isNotEmpty) {
-          print('[driver] stderr: ${result.stderr}');
+          stderr.writeln('[driver] stderr: ${result.stderr}');
         }
 
         if (result.exitCode != 0) {
-          print('[driver] ❌ Emoji check FAILED for $screenshotName');
+          stderr.writeln('[driver] Emoji check FAILED for $screenshotName');
           return false;
         }
 
-        print('[driver] ✅ Emoji check PASSED for $screenshotName');
+        stdout.writeln('[driver] Emoji check PASSED for $screenshotName');
         return true;
       },
     );
