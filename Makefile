@@ -43,7 +43,7 @@ test:
 test-integration:
 	@if [ "$(TARGET)" = "linux" ]; then \
 		for f in integration_test/*_test.dart; do \
-			xvfb-run flutter test "$$f" -d $(TARGET) || exit 1; \
+			xvfb-run --auto-servernum flutter test "$$f" -d $(TARGET) || exit 1; \
 		done \
 	elif [ "$(TARGET)" = "macos" ]; then \
 		for f in integration_test/*_test.dart; do \
