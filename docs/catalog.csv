@@ -1,5 +1,5 @@
 path,name,category,version,date,status,description,issues
-docs/README.md,Documentation Index,meta,—,2026-03,Active,Short project overview with getting started instructions and link to catalog,None
+README.md,Project README,meta,—,2026-03,Active,Root-level onboarding: quick start; make commands; project structure; links to docs,None
 docs/product/application_foundations.md,Application Foundations,product,0.1,2025-11,Active,Vision and goals; foundation document for all subsequent docs,None
 docs/product/product_requirements.md,Product Requirements Document,product,0.1,2025-11,Active,"Full PRD: feature requirements by phase, UX flows, wireframes, KPIs, tech requirements",None
 docs/product/builtin_mantras_library.md,Built-in Mantras Library,product,0.1,2025-11,Active,"Canonical source for curated mantra content: Sanskrit/IAST/English/Hebrew, cultural context, JSON metadata",None
