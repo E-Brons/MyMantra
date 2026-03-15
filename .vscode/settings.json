@@ -81,6 +81,10 @@
     "/^\\./test/driver/icon_placement_test\\.sh --device-id emulator-5554$/": {
       "approve": true,
       "matchCommandLine": true
+    },
+    "/^make test-integration TARGET=macos 2>&1$/": {
+      "approve": true,
+      "matchCommandLine": true
     }
   },
   "inlineChat.defaultModel": "Claude Sonnet 4.6 (copilot)"

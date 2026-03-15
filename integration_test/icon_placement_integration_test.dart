@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -12,6 +13,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  /// Takes a screenshot when running via [flutter drive]; silently skips when
+  /// running via [flutter test] where the screenshot channel is unavailable.
+  Future<void> tryTakeScreenshot(String name) async {
+    try {
+      await binding.takeScreenshot(name);
+    } on MissingPluginException {
+      // No-op: screenshot capture requires flutter drive (a host-side driver).
+      // The icon-placement assertions above still run and are validated.
+    }
+  }
 
   setUp(() async {
     final prefs = await SharedPreferences.getInstance();
@@ -54,7 +66,7 @@ void main() {
     expect(find.text('Mantra Library'), findsOneWidget);
     expect(find.byIcon(Icons.search), findsOneWidget);
     expect(find.byIcon(Icons.auto_awesome), findsWidgets); // 'All' category chip
-    await binding.takeScreenshot('mantra_library');
+    await tryTakeScreenshot('mantra_library');
 
     // — Progress screen ———————————————————————————————————————————————————
     await tester.tap(find.byIcon(Icons.bar_chart_outlined));
@@ -66,7 +78,7 @@ void main() {
     expect(find.byIcon(Icons.self_improvement), findsWidgets);
     expect(find.byIcon(Icons.all_inclusive), findsWidgets);
     expect(find.byIcon(Icons.event), findsWidgets);
-    await binding.takeScreenshot('progress');
+    await tryTakeScreenshot('progress');
 
     // — Session complete ——————————————————————————————————————————————————
     // Home tab is inactive here, so its inactive icon (Icons.home_outlined)
@@ -87,6 +99,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Session Complete'), findsOneWidget);
     expect(find.byIcon(Icons.thumb_up), findsWidgets);
-    await binding.takeScreenshot('session_complete');
+    await tryTakeScreenshot('session_complete');
   });
 }
