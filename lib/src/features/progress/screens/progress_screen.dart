@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/models/achievement.dart';
 import '../../../core/providers/app_provider.dart';
+import '../../../core/services/icon_registry.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({super.key});
@@ -11,6 +12,8 @@ class ProgressScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(appProvider);
     final progress = state.progress;
+    final reg = IconRegistry.instance;
+    final progIcons = reg.section('Progress Screen');
 
     return Scaffold(
       body: CustomScrollView(
@@ -21,7 +24,7 @@ class ProgressScreen extends ConsumerWidget {
                 top: MediaQuery.of(context).padding.top + 16,
                 left: 20, right: 20, bottom: 8,
               ),
-              child: const Text(
+              child: Text(
                 'Progress',
                 style: TextStyle(
                   fontFamily: 'Cinzel',
@@ -39,12 +42,11 @@ class ProgressScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
-                  // Streak row
                   Row(
                     children: [
                       Expanded(
                         child: _StatCard(
-                          emoji: '🔥',
+                          icon: progIcons['Current Streak'] ?? Icons.whatshot,
                           value: '${progress.currentStreak}',
                           label: 'Current Streak',
                           sublabel: 'days',
@@ -54,7 +56,7 @@ class ProgressScreen extends ConsumerWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _StatCard(
-                          emoji: '⭐',
+                          icon: progIcons['Longest Streak'] ?? Icons.trending_up,
                           value: '${progress.longestStreak}',
                           label: 'Longest Streak',
                           sublabel: 'days',
@@ -68,7 +70,7 @@ class ProgressScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _StatCard(
-                          emoji: '🧘',
+                          icon: progIcons['Sessions'] ?? Icons.self_improvement,
                           value: '${progress.totalSessions}',
                           label: 'Sessions',
                           sublabel: 'total',
@@ -78,7 +80,7 @@ class ProgressScreen extends ConsumerWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _StatCard(
-                          emoji: '📿',
+                          icon: progIcons['Repetitions'] ?? Icons.all_inclusive,
                           value: _formatReps(progress.totalRepetitions),
                           label: 'Repetitions',
                           sublabel: 'total',
@@ -99,16 +101,20 @@ class ProgressScreen extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        const Text('🙏', style: TextStyle(fontSize: 20)),
+                        Icon(
+                          progIcons['Practicing since'] ?? Icons.event,
+                          size: 20,
+                          color: AppColors.violet400,
+                        ),
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Practicing since',
+                            Text('Practicing since',
                                 style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                             Text(
                               _formatDate(progress.memberSince),
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                             ),
                           ],
@@ -122,9 +128,9 @@ class ProgressScreen extends ConsumerWidget {
           ),
 
           // ── Achievements ─────────────────────────────────────────────────
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 24, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
               child: Text(
                 'Achievements',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
@@ -139,7 +145,7 @@ class ProgressScreen extends ConsumerWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio: 1.2,
+                childAspectRatio: 1.0,
               ),
               itemCount: kAchievements.length,
               itemBuilder: (_, i) {
@@ -171,14 +177,14 @@ class ProgressScreen extends ConsumerWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
   final String value;
   final String label;
   final String sublabel;
   final Color accent;
 
   const _StatCard({
-    required this.emoji,
+    required this.icon,
     required this.value,
     required this.label,
     required this.sublabel,
@@ -197,7 +203,7 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
+          Icon(icon, size: 24, color: accent),
           const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -212,10 +218,10 @@ class _StatCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              Text(sublabel, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+              Text(sublabel, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
             ],
           ),
-          Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          Text(label, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -230,6 +236,9 @@ class _AchievementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lockedIcon = IconRegistry.instance.icon('Other', 'Locked achievement')
+        ?? Icons.lock_outline;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -242,16 +251,11 @@ class _AchievementCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            achievement.emoji,
-            style: TextStyle(
-              fontSize: 28,
-              color: unlocked ? null : const Color(0x00000000),
-              shadows: unlocked ? null : [],
-            ),
+          Icon(
+            unlocked ? achievement.icon : lockedIcon,
+            size: 28,
+            color: unlocked ? AppColors.violet400 : AppColors.textMuted,
           ),
-          if (!unlocked)
-            const Text('🔒', style: TextStyle(fontSize: 28)),
           const SizedBox(height: 8),
           Text(
             achievement.title,
@@ -267,7 +271,7 @@ class _AchievementCard extends StatelessWidget {
           Expanded(
             child: Text(
               achievement.description,
-              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 11, color: AppColors.textMuted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

@@ -1,0 +1,119 @@
+Progress Screen:
+    Current Streak: Icons.whatshot
+    Longest Streak: Icons.trending_up
+    Sessions: Icons.self_improvement
+    Repetitions: Icons.all_inclusive
+    Practicing since: Icons.event
+
+Achievement Badges:
+    Thought (1 session): Icons.eco
+    Action (3-day streak): Icons.grass
+    Routine (7-day streak): Icons.spa
+    Discipline (14-day streak): Icons.local_florist
+    Habit (30-day streak): Icons.park
+    Grit (60-day streak): Icons.forest
+    Resolve (90 days): Icons.loyalty
+    Persistence (180 days): Icons.workspace_premium
+    Character (365 days): Icons.military_tech
+    Destiny (3 Years): Icons.emoji_events
+    1K Repititions: Icons.flare
+    5K Repititions: Icons.star_border
+    10K Repititions: Icons.star_rate
+    50K Repititions: Icons.stars
+    100K Repititions: Icons.light_mode
+    250K Repititions: Icons.brightness_5
+    500K Repititions: Icons.brightness_7
+    1M Repititions: Icons.verified
+    Early Bird (4am-7am): Icons.wb_twilight
+    Night Owl (after 10pm): Icons.nights_stay
+    100 sessions: Icons.opacity
+    250 sessions: Icons.water_drop
+    500 sessions: Icons.waves
+    1K sessions: Icons.pool
+    2K sessions: Icons.tsunami
+    10K sessions: Icons.surfing
+    50K sessions: Icons.kayaking
+    100K sessions: Icons.sailing
+    Android: Icons.android
+    iOS: Icons.phone_iphone
+    Mac: Icons.laptop_mac
+    Linux: Icons.terminal
+    Web: Icons.filter_drama
+    Creator: Icons.lightbulb
+
+Other:
+    Locked achievement: Icons.lock_outline
+    Warning (mantra detail): Icons.error_outline
+    Session complete: Icons.thumb_up
+
+Categories:
+    All: Icons.auto_awesome
+    Yogic: Icons.self_improvement
+    Buddhist: Icons.radio_button_checked
+    Vedic: Icons.flare
+    Universal: Icons.public
+    Advaita Vedanta: Icons.auto_stories
+
+Tags:
+  vedic: Icons.brightness_7
+  spiritual: Icons.auto_awesome
+  nature: Icons.forest
+  health: Icons.monitor_heart
+  mental: Icons.psychology
+  hindu: Icons.temple_hindu
+  buddhist: Icons.radio_button_checked
+  researched: Icons.school
+  popular: Icons.thumb_up
+  inspiring: Icons.lightbulb
+  peaceful: Icons.spa
+  healing: Icons.healing
+  love: Icons.favorite
+  protection: Icons.shield
+  abundance: Icons.local_florist
+  wisdom: Icons.school
+  devotion: Icons.volunteer_activism
+  meditation: Icons.self_improvement
+  gratitude: Icons.front_hand
+  courage: Icons.military_tech
+  hebrew: Icons.auto_fix_high
+  chinese: Icons.whatshot
+  tibetan: Icons.terrain
+  sufi: Icons.nightlight_round
+  universal: Icons.public
+  transformative: Icons.bolt
+  flow: Icons.waves
+  energy: Icons.flash_on
+  beauty: Icons.local_florist
+  growth: Icons.trending_up
+  sound: Icons.audiotrack
+  joy: Icons.celebration
+  purity: Icons.water_drop
+  awareness: Icons.visibility
+  kabbalistic: Icons.settings_suggest
+  taoist: Icons.blur_circular
+  christian: Icons.church
+  jain: Icons.api
+  sikh: Icons.security
+  zoroastrian: Icons.wb_sunny
+  indigenous: Icons.landscape
+  affirmation: Icons.chat_bubble_outline
+  ancient: Icons.history_edu
+  yoga: Icons.self_improvement
+  prayer: Icons.settings_accessibility
+  chant: Icons.queue_music
+  scripture: Icons.auto_stories
+  philosophy: Icons.psychology_alt
+  upanishadic: Icons.all_inclusive
+  ganesha: Icons.castle
+  shiva: Icons.local_fire_department
+  vishnu: Icons.spa
+  shakti: Icons.local_florist
+  islamic: Icons.nightlight_round
+  compassion: Icons.volunteer_activism
+  liberation: Icons.explore
+  breath: Icons.air
+  sun: Icons.wb_sunny
+  moon: Icons.dark_mode
+  fire: Icons.whatshot
+  water: Icons.water_drop
+  earth: Icons.public

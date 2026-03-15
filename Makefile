@@ -35,12 +35,20 @@ test:
 	@flutter analyze
 	@flutter test test/unit/ test/widget/ --reporter expanded
 
-# Run integration tests against the Linux/MacOS target
+# Run integration tests against the Linux/MacOS target.
+# Each test file is run as a separate invocation so the app process starts and
+# stops cleanly between files — running them together in one `flutter test
+# integration_test/` call causes the second app launch to fail on desktop
+# targets because the first instance hasn't fully terminated yet.
 test-integration:
 	@if [ "$(TARGET)" = "linux" ]; then \
-		xvfb-run flutter test integration_test/ -d $(TARGET); \
+		for f in integration_test/*_test.dart; do \
+			xvfb-run flutter test "$$f" -d $(TARGET) || exit 1; \
+		done \
 	elif [ "$(TARGET)" = "macos" ]; then \
-		flutter test integration_test/ -d $(TARGET); \
+		for f in integration_test/*_test.dart; do \
+			flutter test "$$f" -d $(TARGET) || exit 1; \
+		done \
 	else \
 		echo "Error: Target '$(TARGET)' test-integration is currently unsupported."; \
 		exit 1; \

@@ -1,80 +1,10 @@
+import 'package:flutter/material.dart';
 import '../../../core/models/mantra.dart';
+import '../../../core/services/icon_registry.dart';
 
-/// Tag names → display emoji. Used by UI to render tag chips.
-const Map<String, String> kTagEmojis = {
-  'vedic': '🕉️',
-  'spiritual': '✨',
-  'nature': '🌿',
-  'health': '💚',
-  'mental': '🧠',
-  'hindu': '🪔',
-  'buddhist': '☸️',
-  'researched': '📚',
-  'popular': '⭐',
-  'inspiring': '💫',
-  'peaceful': '☮️',
-  'healing': '🌟',
-  'love': '❤️',
-  'protection': '🛡️',
-  'abundance': '🌸',
-  'wisdom': '🦉',
-  'devotion': '🙏',
-  'meditation': '🧘',
-  'gratitude': '🙌',
-  'courage': '🦁',
-  'hebrew': '🕎',
-  'chinese': '🐉',
-  'tibetan': '🏔️',
-  'sufi': '🌙',
-  'universal': '🌍',
-  'transformative': '🔥',
-  'flow': '🌊',
-  'energy': '⚡',
-  'beauty': '🌺',
-  'growth': '🌱',
-  'sound': '🎵',
-  'joy': '🌈',
-  'purity': '🤍',
-  'awareness': '👁️',
-  'kabbalistic': '✡️',
-  'taoist': '☯️',
-  'christian': '✝️',
-  'jain': '🌀',
-  'sikh': '🪯',
-  'zoroastrian': '🔆',
-  'indigenous': '🌎',
-  'affirmation': '💭',
-  'ancient': '📜',
-  'yoga': '🧘',
-  'prayer': '🙏',
-  'chant': '🎶',
-  'scripture': '📖',
-  'philosophy': '🔮',
-  'upanishadic': '📿',
-  'ganesha': '🐘',
-  'shiva': '🔱',
-  'vishnu': '🪷',
-  'shakti': '🌺',
-  'islamic': '☪️',
-  'sikh_tradition': '🪯',
-  'compassion': '💗',
-  'liberation': '🕊️',
-  'non-dual': '∞',
-  'breath': '💨',
-  'sun': '☀️',
-  'moon': '🌙',
-  'fire': '🔥',
-  'water': '💧',
-  'earth': '🌍',
-  'primordial': '🌌',
-};
-
-/// Returns [tag] with its emoji prefix, e.g. "🕉️ vedic".
-/// Falls back to the tag name alone if no emoji is defined.
-String tagWithEmoji(String tag) {
-  final emoji = kTagEmojis[tag];
-  return emoji != null ? '$emoji $tag' : tag;
-}
+/// Returns the [IconData] for a tag from icons.yml "Tags" section.
+IconData? tagIcon(String tag) =>
+    IconRegistry.instance.icon('Tags', tag);
 
 /// A mantra entry from the curated library (assets/data/mantra_library.json).
 ///
@@ -99,7 +29,7 @@ class LibraryMantra {
   /// 4–5 paragraph history-and-meaning essay.
   final String abstract;
 
-  /// Plain tag names; pair with [kTagEmojis] for display.
+  /// Plain tag names; pair with [tagIcon] for display.
   final List<String> tags;
 
   /// Spiritual tradition the mantra belongs to.
@@ -185,6 +115,9 @@ class LibraryMantra {
         'audioUrl': audioUrl,
       };
 
-  /// All tags with their emoji prefix for display.
-  List<String> get tagsWithEmojis => tags.map(tagWithEmoji).toList();
+  /// Returns the [IconData] for each tag that has one in icons.yml.
+  Map<String, IconData> get tagIconMap => {
+    for (final tag in tags)
+      if (tagIcon(tag) != null) tag: tagIcon(tag)!,
+  };
 }

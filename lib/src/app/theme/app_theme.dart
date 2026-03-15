@@ -1,80 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app_colors.dart';
+import '../../core/services/theme_registry.dart';
 
 class AppTheme {
   AppTheme._();
 
+  static ThemeRegistry get _r => ThemeRegistry.instance;
+
   static ThemeData dark() {
+    AppColors.setBrightness(Brightness.dark);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.violet600,
+      colorScheme: ColorScheme.dark(
+        primary: _r.dark('Brand.violet600'),
         onPrimary: Colors.white,
-        primaryContainer: AppColors.violet700,
-        secondary: AppColors.violet500,
+        primaryContainer: _r.dark('Brand.violet700'),
+        secondary: _r.dark('Brand.violet500'),
         onSecondary: Colors.white,
-        surface: AppColors.bgSurface,
-        onSurface: AppColors.textPrimary,
-        surfaceContainerHighest: AppColors.bgCard,
-        outline: AppColors.border,
-        error: AppColors.red,
+        surface: _r.dark('Background.surface'),
+        onSurface: _r.dark('Text.primary'),
+        surfaceContainerHighest: _r.dark('Background.card'),
+        outline: _r.dark('Border.default'),
+        error: _r.dark('Accent.red'),
       ),
-      scaffoldBackgroundColor: AppColors.bgBase,
-      appBarTheme: const AppBarTheme(
+      scaffoldBackgroundColor: _r.dark('Background.base'),
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
         titleTextStyle: TextStyle(
-          color: AppColors.textPrimary,
+          color: _r.dark('Text.primary'),
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: _r.dark('Text.primary')),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.bgSurface,
-        selectedItemColor: AppColors.violet400,
-        unselectedItemColor: AppColors.textMuted,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: _r.dark('Background.surface'),
+        selectedItemColor: _r.dark('Brand.violet400'),
+        unselectedItemColor: _r.dark('Text.muted'),
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(color: AppColors.textPrimary, fontFamily: 'Cinzel'),
-        displayMedium: TextStyle(color: AppColors.textPrimary, fontFamily: 'Cinzel'),
-        headlineLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
-        headlineMedium: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        titleLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        titleMedium: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
-        bodyLarge: TextStyle(color: AppColors.textPrimary),
-        bodyMedium: TextStyle(color: AppColors.textSecondary),
-        bodySmall: TextStyle(color: AppColors.textMuted),
-        labelLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        labelMedium: TextStyle(color: AppColors.textSecondary),
-        labelSmall: TextStyle(color: AppColors.textMuted),
+      textTheme: TextTheme(
+        displayLarge: TextStyle(color: _r.dark('Text.primary'), fontFamily: 'Cinzel'),
+        displayMedium: TextStyle(color: _r.dark('Text.primary'), fontFamily: 'Cinzel'),
+        headlineLarge: TextStyle(color: _r.dark('Text.primary'), fontWeight: FontWeight.w700),
+        headlineMedium: TextStyle(color: _r.dark('Text.primary'), fontWeight: FontWeight.w600),
+        titleLarge: TextStyle(color: _r.dark('Text.primary'), fontWeight: FontWeight.w600),
+        titleMedium: TextStyle(color: _r.dark('Text.primary'), fontWeight: FontWeight.w500),
+        bodyLarge: TextStyle(color: _r.dark('Text.primary')),
+        bodyMedium: TextStyle(color: _r.dark('Text.secondary')),
+        bodySmall: TextStyle(color: _r.dark('Text.muted')),
+        labelLarge: TextStyle(color: _r.dark('Text.primary'), fontWeight: FontWeight.w600),
+        labelMedium: TextStyle(color: _r.dark('Text.secondary')),
+        labelSmall: TextStyle(color: _r.dark('Text.muted')),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0x14A78BFA),
+        fillColor: _r.dark('Brand.violet400').withAlpha(0x14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: _r.dark('Border.default')),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.borderSubtle),
+          borderSide: BorderSide(color: _r.dark('Border.subtle')),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.violet500, width: 1.5),
+          borderSide: BorderSide(color: _r.dark('Brand.violet500'), width: 1.5),
         ),
-        labelStyle: const TextStyle(color: AppColors.textMuted),
-        hintStyle: const TextStyle(color: AppColors.textMuted),
+        labelStyle: TextStyle(color: _r.dark('Text.muted')),
+        hintStyle: TextStyle(color: _r.dark('Text.muted')),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.violet600,
+          backgroundColor: _r.dark('Brand.violet600'),
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -82,15 +86,15 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.bgCard,
+        color: _r.dark('Background.card'),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.borderSubtle),
+          side: BorderSide(color: _r.dark('Border.subtle')),
         ),
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.borderSubtle,
+      dividerTheme: DividerThemeData(
+        color: _r.dark('Border.subtle'),
         thickness: 1,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
@@ -104,13 +108,93 @@ class AppTheme {
   }
 
   static ThemeData light() {
-    // Light mode — same violet brand, lighter backgrounds
+    AppColors.setBrightness(Brightness.light);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.violet600,
-        brightness: Brightness.light,
+      colorScheme: ColorScheme.light(
+        primary: _r.light('Brand.primary'),
+        onPrimary: Colors.white,
+        primaryContainer: _r.dark('Brand.violet300'),
+        secondary: _r.dark('Brand.violet600'),
+        onSecondary: Colors.white,
+        surface: _r.light('Background.surface'),
+        onSurface: _r.light('Text.primary'),
+        surfaceContainerHighest: _r.light('Background.card'),
+        outline: _r.light('Border.default'),
+        error: _r.dark('Accent.red'),
+      ),
+      scaffoldBackgroundColor: _r.light('Background.base'),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        titleTextStyle: TextStyle(
+          color: _r.light('Text.primary'),
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(color: _r.light('Text.primary')),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: _r.light('Background.surface'),
+        selectedItemColor: _r.light('Brand.primary'),
+        unselectedItemColor: _r.light('Text.muted'),
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+      textTheme: TextTheme(
+        displayLarge: TextStyle(color: _r.light('Text.primary'), fontFamily: 'Cinzel'),
+        displayMedium: TextStyle(color: _r.light('Text.primary'), fontFamily: 'Cinzel'),
+        headlineLarge: TextStyle(color: _r.light('Text.primary'), fontWeight: FontWeight.w700),
+        headlineMedium: TextStyle(color: _r.light('Text.primary'), fontWeight: FontWeight.w600),
+        titleLarge: TextStyle(color: _r.light('Text.primary'), fontWeight: FontWeight.w600),
+        titleMedium: TextStyle(color: _r.light('Text.primary'), fontWeight: FontWeight.w500),
+        bodyLarge: TextStyle(color: _r.light('Text.primary')),
+        bodyMedium: TextStyle(color: _r.light('Text.secondary')),
+        bodySmall: TextStyle(color: _r.light('Text.muted')),
+        labelLarge: TextStyle(color: _r.light('Text.primary'), fontWeight: FontWeight.w600),
+        labelMedium: TextStyle(color: _r.light('Text.secondary')),
+        labelSmall: TextStyle(color: _r.light('Text.muted')),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: _r.light('Brand.primary').withAlpha(0x14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _r.light('Border.default')),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _r.light('Border.subtle')),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _r.dark('Brand.violet500'), width: 1.5),
+        ),
+        labelStyle: TextStyle(color: _r.light('Text.muted')),
+        hintStyle: TextStyle(color: _r.light('Text.muted')),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _r.light('Brand.primary'),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: _r.light('Background.card'),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: _r.light('Border.subtle')),
+        ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: _r.light('Border.subtle'),
+        thickness: 1,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {

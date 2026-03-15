@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/mantra.dart';
 import '../models/session.dart';
@@ -375,12 +376,26 @@ List<UnlockedAchievement> _checkNewAchievements({
         unlock = newTotalReps >= ach.value;
       case AchievementMetric.hour:
         unlock = ach.before == true ? hour < ach.value : hour >= ach.value;
+      case AchievementMetric.platform:
+        unlock = _matchesPlatform(ach.platformId);
     }
     if (unlock) {
       result.add(UnlockedAchievement(id: ach.id, unlockedAt: DateTime.now()));
     }
   }
   return result;
+}
+
+bool _matchesPlatform(String? platformId) {
+  if (platformId == null) return false;
+  if (kIsWeb) return platformId == 'web';
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android => platformId == 'android',
+    TargetPlatform.iOS     => platformId == 'ios',
+    TargetPlatform.macOS   => platformId == 'macos',
+    TargetPlatform.linux   => platformId == 'linux',
+    _                      => false,
+  };
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────

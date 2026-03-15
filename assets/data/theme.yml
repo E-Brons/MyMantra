@@ -1,0 +1,157 @@
+## myMantra Theme Reference
+
+# ─────────────────────────────────────────────
+# Colors
+# ─────────────────────────────────────────────
+
+Dark:
+  Brand:
+    violet300: "#C4B5FD"
+    violet400: "#A78BFA"
+    violet500: "#8B5CF6"
+    violet600: "#7C3AED"
+    violet700: "#6D28D9"
+
+  Background:
+    base: "#0D0B1A"
+    surface: "#1A1535"
+    card: "#14112A"
+    session: "#0D0520"
+
+  Text:
+    primary: "#EDE9FE"
+    secondary: "#8B83A3"
+    muted: "#5C5478"
+
+  Accent:
+    orange: "#F97316"
+    emerald: "#10B981"
+    red: "#EF4444"
+    amber: "#F59E0B"
+
+  Border:
+    default: "#A78BFA33"    # violet400 / 20%
+    subtle: "#A78BFA1F"     # violet400 / 12%
+
+Light:
+  Brand:
+    primary: "#6D28D9"      # violet700 for better contrast on white
+    onPrimary: "#FFFFFF"
+    
+  Background:
+    base: "#e6e6f0"         # Slightly cool white to match violet tones
+    surface: "#f5f5f5"
+    card: "#e7e3f8"         # Very faint violet tint for depth
+
+  Text:
+    primary: "#1A1535"      # Matches your Dark base for brand consistency
+    secondary: "#4A4458"    # High-contrast grey-violet
+    muted: "#767185"
+
+  Border:
+    default: "#6D28D933"    # violet700 / 20%
+    subtle: "#6D28D91F"     # violet700 / 12%
+
+# ─────────────────────────────────────────────
+# Fonts
+# ─────────────────────────────────────────────
+
+Fonts:
+  Display:
+    family: Cinzel
+    usage: Titles, headers, screen headings
+    weights: [variable]
+
+  Body:
+    family: system default (Roboto / SF Pro)
+    fallback: NotoColorEmoji
+    usage: Body text, labels, UI chrome
+
+  Script Fonts:
+    NotoSans:            Latin / Greek / Cyrillic
+    NotoSansDevanagari:  Sanskrit, Hindi, Marathi
+    NotoSansHebrew:      Hebrew
+    NotoSansArabic:      Arabic, Urdu, Farsi
+    NotoSerifTibetan:    Tibetan
+    NotoSansThai:        Thai
+    NotoSansTamil:       Tamil
+    NotoSansGujarati:    Gujarati
+    NotoSansSC:          Simplified Chinese
+    NotoSansJP:          Japanese
+    NotoSansKR:          Korean
+
+# ─────────────────────────────────────────────
+# Text Styles
+# ─────────────────────────────────────────────
+
+Text Styles:
+  displayLarge:
+    font: Cinzel
+    color (dark): primary
+
+  displayMedium:
+    font: Cinzel
+    color (dark): primary
+
+  headlineLarge:
+    weight: 700
+    color (dark): primary
+
+  headlineMedium:
+    weight: 600
+    color (dark): primary
+
+  titleLarge:
+    weight: 600
+    color (dark): primary
+
+  titleMedium:
+    weight: 500
+    color (dark): primary
+
+  bodyLarge:
+    color (dark): primary
+
+  bodyMedium:
+    color (dark): secondary
+
+  bodySmall:
+    color (dark): muted
+
+  labelLarge:
+    weight: 600
+    color (dark): primary
+
+  labelMedium:
+    color (dark): secondary
+
+  labelSmall:
+    color (dark): muted
+
+# ─────────────────────────────────────────────
+# Component Styles
+# ─────────────────────────────────────────────
+
+Components:
+  Card:
+    background: card
+    borderRadius: 16
+    border: subtle
+    elevation: 0
+
+  Button (elevated):
+    background: violet600
+    foreground: white
+    borderRadius: 16
+    padding: 14px vertical
+
+  Input:
+    fill: "#A78BFA14"      # violet400 / 8%
+    borderRadius: 12
+    border: subtle
+    focusBorder: violet500
+
+  BottomNav:
+    background: surface
+    selected: violet400
+    unselected: muted
