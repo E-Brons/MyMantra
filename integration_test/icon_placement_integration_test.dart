@@ -35,7 +35,10 @@ void main() {
       (tester) async {
     await launchApp(tester);
 
-    expect(find.byIcon(Icons.home_outlined), findsOneWidget);
+    // Verify all bottom-nav icons are rendered on launch.
+    // The Home tab is active, so it shows Icons.home (activeIcon); the rest
+    // show their outlined (inactive) variants.
+    expect(find.byIcon(Icons.home), findsOneWidget);
     expect(find.byIcon(Icons.menu_book_outlined), findsOneWidget);
     expect(find.byIcon(Icons.bar_chart_outlined), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
@@ -45,16 +48,19 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    // — Library screen ————————————————————————————————————————————————————
     await tester.tap(find.byIcon(Icons.menu_book_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Mantra Library'), findsOneWidget);
     expect(find.byIcon(Icons.search), findsOneWidget);
-    expect(find.byIcon(Icons.auto_awesome), findsWidgets);
+    expect(find.byIcon(Icons.auto_awesome), findsWidgets); // 'All' category chip
     await binding.takeScreenshot('mantra_library');
 
+    // — Progress screen ———————————————————————————————————————————————————
     await tester.tap(find.byIcon(Icons.bar_chart_outlined));
     await tester.pumpAndSettle();
-    expect(find.text('Progress'), findsOneWidget);
+    // 'Progress' appears in both the nav-bar label and the screen heading.
+    expect(find.text('Progress'), findsWidgets);
     expect(find.byIcon(Icons.whatshot), findsWidgets);
     expect(find.byIcon(Icons.trending_up), findsWidgets);
     expect(find.byIcon(Icons.self_improvement), findsWidgets);
@@ -62,6 +68,9 @@ void main() {
     expect(find.byIcon(Icons.event), findsWidgets);
     await binding.takeScreenshot('progress');
 
+    // — Session complete ——————————————————————————————————————————————————
+    // Home tab is inactive here, so its inactive icon (Icons.home_outlined)
+    // is the one visible in the nav bar.
     await tester.tap(find.byIcon(Icons.home_outlined));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Om Mani Padme Hum'));
