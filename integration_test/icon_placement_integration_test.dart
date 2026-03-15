@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -20,14 +21,25 @@ void main() {
 
   Future<void> launchApp(WidgetTester tester) async {
     // Integration tests pump the app directly, so initialize registries that
-    // are normally loaded in main().
+    // are normally loaded in main(). A timeout guards against the registries
+    // hanging indefinitely, which can cause "log reader stopped unexpectedly"
+    // on Linux when the debug connection is never established.
     await Future.wait([
       IconRegistry.instance.init(),
       ThemeRegistry.instance.init(),
-    ]);
+    ]).timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {
+        throw TimeoutException('Registry init timed out after 30 s');
+      },
+    );
     await tester.pumpWidget(const ProviderScope(child: MyMantraApp()));
+    // Pump a short duration first so the framework can create the widget tree
+    // and the Linux debug-connection log reader has time to start up.
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
     appRouter.go('/');
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
   }
 
