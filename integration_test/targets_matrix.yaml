@@ -93,8 +93,8 @@ integration_suites:
       web: false
 
   - id: TC-I-06
-    name: Emoji Rendering Host-Driven Check
-    file: integration_test/emoji_screenshot_integration_test.dart
+    name: Icon Placement Integration Check
+    file: integration_test/icon_placement_integration_test.dart
     implemented: true
     targets:
       ios: true

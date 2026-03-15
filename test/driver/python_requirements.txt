@@ -1,4 +1,4 @@
-# Python requirements for emoji screenshot test
+# Python requirements for screenshot validation helpers.
 Pillow
 tesseract
 pytesseract

@@ -75,6 +75,8 @@
   },
   "chat.tools.terminal.autoApprove": {
     "flutter": true,
-    "gh": true
+    "gh": true,
+    "git remote get-url origin": true,
+    "git log": true
   }
 }

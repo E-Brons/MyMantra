@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mymantra/src/app/app.dart';
 import 'package:mymantra/src/app/router.dart';
+import 'package:mymantra/src/core/services/icon_registry.dart';
+import 'package:mymantra/src/core/services/theme_registry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -21,6 +23,10 @@ void main() {
   });
 
   Future<void> launchApp(WidgetTester tester) async {
+    await Future.wait([
+      IconRegistry.instance.init(),
+      ThemeRegistry.instance.init(),
+    ]);
     await tester.pumpWidget(const ProviderScope(child: MyMantraApp()));
     await tester.pumpAndSettle();
     appRouter.go('/');
@@ -145,9 +151,9 @@ void main() {
     expect(find.text('Start Session'), findsNothing);
   });
 
-  // ── TC-I-5: Icons render as Material Icon widgets (no emoji) ──
+  // ── TC-I-5: Icons render as Material Icon widgets ──
 
-  testWidgets('progress screen uses Material Icon widgets instead of emoji', (tester) async {
+  testWidgets('progress screen uses Material Icon widgets', (tester) async {
     await launchApp(tester);
 
     // Navigate to the Progress screen.
