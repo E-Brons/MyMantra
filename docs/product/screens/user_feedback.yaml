@@ -1,0 +1,38 @@
+screen: User Feedback
+id: "6b"
+type: full-screen
+nav: back-arrow
+
+elements:
+  - id: title
+    type: text
+    position: top
+    content: "Feedback"
+    style: heading
+
+  - id: category-list
+    type: list
+    position: center
+    items:
+      - id: bug-report
+        label: "Bug Report"
+        description: "Something is broken"
+        action: open-email-compose
+      - id: feature-request
+        label: "Feature Request"
+        description: "Suggest a new feature or improvement"
+        action: open-email-compose
+      - id: mantra-info
+        label: "Mantra Info Request"
+        description: "Request a correction or addition to library content"
+        action: open-email-compose
+      - id: general
+        label: "General Feedback"
+        description: "Anything else"
+        action: open-email-compose
+
+  email-compose:
+    to: "(app support email)"
+    subject: "[MyMantra] {category}"
+    body-prefill: "app version, platform, OS"
+    note: "no PII collected — just technical context"

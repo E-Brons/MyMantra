@@ -1,0 +1,32 @@
+screen: Sign In
+id: "1a"
+type: full-screen
+nav: back-arrow
+
+elements:
+  - id: title
+    type: text
+    position: top-center
+    content: "Sign In"
+    style: heading
+
+  - id: google-sign-in
+    type: button
+    position: center
+    label: "Continue with Google"
+    action: oauth → Google
+    note: "stub — Phase 2.0"
+
+  - id: apple-sign-in
+    type: button
+    position: center
+    label: "Continue with Apple"
+    action: oauth → Apple
+    note: "stub — Phase 2.0"
+
+  - id: email-sign-in
+    type: button
+    position: center
+    label: "Sign in with Email"
+    action: oauth → Email
+    note: "stub — Phase 2.0"

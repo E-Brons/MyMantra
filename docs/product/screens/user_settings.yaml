@@ -1,0 +1,108 @@
+screen: User Settings
+id: "6"
+type: full-screen
+nav: back-arrow
+behavior: "all changes saved immediately — no Save button"
+
+elements:
+  - id: account-section
+    type: section
+    label: "Account"
+    elements:
+      - id: status
+        type: text
+        content: "Offline mode"
+      - id: sync-note
+        type: text
+        content: "Sign in to sync your data across devices (coming soon)"
+        style: caption
+      - id: sign-in-button
+        type: button
+        label: "Sign In"
+        action: navigate → Sign In (1a)
+        note: "stub — Phase 2.0"
+
+  - id: language-section
+    type: section
+    label: "Language"
+    elements:
+      - id: language-picker
+        type: dropdown
+        label: "UI Language"
+        action: change-language
+        note: "affects UI text and mantra translations"
+
+  - id: appearance-section
+    type: section
+    label: "Appearance"
+    elements:
+      - id: theme
+        type: chip-group
+        label: "Theme"
+        items: ["Dark", "Light", "System"]
+      - id: font-size
+        type: chip-group
+        label: "Font size"
+        items: ["Small", "Medium", "Large"]
+        note: "persisted but not yet applied — planned"
+
+  - id: practice-section
+    type: section
+    label: "Practice Defaults"
+    note: "feeds the settings inheritance chain — shown as (your default) on Practice Plan"
+    elements:
+      - id: default-reps
+        type: chip-group
+        label: "Default repetitions"
+        items: [27, 54, 108, 216]
+      - id: default-cycle
+        type: chip-group
+        label: "Default cycle"
+        items: ["Session", "Daily", "Weekly"]
+      - id: default-practice-mode
+        type: chip-group
+        label: "Default practice mode"
+        items:
+          - label: "Tap to count"
+            status: available
+          - label: "Listen"
+            status: future
+          - label: "AI listens"
+            status: future
+      - id: haptic-feedback
+        type: toggle
+        label: "Haptic feedback"
+      - id: limit-tap-rate
+        type: toggle
+        label: "Limit tap rate"
+        note: "Prevents double-counts, 1s minimum"
+
+  - id: notifications-section
+    type: section
+    label: "Notifications"
+    elements:
+      - id: enable-notifications
+        type: toggle
+        label: "Enable notifications"
+
+  - id: about-section
+    type: section
+    label: "About"
+    elements:
+      - id: app-name
+        type: text
+        content: "MyMantra"
+      - id: version
+        type: text
+        content: "(dynamic)"
+      - id: philosophy-quote
+        type: text
+        content: "Abhyasa Vairagyabhyam Tan-Nirodhah"
+        subtitle: "By practice and non-attachment the mind is still — Yoga Sutras 1.12"
+        style: italic
+
+  - id: feedback-button
+    type: button
+    position: bottom
+    label: "Feedback"
+    action: navigate → User Feedback (6b)

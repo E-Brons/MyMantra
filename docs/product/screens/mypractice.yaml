@@ -1,0 +1,52 @@
+screen: MyPractice
+id: "4"
+type: full-screen
+nav: bottom-tabs
+
+elements:
+  - id: settings-icon
+    type: icon-button
+    position: top-right
+    icon: gear
+    action: navigate → User Settings (6)
+    note: "visible only on this screen"
+
+  - id: mantra-list
+    type: scrollable-list
+    position: center
+    item-type: mantra-card
+    order: user-added-order
+    item-elements:
+      - id: original-title
+        type: text
+        style: "large, prominent"
+      - id: translated-title
+        type: text
+        style: "smaller, faded"
+      - id: dynamic-badge
+        type: badge
+        states:
+          idle:
+            icon: prayer
+            description: "invites user to start a session"
+          ongoing:
+            icon: mini-ring
+            description: "shows suspended session progress, same visual as practice ring"
+          streak:
+            icon: weightlifting
+            description: "encourages continuation, hidden if session is ongoing"
+    action: |
+      ongoing session → prompt (Resume / New Session) → Practice (7)
+      no ongoing session → Practice (7)
+
+  - id: empty-state
+    type: placeholder
+    position: center
+    visible: "when no mantras added"
+    content: "No Mantras to practice yet. To Start — select one from Library or Create your own."
+
+  - id: mantra-limit-warning
+    type: dialog
+    visible: "when adding 6th mantra"
+    content: "Note: are you sure? Practicing more than 5 mantras may dilute your focus."
+    dismissible: true

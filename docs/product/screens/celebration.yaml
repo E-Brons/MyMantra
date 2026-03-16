@@ -1,0 +1,28 @@
+screen: Celebration
+id: "7b"
+type: overlay
+nav: none
+
+elements:
+  - id: achievement-card
+    type: achievement-display
+    position: center
+    elements:
+      - id: icon
+        type: image
+        description: "achievement icon, full color"
+      - id: title
+        type: text
+        style: heading
+      - id: description
+        type: text
+        style: body
+      - id: rarity-badge
+        type: badge
+        description: "rarity tier label with tier-appropriate styling"
+        note: "Exotic+ use animated gradient text, Divine uses rainbow"
+
+  - id: dismiss
+    type: tap-anywhere
+    action: dismiss-overlay → MyPractice (4)
+    note: "auto-dismiss after a few seconds if no interaction"

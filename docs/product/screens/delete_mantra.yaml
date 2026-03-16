@@ -1,0 +1,38 @@
+screen: Delete Mantra
+id: "3b"
+type: overlay
+nav: none
+
+elements:
+  - id: warning-icon
+    type: icon
+    position: top-center
+    icon: warning
+    style: destructive
+
+  - id: title
+    type: text
+    position: center
+    content: "Are you sure?"
+    style: heading
+
+  - id: message
+    type: text
+    position: center
+    content: "This will remove the mantra and all its session history from your practice."
+    style: body
+
+  - id: delete-button
+    type: button
+    position: bottom
+    label: "Delete"
+    action: delete-mantra → navigate → MyPractice (4)
+    style: destructive
+    note: "cascades: mantra, sessions, reminders. Aggregate stats in Progress are NOT reduced."
+
+  - id: cancel-button
+    type: button
+    position: bottom
+    label: "Cancel"
+    action: dismiss-overlay → Practice Plan (3)
+    style: secondary

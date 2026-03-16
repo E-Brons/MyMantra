@@ -21,10 +21,7 @@
   - [Summary: Screen Navigation Map](#screen-navigation-map)
 2. [Screens Details](#2-screens-details)
   - [List of screens](#list-of-screens)
-  - [Welcome](#welcome-screen)
 3. [Change Log](#3-change-log)
-  12. [Design Principles](#12-design-principles)
-  13. [Offline/Online Behavior](#13-offlineonline-behavior)
 
 ## 1. User flows
 
@@ -717,12 +714,64 @@ graph TD
 |7 |Practice       |the main practice screen    |click / edit / done / back    |
 |7b|Celebration    |celebrate achievement unlock|                              |
 
-### Welcome Screen
+YAML files are used to describe the UI emlements of every screen
+The idea is to document the expected type, shape, location etc. of most UI,
+so we get Product, Software and test - all aligned on what to expect and excecute.
+**Note** This is not a full capture of any detail of the widget apearance
+         nor to define the exact behavior of each widget.
 
---> detail about the screen UI desing (no user flow) + yaml
+### 2.1 Welcome
+First screen on app launch. Logo, philosophy quote, language selector, and two entry paths: Sign In or Continue Offline.
+→ [screens/welcome.yaml](screens/welcome.yaml)
 
+### 2.1a Sign In
+Third-party and email authentication. Currently a stub — full implementation in Phase 2.0.
+→ [screens/sign_in.yaml](screens/sign_in.yaml)
 
----
+### 2.1b Expectations
+Introduces the app's purpose and capabilities. Ends with a choice: start from the library or create your own mantra.
+→ [screens/expectations.yaml](screens/expectations.yaml)
+
+### 2.2 Library
+Browse the built-in mantra collection. Search, filter by category, tap a card to configure and add. FAB to create a custom mantra.
+→ [screens/library.yaml](screens/library.yaml)
+
+### 2.2b Create Mantra
+Free-form entry of a personal mantra: original text, transliteration, translation, history, benefits, tradition, tags.
+→ [screens/create_mantra.yaml](screens/create_mantra.yaml)
+
+### 2.3 Practice Plan
+Configure how to practice a mantra: target reps, cycle, mode, reminders. Shared screen for library-add, post-create, and edit contexts.
+→ [screens/practice_plan.yaml](screens/practice_plan.yaml)
+
+### 2.3b Delete Mantra
+Confirmation overlay triggered from Practice Plan. Warns that deletion is permanent and cascades to sessions, reminders, and progress.
+→ [screens/delete_mantra.yaml](screens/delete_mantra.yaml)
+
+### 2.4 MyPractice
+The app's main hub. Shows all mantras the user is practicing, with dynamic badges for idle, ongoing, and streak states.
+→ [screens/mypractice.yaml](screens/mypractice.yaml)
+
+### 2.5 Progress
+Aggregate practice stats and achievement gallery. Display only — intentionally understated, aligned with non-attachment philosophy.
+→ [screens/progress.yaml](screens/progress.yaml)
+
+### 2.6 User Settings
+App-wide configuration: account, language, appearance, practice defaults, notifications. All changes saved immediately.
+→ [screens/user_settings.yaml](screens/user_settings.yaml)
+
+### 2.6b User Feedback
+Pick a category (bug, feature request, mantra info, general), then compose an email with pre-filled context.
+→ [screens/user_feedback.yaml](screens/user_feedback.yaml)
+
+### 2.7 Practice
+The immersive practice screen. Large tap circle, counter, Done/Back/Edit. No timer. No distractions.
+→ [screens/practice.yaml](screens/practice.yaml)
+
+### 2.7b Celebration
+Achievement unlock overlay. Shown after session completion when new achievements are earned.
+→ [screens/celebration.yaml](screens/celebration.yaml)
+
 
 ## 3. Change Log
 
