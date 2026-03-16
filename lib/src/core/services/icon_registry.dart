@@ -2,6 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:yaml/yaml.dart';
 
+/// Parsed metadata for a single achievement entry loaded from icons.yml.
+class AchievementEntry {
+  const AchievementEntry({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.condition,
+    required this.rarity,
+  });
+
+  final String id;
+  final String name;
+  final IconData icon;
+  final String condition;
+
+  /// Rarity string as written in icons.yml (e.g. "common", "superRare", "divine").
+  final String rarity;
+}
+
+/// Metadata for one achievement group (e.g. "streak", "sessions").
+class AchievementGroup {
+  const AchievementGroup({
+    required this.name,
+    required this.visibility,
+    required this.items,
+  });
+
+  /// Group key from icons.yml (e.g. "streak", "sessions").
+  final String name;
+
+  /// Visibility strategy: "progressive" | "never" | "always".
+  final String visibility;
+
+  /// Ordered list of entries (index 0 = first in the chain).
+  final List<AchievementEntry> items;
+}
+
 /// Loads `assets/data/icons.yml` at startup and provides runtime lookups
 /// from section/key → [IconData].
 ///
@@ -19,9 +56,13 @@ class IconRegistry {
   static final IconRegistry instance = IconRegistry._();
 
   late final Map<String, Map<String, IconData>> _sections;
+    late final List<AchievementGroup> _achievementGroups;
   bool _ready = false;
 
   bool get ready => _ready;
+
+  /// Ordered achievement groups parsed from the `Achievements:` section of icons.yml.
+  List<AchievementGroup> get achievementGroups => _achievementGroups;
 
   // ── Initialisation ──────────────────────────────────────────────────────
 
@@ -31,13 +72,22 @@ class IconRegistry {
     final doc = loadYaml(raw) as YamlMap;
 
     _sections = {};
+      _achievementGroups = [];
+
     for (final entry in doc.entries) {
       final sectionName = entry.key as String;
       final sectionMap = entry.value;
       if (sectionMap is! YamlMap) continue;
-      final resolved = <String, IconData>{};
-      _flattenYamlMap(sectionMap, resolved);
-      _sections[sectionName] = resolved;
+      if (sectionName == 'Achievements') {
+        final icons = <String, IconData>{};
+        _achievementGroups
+            .addAll(_parseAchievementsSection(sectionMap, icons));
+        _sections[sectionName] = icons;
+      } else {
+        final resolved = <String, IconData>{};
+        _flattenYamlMap(sectionMap, resolved);
+        _sections[sectionName] = resolved;
+      }
     }
     _ready = true;
   }
@@ -202,4 +252,56 @@ class IconRegistry {
     'whatshot': Icons.whatshot,
     'workspace_premium': Icons.workspace_premium,
   };
+
+  /// Parses the `Achievements:` section of icons.yml.
+  ///
+  /// Each group has a `visibility` field and a `list` of per-item objects;
+  /// each item exposes `id`, `name`, `icon`, `condition`, and `rarity`.
+  /// Populates [iconsOut] with `id → IconData` for use by [icon()].
+  static List<AchievementGroup> _parseAchievementsSection(
+    YamlMap section,
+    Map<String, IconData> iconsOut,
+  ) {
+    final groups = <AchievementGroup>[];
+    for (final groupEntry in section.entries) {
+      final groupName = groupEntry.key as String;
+      final groupValue = groupEntry.value;
+      if (groupValue is! YamlMap) continue;
+
+      final visibility =
+          (groupValue['visibility'] as String?) ?? 'always';
+      final rawList = groupValue['list'];
+      if (rawList is! YamlList) continue;
+
+      final items = <AchievementEntry>[];
+      for (final item in rawList) {
+        if (item is! YamlMap) continue;
+        final id = item['id'] as String?;
+        final name = item['name'] as String?;
+        final iconStr = item['icon'] as String?;
+        final condition = item['condition'] as String?;
+        final rarity = item['rarity'] as String?;
+        if (id == null || iconStr == null) continue;
+        final iconData = resolve(iconStr.trim());
+        if (iconData == null) continue;
+        final entry = AchievementEntry(
+          id: id,
+          name: name ?? id,
+          icon: iconData,
+          condition: condition ?? '',
+          rarity: rarity ?? 'common',
+        );
+        items.add(entry);
+        iconsOut[id] = iconData;
+      }
+      groups.add(AchievementGroup(
+        name: groupName,
+        visibility: visibility,
+        items: items,
+      ));
+    }
+    return groups;
+  }
 }
+  ///
+

@@ -32,10 +32,10 @@ class Achievement {
     required this.rarity,
   });
 
-  /// Resolved icon from icons.yml → "Achievement Badges" section.
+  /// Resolved icon from icons.yml → "Achievements" section (keyed by [id]).
   /// Falls back to a question-mark icon if the key is missing from the YML.
   IconData get icon =>
-      IconRegistry.instance.icon('Achievement Badges', iconKey) ??
+      IconRegistry.instance.icon('Achievements', id) ??
       Icons.help_outline;
 }
 
