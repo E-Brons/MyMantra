@@ -36,15 +36,23 @@ class IconRegistry {
       final sectionMap = entry.value;
       if (sectionMap is! YamlMap) continue;
       final resolved = <String, IconData>{};
-      for (final kv in sectionMap.entries) {
-        final key = kv.key.toString();
-        final iconStr = kv.value.toString().trim();
-        final icon = resolve(iconStr);
-        if (icon != null) resolved[key] = icon;
-      }
+      _flattenYamlMap(sectionMap, resolved);
       _sections[sectionName] = resolved;
     }
     _ready = true;
+  }
+
+  /// Recursively flattens a [YamlMap] into [out], skipping nested sub-maps
+  /// (which are treated as grouping containers rather than icon entries).
+  static void _flattenYamlMap(YamlMap map, Map<String, IconData> out) {
+    for (final kv in map.entries) {
+      if (kv.value is YamlMap) {
+        _flattenYamlMap(kv.value as YamlMap, out);
+      } else {
+        final icon = resolve(kv.value.toString().trim());
+        if (icon != null) out[kv.key.toString()] = icon;
+      }
+    }
   }
 
   // ── Public lookups ──────────────────────────────────────────────────────

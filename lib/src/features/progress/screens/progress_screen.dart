@@ -22,7 +22,9 @@ class ProgressScreen extends ConsumerWidget {
             child: Padding(
               padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top + 16,
-                left: 20, right: 20, bottom: 8,
+                left: 20,
+                right: 20,
+                bottom: 8,
               ),
               child: Text(
                 'Progress',
@@ -56,7 +58,8 @@ class ProgressScreen extends ConsumerWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _StatCard(
-                          icon: progIcons['Longest Streak'] ?? Icons.trending_up,
+                          icon:
+                              progIcons['Longest Streak'] ?? Icons.trending_up,
                           value: '${progress.longestStreak}',
                           label: 'Longest Streak',
                           sublabel: 'days',
@@ -111,11 +114,14 @@ class ProgressScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Practicing since',
-                                style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                                style: TextStyle(
+                                    fontSize: 12, color: AppColors.textMuted)),
                             Text(
                               _formatDate(progress.memberSince),
                               style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary),
                             ),
                           ],
                         ),
@@ -133,7 +139,10 @@ class ProgressScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
               child: Text(
                 'Achievements',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary),
               ),
             ),
           ),
@@ -150,8 +159,8 @@ class ProgressScreen extends ConsumerWidget {
               itemCount: kAchievements.length,
               itemBuilder: (_, i) {
                 final ach = kAchievements[i];
-                final unlocked = progress.unlockedAchievements
-                    .any((ua) => ua.id == ach.id);
+                final unlocked =
+                    progress.unlockedAchievements.any((ua) => ua.id == ach.id);
                 return _AchievementCard(achievement: ach, unlocked: unlocked);
               },
             ),
@@ -169,8 +178,19 @@ class ProgressScreen extends ConsumerWidget {
 
   static String _formatDate(DateTime dt) {
     const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return '${months[dt.month]} ${dt.day}, ${dt.year}';
   }
@@ -218,10 +238,12 @@ class _StatCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              Text(sublabel, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+              Text(sublabel,
+                  style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
             ],
           ),
-          Text(label, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          Text(label,
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -236,8 +258,9 @@ class _AchievementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lockedIcon = IconRegistry.instance.icon('Other', 'Locked achievement')
-        ?? Icons.lock_outline;
+    final lockedIcon =
+        IconRegistry.instance.icon('Other', 'Locked achievement') ??
+            Icons.lock_outline;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -290,12 +313,84 @@ class _RarityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (rarity == AchievementRarity.divine) {
+      return const _DivineBadge();
+    }
     final (color, label) = switch (rarity) {
-      AchievementRarity.common    => (const Color(0xFF94A3B8), 'Common'),
-      AchievementRarity.rare      => (const Color(0xFF60A5FA), 'Rare'),
-      AchievementRarity.epic      => (const Color(0xFFA78BFA), 'Epic'),
+      AchievementRarity.common => (const Color(0xFFFFD700), 'Common'),
+      AchievementRarity.uncommon => (const Color(0xFF4ADE80), 'Uncommon'),
+      AchievementRarity.rare => (const Color(0xFF60A5FA), 'Rare'),
+      AchievementRarity.superRare => (const Color(0xFF22D3EE), 'Super Rare'),
+      AchievementRarity.epic => (const Color(0xFFA78BFA), 'Epic'),
+      AchievementRarity.heroic => (const Color(0xFFE879F9), 'Heroic'),
+      AchievementRarity.exotic => (const Color(0xFFFB923C), 'Exotic'),
+      AchievementRarity.mythic => (const Color(0xFFEF4444), 'Mythic'),
       AchievementRarity.legendary => (const Color(0xFFFBBF24), 'Legendary'),
+      AchievementRarity.divine => (const Color(0xFFFFFFFF), 'Divine'),
     };
-    return Text(label, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w500));
+    return Text(label,
+        style:
+            TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w500));
+  }
+}
+
+class _DivineBadge extends StatefulWidget {
+  const _DivineBadge();
+
+  @override
+  State<_DivineBadge> createState() => _DivineBadgeState();
+}
+
+class _DivineBadgeState extends State<_DivineBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  // Cycles through the 9 tiers in order (common → legendary), then loops
+  static const _colors = [
+    Color(0xFFFFD700), // common    — yellow
+    Color(0xFF4ADE80), // uncommon  — green
+    Color(0xFF60A5FA), // rare      — blue
+    Color(0xFF22D3EE), // super rare — cyan
+    Color(0xFFA78BFA), // epic      — purple
+    Color(0xFFE879F9), // heroic    — magenta
+    Color(0xFFFB923C), // exotic    — orange
+    Color(0xFFEF4444), // mythic    — red
+    Color(0xFFFBBF24), // legendary — gold
+    Color(0xFFFFD700), // back to common (loop)
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) {
+        final t = _ctrl.value * (_colors.length - 1);
+        final i = t.floor().clamp(0, _colors.length - 2);
+        final color = Color.lerp(_colors[i], _colors[i + 1], t - i)!;
+        return Text(
+          'Divine',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: color,
+          ),
+        );
+      },
+    );
   }
 }
