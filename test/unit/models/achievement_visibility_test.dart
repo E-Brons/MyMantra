@@ -1,6 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:mymantra/src/core/models/achievement.dart';
 import 'package:mymantra/src/core/services/icon_registry.dart';
+
+String? _currentPlatformAchievementId() {
+  if (kIsWeb) return 'ACH-PLT-WEB';
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android => 'ACH-PLT-ANDROID',
+    TargetPlatform.iOS => 'ACH-PLT-IOS',
+    TargetPlatform.macOS => 'ACH-PLT-MAC',
+    TargetPlatform.linux => 'ACH-PLT-LINUX',
+    _ => null,
+  };
+}
 
 void main() {
   setUpAll(() async {
@@ -68,15 +80,29 @@ void main() {
     });
 
     test('never-visible achievements appear once earned', () {
-      final visible = visibleAchievements({
-        'ACH-TIME-EARLY',
-        'ACH-PLT-ANDROID',
-      });
+      final currentPlatformId = _currentPlatformAchievementId();
+      final unlocked = <String>{'ACH-TIME-EARLY'};
+      if (currentPlatformId != null) unlocked.add(currentPlatformId);
+
+      final visible = visibleAchievements(unlocked);
 
       expect(visible.any((a) => a.id == 'ACH-TIME-EARLY'), isTrue);
-      expect(visible.any((a) => a.id == 'ACH-PLT-ANDROID'), isTrue);
       expect(visible.any((a) => a.id == 'ACH-TIME-NIGHT'), isFalse);
-      expect(visible.any((a) => a.id == 'ACH-PLT-IOS'), isFalse);
+
+      const platformIds = [
+        'ACH-PLT-ANDROID',
+        'ACH-PLT-IOS',
+        'ACH-PLT-MAC',
+        'ACH-PLT-LINUX',
+        'ACH-PLT-WEB',
+      ];
+      for (final id in platformIds) {
+        expect(
+          visible.any((a) => a.id == id),
+          id == currentPlatformId,
+          reason: 'Only current platform badge should be visible after earn: $id',
+        );
+      }
     });
 
     test('always-visible achievements are shown even when locked', () {

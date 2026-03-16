@@ -1018,27 +1018,43 @@ if current_streak > longest_streak:
 
 #### SR-9.5: 10-Tier Rarity System
 **Priority**: High (Phase 3.0)
-**Description**: Each achievement carries a rarity tier, displayed as a colour-coded label on its card.
+**Description**: Each achievement carries a rarity tier, displayed as a colour-coded label on its card. Colors are theme-aware and adapt to both Dark and Light themes.
 
-**Tiers** (ascending):
+**Static Tiers** (Common through Heroic):
 
-| # | Tier | Colour | Hex |
-|---|------|--------|-----|
-| 1 | Common | Yellow | #FFD700 |
-| 2 | Uncommon | Green | #4ADE80 |
-| 3 | Rare | Blue | #60A5FA |
-| 4 | Super Rare | Cyan | #22D3EE |
-| 5 | Epic | Purple | #A78BFA |
-| 6 | Heroic | Magenta | #E879F9 |
-| 7 | Exotic | Orange | #FB923C |
-| 8 | Mythic | Red | #EF4444 |
-| 9 | Legendary | Gold | #FBBF24 |
-| 10 | Divine | Animated | cycles tiers 1–9 in order on a 3 s loop |
+| # | Tier | Dark Theme | Light Theme |
+|---|------|-----------|------------|
+| 1 | Common | Grey (#8B83A3) | Grey (#767185) |
+| 2 | Uncommon | Green (#34D399) | Dark Green (#047857) |
+| 3 | Rare | Cyan (#22D3EE) | Dark Cyan (#0284C7) |
+| 4 | Super Rare | Purple (#C084FC) | Dark Purple (#7C3AED) |
+| 5 | Epic | Amber (#F59E0B) | Dark Amber (#D97706) |
+| 6 | Heroic | Red (#EF4444) | Dark Red (#DC2626) |
+
+**Animated Gradient Tiers** (Exotic through Divine):
+
+| # | Tier | Animation Type | Duration | Effect |
+|---|------|---------------|----------|--------|
+| 7 | Exotic | Gradient wave | 2s loop | Green → Teal → Cyan (tropical cocktail) |
+| 8 | Mythic | Gradient wave | 2s loop | Crimson → Scarlet → Gold (raging fire) |
+| 9 | Legendary | Gradient wave | 2s loop | Gold → Cream → Gold (shimmering metal) |
+| 10 | Divine | Gradient wave | 2s loop | Gold → Purple (rainbow spectrum)  |
+
+**Technical Specifications**:
+- **Color Source**: All colors loaded from `assets/data/theme.yml` via `ThemeRegistry`
+- **Static Rarities**: Rendered with text shadow (2px offset, 3px blur, 30% opacity black/white)
+- **Animated Rarities**: Rendered using `AchievementGradientText` widget with `ShaderMask` for gradient effects
+- **Animation**: Uses `AnimationController` with 2-second loop duration; only the label widget rebuilds
+- **Theme Support**: All colors automatically switch based on brightness (dark/light theme)
+- **Accessibility**: Shadow effects ensure text readability on all backgrounds
 
 **Acceptance Criteria**:
-- All 9 static tiers render with the correct colour
-- Divine label animates continuously; colour interpolates smoothly through all 9 tier colours in ascending rarity order
-- Animation does not cause jank (uses AnimationController; rebuilds only the label widget)
+- All 10 rarity tiers render with theme-correct colors from theme.yml
+- Static rarities (1-6) display with subtle shadow effect
+- Animated rarities (7-10) display smooth gradient wave animation
+- Animation does not cause jank (uses AnimationController; rebuilds only affected widgets)
+- Colors adapt correctly when theme changes
+- Shadow effects work on both dark and light backgrounds
 
 ---
 

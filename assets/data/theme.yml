@@ -33,6 +33,18 @@ Dark:
     default: "#A78BFA33"    # violet400 / 20%
     subtle: "#A78BFA1F"     # violet400 / 12%
 
+  Achievements:
+    common: "#8B83A3"
+    uncommon: "#34D399"
+    rare: "#22D3EE"
+    superRare: "#C084FC"
+    epic: "#f5ab0a"
+    heroic: "#EF4444"
+    exotic: ["#BFFF00", "#00FF88", "#00D9FF", "#00BFFF", "#BFFF00"]
+    mythic: ["#B22222", "#FF6347", "#FFD700", "#FF6347", "#B22222"]
+    legendary: ["#FFD700", "#FFFACD", "#FFED4E", "#FFC700", "#FFD700"]
+    divine: ["#FFD700", "#FFE135", "#C084FC", "#A78BFA", "#FFD700"]
+
 Light:
   Brand:
     primary: "#6D28D9"      # violet700 for better contrast on white
@@ -51,6 +63,18 @@ Light:
   Border:
     default: "#6D28D933"    # violet700 / 20%
     subtle: "#6D28D91F"     # violet700 / 12%
+
+  Achievements:
+    common: "#767185"
+    uncommon: "#047857"
+    rare: "#0284C7"
+    superRare: "#7C3AED"
+    epic: "#fbbf18"
+    heroic: "#DC2626"
+    exotic: ["#228B22", "#20B2AA", "#00CED1", "#008B8B", "#228B22"]
+    mythic: ["#B8500D", "#D2691E", "#DAA520", "#8B4513", "#B8500D"]
+    legendary: ["#D4AF37", "#FFD700", "#FFA500", "#FF8C00", "#D4AF37"]
+    divine: ["#DAA520", "#D97706", "#047857", "#0284C7", "#7C3AED", "#DAA520"]
 
 # ─────────────────────────────────────────────
 # Fonts

@@ -486,22 +486,34 @@ Within each progressive chain, an achievement is only shown on the progress scre
 - Users report achievements as motivating (survey)
 
 #### FR-9.6: 10-Tier Rarity System
-Each achievement has a rarity tier, displayed as a colour-coded label on the achievement card.
+Each achievement has a rarity tier, displayed as a colour-coded label on the achievement card. Colors are theme-aware and adapt to both Dark and Light themes.
 
-| # | Tier | Colour | Hex |
-|---|------|--------|-----|
-| 1 | Common | Yellow | #FFD700 |
-| 2 | Uncommon | Green | #4ADE80 |
-| 3 | Rare | Blue | #60A5FA |
-| 4 | Super Rare | Cyan | #22D3EE |
-| 5 | Epic | Purple | #A78BFA |
-| 6 | Heroic | Magenta | #E879F9 |
-| 7 | Exotic | Orange | #FB923C |
-| 8 | Mythic | Red | #EF4444 |
-| 9 | Legendary | Gold | #FBBF24 |
-| 10 | Divine | Animated rainbow | cycles through tiers 1–9 in order, looping |
+**Static Rarities:**
 
-The Divine rarity label cycles smoothly through the 9 tier colours (yellow → green → blue → cyan → purple → magenta → orange → red → gold → yellow) on a 3-second loop.
+| # | Tier | Dark Theme | Light Theme |
+|---|------|-----------|------------|
+| 1 | Common | Grey (#8B83A3) | Grey (#767185) |
+| 2 | Uncommon | Green (#34D399) | Dark Green (#047857) |
+| 3 | Rare | Cyan (#22D3EE) | Dark Cyan (#0284C7) |
+| 4 | Super Rare | Purple (#C084FC) | Dark Purple (#7C3AED) |
+| 5 | Epic | Amber (#F59E0B) | Dark Amber (#D97706) |
+| 6 | Heroic | Red (#EF4444) | Dark Red (#DC2626) |
+
+**Animated Gradient Rarities:**
+
+| # | Tier | Description | Animation |
+|---|------|------------|-----------|
+| 7 | Exotic | Tropical cocktail | Green → Teal → Cyan wave (2s loop) |
+| 8 | Mythic | Raging fire | Red → Scarlet → Gold wave (2s loop) |
+| 9 | Legendary | Shimmering gold | Gold shimmer cycle with white highlights (2s loop) |
+| 10 | Divine | Rainbow spectrum | Gold → Purple gradient cycle (2s loop) |
+
+- **Exotic** animates through green and blue tones, reminiscent of a tropical cocktail with vibrant flowing colors
+- **Mythic** animates with intense warm tones (red, scarlet, gold) like raging flames
+- **Legendary** shimmers with gold and cream tones, like precious metal reflecting light
+- **Divine** cycles through gold and purple hues, rotating smoothly across the spectrum
+
+All animated rarities feature a subtle shadow effect (2px offset, 3px blur) for depth and readability on both themes.
 
 ---
 

@@ -4,6 +4,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/models/achievement.dart';
 import '../../../core/providers/app_provider.dart';
 import '../../../core/services/icon_registry.dart';
+import '../../../widgets/achievement_gradient_text.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({super.key});
@@ -262,11 +263,12 @@ class _AchievementCard extends StatelessWidget {
     final lockedIcon =
         IconRegistry.instance.icon('Other', 'Locked achievement') ??
             Icons.lock_outline;
+    final achievementColor = unlocked ? AppColors.achievementColor(achievement.rarity) : AppColors.textMuted;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: unlocked ? const Color(0x148B5CF6) : const Color(0x058B5CF6),
+        color: unlocked ? achievementColor.withAlpha(0x24) : const Color(0x058B5CF6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: unlocked ? AppColors.border : AppColors.borderSubtle,
@@ -278,7 +280,7 @@ class _AchievementCard extends StatelessWidget {
           Icon(
             unlocked ? achievement.icon : lockedIcon,
             size: 28,
-            color: unlocked ? AppColors.violet400 : AppColors.textMuted,
+            color: achievementColor,
           ),
           const SizedBox(height: 8),
           Text(
@@ -314,84 +316,49 @@ class _RarityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (rarity == AchievementRarity.divine) {
-      return const _DivineBadge();
-    }
-    final (color, label) = switch (rarity) {
-      AchievementRarity.common => (const Color(0xFFFFD700), 'Common'),
-      AchievementRarity.uncommon => (const Color(0xFF4ADE80), 'Uncommon'),
-      AchievementRarity.rare => (const Color(0xFF60A5FA), 'Rare'),
-      AchievementRarity.superRare => (const Color(0xFF22D3EE), 'Super Rare'),
-      AchievementRarity.epic => (const Color(0xFFA78BFA), 'Epic'),
-      AchievementRarity.heroic => (const Color(0xFFE879F9), 'Heroic'),
-      AchievementRarity.exotic => (const Color(0xFFFB923C), 'Exotic'),
-      AchievementRarity.mythic => (const Color(0xFFEF4444), 'Mythic'),
-      AchievementRarity.legendary => (const Color(0xFFFBBF24), 'Legendary'),
-      AchievementRarity.divine => (const Color(0xFFFFFFFF), 'Divine'),
+    final isAnimated = AppColors.isAnimatedRarity(rarity);
+    final color = AppColors.achievementColor(rarity);
+    final gradient = AppColors.achievementGradient(rarity);
+    
+    final label = switch (rarity) {
+      AchievementRarity.common => 'Common',
+      AchievementRarity.uncommon => 'Uncommon',
+      AchievementRarity.rare => 'Rare',
+      AchievementRarity.superRare => 'Super Rare',
+      AchievementRarity.epic => 'Epic',
+      AchievementRarity.heroic => 'Heroic',
+      AchievementRarity.exotic => 'Exotic',
+      AchievementRarity.mythic => 'Mythic',
+      AchievementRarity.legendary => 'Legendary',
+      AchievementRarity.divine => 'Divine',
     };
-    return Text(label,
-        style:
-            TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w500));
-  }
-}
 
-class _DivineBadge extends StatefulWidget {
-  const _DivineBadge();
+    if (isAnimated && gradient != null) {
+      return AchievementGradientText(
+        text: label,
+        colors: gradient,
+        baseStyle: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+        ),
+      );
+    }
 
-  @override
-  State<_DivineBadge> createState() => _DivineBadgeState();
-}
-
-class _DivineBadgeState extends State<_DivineBadge>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-
-  // Cycles through the 9 tiers in order (common → legendary), then loops
-  static const _colors = [
-    Color(0xFFFFD700), // common    — yellow
-    Color(0xFF4ADE80), // uncommon  — green
-    Color(0xFF60A5FA), // rare      — blue
-    Color(0xFF22D3EE), // super rare — cyan
-    Color(0xFFA78BFA), // epic      — purple
-    Color(0xFFE879F9), // heroic    — magenta
-    Color(0xFFFB923C), // exotic    — orange
-    Color(0xFFEF4444), // mythic    — red
-    Color(0xFFFBBF24), // legendary — gold
-    Color(0xFFFFD700), // back to common (loop)
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (_, __) {
-        final t = _ctrl.value * (_colors.length - 1);
-        final i = t.floor().clamp(0, _colors.length - 2);
-        final color = Color.lerp(_colors[i], _colors[i + 1], t - i)!;
-        return Text(
-          'Divine',
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-            color: color,
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 10,
+        color: color,
+        fontWeight: FontWeight.w500,
+        shadows: [
+          Shadow(
+            offset: const Offset(2, 2),
+            blurRadius: 3,
+            color: Colors.black.withOpacity(0.3),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
+

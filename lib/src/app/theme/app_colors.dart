@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/models/achievement.dart';
 import '../../core/services/theme_registry.dart';
 
 /// App-wide colour tokens, resolved from `assets/data/theme.yml` at runtime.
@@ -42,4 +43,42 @@ class AppColors {
   // ── Borders ──────────────────────────────────────────────────────────
   static Color get border       => _r.color('Border.default', _brightness);
   static Color get borderSubtle => _r.color('Border.subtle',  _brightness);
+
+  // ── Achievements ────────────────────────────────────────────────────────
+  static Color achievementColor(AchievementRarity rarity) {
+    final key = _rarityToKey(rarity);
+    return _r.color('Achievements.$key', _brightness);
+  }
+
+  static List<Color>? achievementGradient(AchievementRarity rarity) {
+    if (!_isGradientRarity(rarity)) return null;
+    final key = _rarityToKey(rarity);
+    return _r.gradient('Achievements.$key', _brightness);
+  }
+
+  static bool isAnimatedRarity(AchievementRarity rarity) {
+    return _isGradientRarity(rarity);
+  }
+
+  static bool _isGradientRarity(AchievementRarity rarity) {
+    return rarity == AchievementRarity.exotic ||
+           rarity == AchievementRarity.mythic ||
+           rarity == AchievementRarity.legendary ||
+           rarity == AchievementRarity.divine;
+  }
+
+  static String _rarityToKey(AchievementRarity rarity) {
+    return switch (rarity) {
+      AchievementRarity.common => 'common',
+      AchievementRarity.uncommon => 'uncommon',
+      AchievementRarity.rare => 'rare',
+      AchievementRarity.superRare => 'superRare',
+      AchievementRarity.epic => 'epic',
+      AchievementRarity.heroic => 'heroic',
+      AchievementRarity.exotic => 'exotic',
+      AchievementRarity.mythic => 'mythic',
+      AchievementRarity.legendary => 'legendary',
+      AchievementRarity.divine => 'divine',
+    };
+  }
 }

@@ -136,7 +136,7 @@ void main() {
   group('Divine animation colour sequence', () {
     // Mirror of _DivineBadgeState._colors (first 9 entries before the loop-back)
     const tierColors = [
-      Color(0xFFFFD700), // common     — yellow
+      Color(0xFFF59E0B), // common     — amber
       Color(0xFF4ADE80), // uncommon   — green
       Color(0xFF60A5FA), // rare       — blue
       Color(0xFF22D3EE), // super rare — cyan
@@ -151,8 +151,8 @@ void main() {
       expect(tierColors.length, AchievementRarity.values.length - 1);
     });
 
-    test('starts with Common yellow', () {
-      expect(tierColors.first, const Color(0xFFFFD700));
+    test('starts with Common amber', () {
+      expect(tierColors.first, const Color(0xFFF59E0B));
     });
 
     test('ends with Legendary gold', () {

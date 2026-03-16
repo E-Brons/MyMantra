@@ -19,6 +19,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*a, directory=DATA_DIR, **kw)
 
     def do_GET(self):
+        # Handle favicon silently
+        if self.path == "/favicon.ico":
+            self.send_response(204)
+            self.end_headers()
+            return
         if self.path.startswith("/api/read/"):
             fname = self.path[len("/api/read/"):]
             if fname not in ALLOWED_FILES:
