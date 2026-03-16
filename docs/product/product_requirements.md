@@ -388,32 +388,81 @@ Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani P
 **Priority: P1 (Phase 3.0)**
 
 #### FR-9.1: Achievement Definitions
-| ID | Achievement | Unlock Condition | Reward |
+
+**Streak chain** (progressive — each visible only after predecessor unlocked):
+
+| ID | Achievement | Unlock Condition | Rarity |
 |----|-------------|-----------------|--------|
-| ACH-001 | First Steps | Complete 1 session | Badge icon |
-| ACH-002 | Dedicated | 3-day streak | Badge + title |
-| ACH-003 | Committed | 7-day streak | Badge + title |
-| ACH-004 | Devoted | 30-day streak | Badge + title |
-| ACH-005 | Unwavering | 60-day streak | Badge + title |
-| ACH-006 | Transcendent | 180-day streak | Badge + title |
-| ACH-007 | Enlightened | 365-day streak | Badge + title |
-| ACH-008 | Novice | 1,000 total reps | Badge |
-| ACH-009 | Adept | 5,000 total reps | Badge |
-| ACH-010 | Master | 10,000 total reps | Badge |
-| ACH-011 | Guru | 100,000 total reps | Badge + special animation |
-| ACH-012 | Early Bird | Session completed before 7 AM | Badge |
-| ACH-013 | Night Owl | Session completed after 10 PM | Badge |
-| ACH-014 | Centurion | 100 total sessions | Badge |
+| ACH-STR-001 | Thought | Complete 1 practice session | Common |
+| ACH-STR-003 | Action | Maintain a 3-day streak | Uncommon |
+| ACH-STR-007 | Routine | Maintain a 7-day streak | Rare |
+| ACH-STR-014 | Discipline | Maintain a 14-day streak | Super Rare |
+| ACH-STR-030 | Habit | Maintain a 30-day streak | Epic |
+| ACH-STR-060 | Grit | Maintain a 60-day streak | Heroic |
+| ACH-STR-090 | Resolve | Maintain a 90-day streak | Exotic |
+| ACH-STR-180 | Persistence | Maintain a 180-day streak | Mythic |
+| ACH-STR-365 | Character | Maintain a 365-day streak | Legendary |
+| ACH-STR-1095 | Destiny | Maintain a 3-year streak | Divine |
+
+**Repetitions chain** (progressive):
+
+| ID | Achievement | Unlock Condition | Rarity |
+|----|-------------|-----------------|--------|
+| ACH-REP-1K | 1K Repetitions | 1,000 total repetitions | Common |
+| ACH-REP-5K | 5K Repetitions | 5,000 total repetitions | Uncommon |
+| ACH-REP-10K | 10K Repetitions | 10,000 total repetitions | Rare |
+| ACH-REP-50K | 50K Repetitions | 50,000 total repetitions | Super Rare |
+| ACH-REP-100K | 100K Repetitions | 100,000 total repetitions | Epic |
+| ACH-REP-250K | 250K Repetitions | 250,000 total repetitions | Exotic |
+| ACH-REP-500K | 500K Repetitions | 500,000 total repetitions | Mythic |
+| ACH-REP-1M | 1M Repetitions | 1,000,000 total repetitions | Legendary |
+
+**Sessions chain** (progressive):
+
+| ID | Achievement | Unlock Condition | Rarity |
+|----|-------------|-----------------|--------|
+| ACH-SES-100 | 100 Sessions | Complete 100 sessions | Common |
+| ACH-SES-250 | 250 Sessions | Complete 250 sessions | Uncommon |
+| ACH-SES-500 | 500 Sessions | Complete 500 sessions | Rare |
+| ACH-SES-1K | 1K Sessions | Complete 1,000 sessions | Super Rare |
+| ACH-SES-2K | 2K Sessions | Complete 2,000 sessions | Epic |
+| ACH-SES-10K | 10K Sessions | Complete 10,000 sessions | Exotic |
+| ACH-SES-50K | 50K Sessions | Complete 50,000 sessions | Mythic |
+| ACH-SES-100K | 100K Sessions | Complete 100,000 sessions | Legendary |
+
+**Special** (hidden until earned):
+
+| ID | Achievement | Unlock Condition | Rarity |
+|----|-------------|-----------------|--------|
+| ACH-TIME-EARLY | Early Bird | Complete a session between 4–7 AM | Uncommon |
+| ACH-TIME-NIGHT | Night Owl | Complete a session after 10 PM | Uncommon |
+
+**Platform** (hidden until earned):
+
+| ID | Achievement | Unlock Condition | Rarity |
+|----|-------------|-----------------|--------|
+| ACH-PLT-ANDROID | Android | Practice on Android | Uncommon |
+| ACH-PLT-IOS | iOS | Practice on iOS | Uncommon |
+| ACH-PLT-WEB | Web | Practice on the web | Rare |
+| ACH-PLT-MAC | Mac | Practice on macOS | Exotic |
+| ACH-PLT-LINUX | Linux | Practice on Linux | Exotic |
+
+**Creation** (always visible):
+
+| ID | Achievement | Unlock Condition | Rarity |
+|----|-------------|-----------------|--------|
+| ACH-SPL-CREATE | Creator | Create a personal mantra | Uncommon |
 
 #### FR-9.2: Achievement UI
 - Achievement gallery screen
-- Locked achievements show silhouette + progress
+- Locked achievements (visible per FR-9.5 rules) show lock icon
+- Hidden achievements (not yet visible) are absent from the grid entirely
 - Unlocked achievements show:
   - Full-color badge/icon
   - Title
-  - Description
+  - Condition description
   - Unlock date
-  - Rarity percentage (% of users who unlocked)
+  - Rarity badge (color-coded per FR-9.6)
 - Unlock notification:
   - Popup animation
   - Sound effect (optional)
@@ -424,10 +473,34 @@ Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani P
 - Streak multiplier (e.g., 7-day streak = 1.5× points)
 - Leaderboard (optional, privacy-respecting)
 
+#### FR-9.5: Progressive Achievement Visibility
+Within each progressive chain, an achievement is only shown on the progress screen once its direct predecessor has been unlocked. The chain head (first item) is always shown (as locked until earned). Achievements with `visibility: never` are completely absent until earned. Achievements with `visibility: always` are always shown regardless of chain position.
+
 **Success Criteria:**
+- Fresh user sees only: Thought (locked), 1K Reps (locked), 100 Sessions (locked), Creator (locked)
+- After unlocking Thought: Action appears as locked
+- Hidden achievements (Early Bird etc.) appear in grid only after earned
 - 25% of users unlock 7-day streak within 3 months
 - Achievement notification drives 10%+ return sessions
 - Users report achievements as motivating (survey)
+
+#### FR-9.6: 10-Tier Rarity System
+Each achievement has a rarity tier, displayed as a colour-coded label on the achievement card.
+
+| # | Tier | Colour | Hex |
+|---|------|--------|-----|
+| 1 | Common | Yellow | #FFD700 |
+| 2 | Uncommon | Green | #4ADE80 |
+| 3 | Rare | Blue | #60A5FA |
+| 4 | Super Rare | Cyan | #22D3EE |
+| 5 | Epic | Purple | #A78BFA |
+| 6 | Heroic | Magenta | #E879F9 |
+| 7 | Exotic | Orange | #FB923C |
+| 8 | Mythic | Red | #EF4444 |
+| 9 | Legendary | Gold | #FBBF24 |
+| 10 | Divine | Animated rainbow | cycles through tiers 1–9 in order, looping |
+
+The Divine rarity label cycles smoothly through the 9 tier colours (yellow → green → blue → cyan → purple → magenta → orange → red → gold → yellow) on a 3-second loop.
 
 ---
 
@@ -972,3 +1045,4 @@ See [product/builtin_mantras_library.md](builtin_mantras_library.md) for the ful
 | 2.0 | 2025-11-24 | Product Team | Updated with cloud sync, gamification, phased approach |
 | 2.1 | 2026-03-07 | Engineering | Added UF-4 (back navigation), BUG-001/002, back-nav acceptance criteria |
 | 2.2 | 2026-03-07 | Engineering | Added FR-1.6 (mantra repetition cycle), FR-3.12 (session target selection), FR-3.13 (tap rate limiter); updated FR-1.1 and FR-5.3 |
+| 2.3 | 2026-03-16 | Engineering | Replaced FR-9.1 table with full 34-achievement catalogue (streak/reps/sessions/special/platform/creation chains); added FR-9.5 progressive visibility, FR-9.6 10-tier rarity system with animated Divine tier |

@@ -990,6 +990,58 @@ if current_streak > longest_streak:
 
 ---
 
+#### SR-9.4: Progressive Achievement Visibility
+**Priority**: High (Phase 3.0)
+**Description**: Achievements within a progressive chain are hidden from the gallery until their direct predecessor is unlocked.
+
+**Input**: User's set of unlocked achievement IDs
+
+**Process**:
+1. For each progressive chain (streak, repetitions, sessions):
+   a. Always show the chain head (index 0) — display as locked until earned
+   b. For each subsequent item at index N: show (as locked) only if item N-1 is in the unlocked set
+   c. Per-item `visible: always` overrides — always show regardless of chain position
+   d. Per-item `visible: never` overrides — hide entirely until the achievement is earned
+2. For `visibility: never` groups (special, platform): hide all items until earned; they appear in the grid upon unlock
+3. For `visibility: always` groups (creation): always show all items (locked until earned)
+
+**Output**: Filtered list of visible achievements for the progress screen grid
+
+**Acceptance Criteria**:
+- Fresh user sees exactly: Thought (locked), 1K Reps (locked), 100 Sessions (locked), Creator (locked)
+- Unlocking Thought causes Action to appear in the grid (as locked)
+- Unlocking Action causes Routine to appear (as locked)
+- Early Bird / Night Owl / Platform achievements absent from grid until earned
+- No earned achievement is ever hidden
+
+---
+
+#### SR-9.5: 10-Tier Rarity System
+**Priority**: High (Phase 3.0)
+**Description**: Each achievement carries a rarity tier, displayed as a colour-coded label on its card.
+
+**Tiers** (ascending):
+
+| # | Tier | Colour | Hex |
+|---|------|--------|-----|
+| 1 | Common | Yellow | #FFD700 |
+| 2 | Uncommon | Green | #4ADE80 |
+| 3 | Rare | Blue | #60A5FA |
+| 4 | Super Rare | Cyan | #22D3EE |
+| 5 | Epic | Purple | #A78BFA |
+| 6 | Heroic | Magenta | #E879F9 |
+| 7 | Exotic | Orange | #FB923C |
+| 8 | Mythic | Red | #EF4444 |
+| 9 | Legendary | Gold | #FBBF24 |
+| 10 | Divine | Animated | cycles tiers 1–9 in order on a 3 s loop |
+
+**Acceptance Criteria**:
+- All 9 static tiers render with the correct colour
+- Divine label animates continuously; colour interpolates smoothly through all 9 tier colours in ascending rarity order
+- Animation does not cause jank (uses AnimationController; rebuilds only the label widget)
+
+---
+
 ### 3.10 Navigation Requirements
 
 Cross-platform back navigation is a first-class requirement. Users must be able to leave
@@ -1363,3 +1415,4 @@ Mantra (1) ──< (N) Session
 |---------|------|--------|---------|
 | 0.1 | 2025-11-XX | Engineering | Initial draft |
 | 0.2 | 2026-03-07 | Engineering | Added SR-3.11, SR-NAV-1..4, BUG-001/002 documentation, updated Phase 1 acceptance criteria |
+| 0.3 | 2026-03-16 | Engineering | Added SR-9.4 progressive achievement visibility; SR-9.5 10-tier rarity system with animated Divine tier |
