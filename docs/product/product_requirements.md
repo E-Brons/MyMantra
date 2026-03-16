@@ -421,14 +421,15 @@ Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani P
 
 | ID | Achievement | Unlock Condition | Rarity |
 |----|-------------|-----------------|--------|
-| ACH-SES-100 | 100 Sessions | Complete 100 sessions | Common |
-| ACH-SES-250 | 250 Sessions | Complete 250 sessions | Uncommon |
-| ACH-SES-500 | 500 Sessions | Complete 500 sessions | Rare |
-| ACH-SES-1K | 1K Sessions | Complete 1,000 sessions | Super Rare |
-| ACH-SES-2K | 2K Sessions | Complete 2,000 sessions | Epic |
-| ACH-SES-10K | 10K Sessions | Complete 10,000 sessions | Exotic |
-| ACH-SES-50K | 50K Sessions | Complete 50,000 sessions | Mythic |
-| ACH-SES-100K | 100K Sessions | Complete 100,000 sessions | Legendary |
+| ACH-SES-010 | 10 Sessions | Complete 10 sessions | Uncommon |
+| ACH-SES-100 | 100 Sessions | Complete 100 sessions | Rare |
+| ACH-SES-250 | 250 Sessions | Complete 250 sessions | Super Rare |
+| ACH-SES-500 | 500 Sessions | Complete 500 sessions | Epic |
+| ACH-SES-1K | 1K Sessions | Complete 1,000 sessions | Heroic |
+| ACH-SES-2K | 2K Sessions | Complete 2,000 sessions | Exotic |
+| ACH-SES-10K | 10K Sessions | Complete 10,000 sessions | Mythic |
+| ACH-SES-50K | 50K Sessions | Complete 50,000 sessions | Legendary |
+| ACH-SES-100K | 100K Sessions | Complete 100,000 sessions | Divine |
 
 **Special** (hidden until earned):
 
@@ -477,7 +478,7 @@ Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani P
 Within each progressive chain, an achievement is only shown on the progress screen once its direct predecessor has been unlocked. The chain head (first item) is always shown (as locked until earned). Achievements with `visibility: never` are completely absent until earned. Achievements with `visibility: always` are always shown regardless of chain position.
 
 **Success Criteria:**
-- Fresh user sees only: Thought (locked), 1K Reps (locked), 100 Sessions (locked), Creator (locked)
+- Fresh user sees only: Thought (locked), 1K Reps (locked), 10 Sessions (locked), Creator (locked)
 - After unlocking Thought: Action appears as locked
 - Hidden achievements (Early Bird etc.) appear in grid only after earned
 - 25% of users unlock 7-day streak within 3 months

@@ -105,46 +105,51 @@ Achievements:
     sessions:
       visibility: progressive
       list:
+      - id: ACH-SES-010
+        name: 10 Sessions
+        icon: Icons.opacity
+        condition: Complete 10 practice sessions
+        rarity: uncommon
       - id: ACH-SES-100
         name: 100 Sessions
-        icon: Icons.opacity
+        icon: Icons.water_drop
         condition: Complete 100 practice sessions
-        rarity: common
+        rarity: rare
       - id: ACH-SES-250
         name: 250 Sessions
-        icon: Icons.water_drop
+        icon: Icons.waves
         condition: Complete 250 practice sessions
-        rarity: uncommon
+        rarity: superRare
       - id: ACH-SES-500
         name: 500 Sessions
-        icon: Icons.waves
+        icon: Icons.pool
         condition: Complete 500 practice sessions
-        rarity: rare
+        rarity: epic
       - id: ACH-SES-1K
         name: 1K Sessions
-        icon: Icons.pool
+        icon: Icons.tsunami
         condition: Complete 1,000 practice sessions
-        rarity: superRare
+        rarity: heroic
       - id: ACH-SES-2K
         name: 2K Sessions
-        icon: Icons.tsunami
+        icon: Icons.surfing
         condition: Complete 2,000 practice sessions
-        rarity: epic
+        rarity: exotic
       - id: ACH-SES-10K
         name: 10K Sessions
-        icon: Icons.surfing
+        icon: Icons.kayaking
         condition: Complete 10,000 practice sessions
-        rarity: exotic
+        rarity: mythic
       - id: ACH-SES-50K
         name: 50K Sessions
-        icon: Icons.kayaking
+        icon: Icons.sailing
         condition: Complete 50,000 practice sessions
-        rarity: mythic
+        rarity: legendary
       - id: ACH-SES-100K
         name: 100K Sessions
-        icon: Icons.sailing
+        icon: Icons.diamond
         condition: Complete 100,000 practice sessions
-        rarity: legendary
+        rarity: divine
     special:
       visibility: never
       list:
@@ -171,21 +176,21 @@ Achievements:
         icon: Icons.phone_iphone
         condition: Practice on iOS
         rarity: uncommon
-      - id: ACH-PLT-MAC
-        name: Mac
-        icon: Icons.laptop_mac
-        condition: Practice on macOS
-        rarity: exotic
-      - id: ACH-PLT-LINUX
-        name: Linux
-        icon: Icons.terminal
-        condition: Practice on Linux
-        rarity: exotic
       - id: ACH-PLT-WEB
         name: Web
         icon: Icons.filter_drama
         condition: Practice on the web
         rarity: rare
+      - id: ACH-PLT-MAC
+        name: Mac
+        icon: Icons.laptop_mac
+        condition: Practice on macOS
+        rarity: superRare
+      - id: ACH-PLT-LINUX
+        name: Linux
+        icon: Icons.terminal
+        condition: Practice on Linux
+        rarity: exotic
     creation:
       visibility: always
       list:

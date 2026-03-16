@@ -176,7 +176,7 @@ All analytics are **opt-in only**, disclosed upfront, collect no PII, and defaul
 
 | ID | Feature | Priority | Status | Notes |
 |----|---------|----------|--------|-------|
-| FR-9.1 | Achievement system (34 badges across 6 chains) | P1 | ✅ | Streak×10, Reps×8, Sessions×8, Special×2, Platform×5, Creator×1 |
+| FR-9.1 | Achievement system (35 badges across 6 chains) | P1 | ✅ | Streak×10, Reps×8, Sessions×9, Special×2, Platform×5, Creator×1 |
 | FR-9.2 | Achievement gallery screen | P1 | ✅ | |
 | FR-9.3 | Achievement unlock notification | P1 | ✅ | |
 | FR-9.4 | Point system with streak multiplier | P2 | 📋 | |

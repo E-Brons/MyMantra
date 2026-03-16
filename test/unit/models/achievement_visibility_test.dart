@@ -17,7 +17,7 @@ void main() {
         orderedEquals([
           'ACH-STR-001',
           'ACH-REP-1K',
-          'ACH-SES-100',
+          'ACH-SES-010',
           'ACH-SPL-CREATE',
         ]),
       );
@@ -56,7 +56,7 @@ void main() {
           .map((a) => a.id)
           .toList();
 
-      expect(sessionIds.length, 8);
+      expect(sessionIds.length, 9);
       expect(sessionIds.last, 'ACH-SES-100K');
     });
 

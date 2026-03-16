@@ -105,7 +105,7 @@ void main() {
         .where((a) => a.id.startsWith('ACH-SES-'))
         .toList();
 
-    test('has 8 session achievements', () => expect(sessions.length, 8));
+    test('has 9 session achievements', () => expect(sessions.length, 9));
 
     test('session rarities are in ascending tier order', () {
       final rarities = sessions.map((a) => a.rarity).toList();
@@ -114,6 +114,16 @@ void main() {
             reason:
                 '${rarities[i]} should be less rare than ${rarities[i + 1]}');
       }
+    });
+
+    test('10 Sessions is uncommon', () {
+      expect(sessions.firstWhere((a) => a.id == 'ACH-SES-010').rarity,
+          AchievementRarity.uncommon);
+    });
+
+    test('100K Sessions is divine', () {
+      expect(sessions.firstWhere((a) => a.id == 'ACH-SES-100K').rarity,
+          AchievementRarity.divine);
     });
   });
 

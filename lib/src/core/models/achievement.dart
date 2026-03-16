@@ -221,52 +221,58 @@ const List<Achievement> kAchievements = [
 
   // ── Session count achievements ───────────────────────────────────────────
   Achievement(
+    id: 'ACH-SES-010', title: '10 Sessions',
+    description: 'Complete 10 practice sessions.',
+    iconKey: '10 sessions', metric: AchievementMetric.sessions, value: 10,
+    rarity: AchievementRarity.uncommon,
+  ),
+  Achievement(
     id: 'ACH-SES-100', title: '100 Sessions',
     description: 'Complete 100 practice sessions.',
     iconKey: '100 sessions', metric: AchievementMetric.sessions, value: 100,
-    rarity: AchievementRarity.common,
+    rarity: AchievementRarity.rare,
   ),
   Achievement(
     id: 'ACH-SES-250', title: '250 Sessions',
     description: 'Complete 250 practice sessions.',
     iconKey: '250 sessions', metric: AchievementMetric.sessions, value: 250,
-    rarity: AchievementRarity.uncommon,
+    rarity: AchievementRarity.superRare,
   ),
   Achievement(
     id: 'ACH-SES-500', title: '500 Sessions',
     description: 'Complete 500 practice sessions.',
     iconKey: '500 sessions', metric: AchievementMetric.sessions, value: 500,
-    rarity: AchievementRarity.rare,
+    rarity: AchievementRarity.epic,
   ),
   Achievement(
     id: 'ACH-SES-1K', title: '1K Sessions',
     description: 'Complete 1,000 practice sessions.',
     iconKey: '1K sessions', metric: AchievementMetric.sessions, value: 1000,
-    rarity: AchievementRarity.superRare,
+    rarity: AchievementRarity.heroic,
   ),
   Achievement(
     id: 'ACH-SES-2K', title: '2K Sessions',
     description: 'Complete 2,000 practice sessions.',
     iconKey: '2K sessions', metric: AchievementMetric.sessions, value: 2000,
-    rarity: AchievementRarity.epic,
+    rarity: AchievementRarity.exotic,
   ),
   Achievement(
     id: 'ACH-SES-10K', title: '10K Sessions',
     description: 'Complete 10,000 practice sessions.',
     iconKey: '10K sessions', metric: AchievementMetric.sessions, value: 10000,
-    rarity: AchievementRarity.exotic,
+    rarity: AchievementRarity.mythic,
   ),
   Achievement(
     id: 'ACH-SES-50K', title: '50K Sessions',
     description: 'Complete 50,000 practice sessions.',
     iconKey: '50K sessions', metric: AchievementMetric.sessions, value: 50000,
-    rarity: AchievementRarity.mythic,
+    rarity: AchievementRarity.legendary,
   ),
   Achievement(
     id: 'ACH-SES-100K', title: '100K Sessions',
     description: 'Complete 100,000 practice sessions.',
     iconKey: '100K sessions', metric: AchievementMetric.sessions, value: 100000,
-    rarity: AchievementRarity.legendary,
+    rarity: AchievementRarity.divine,
   ),
 
   // ── Platform achievements ────────────────────────────────────────────────

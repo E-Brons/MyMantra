@@ -1008,7 +1008,7 @@ if current_streak > longest_streak:
 **Output**: Filtered list of visible achievements for the progress screen grid
 
 **Acceptance Criteria**:
-- Fresh user sees exactly: Thought (locked), 1K Reps (locked), 100 Sessions (locked), Creator (locked)
+- Fresh user sees exactly: Thought (locked), 1K Reps (locked), 10 Sessions (locked), Creator (locked)
 - Unlocking Thought causes Action to appear in the grid (as locked)
 - Unlocking Action causes Routine to appear (as locked)
 - Early Bird / Night Owl / Platform achievements absent from grid until earned
