@@ -71,7 +71,7 @@ class _AchievementGradientTextState extends State<AchievementGradientText>
                 Shadow(
                   offset: const Offset(2, 2),
                   blurRadius: 3,
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withAlpha(77),
                 ),
               ],
             ),

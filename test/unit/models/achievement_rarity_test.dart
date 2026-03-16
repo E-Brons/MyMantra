@@ -29,9 +29,8 @@ void main() {
   // ── Streak chain rarity mapping ───────────────────────────────────────────
 
   group('Streak chain — one tier per level', () {
-    final streak = kAchievements
-        .where((a) => a.id.startsWith('ACH-STR-'))
-        .toList();
+    final streak =
+        kAchievements.where((a) => a.id.startsWith('ACH-STR-')).toList();
 
     test('has 10 streak achievements', () => expect(streak.length, 10));
 
@@ -51,20 +50,17 @@ void main() {
     });
 
     test('Thought is common', () {
-      expect(
-          streak.firstWhere((a) => a.id == 'ACH-STR-001').rarity,
+      expect(streak.firstWhere((a) => a.id == 'ACH-STR-001').rarity,
           AchievementRarity.common);
     });
 
     test('Grit is heroic', () {
-      expect(
-          streak.firstWhere((a) => a.id == 'ACH-STR-060').rarity,
+      expect(streak.firstWhere((a) => a.id == 'ACH-STR-060').rarity,
           AchievementRarity.heroic);
     });
 
     test('Destiny is divine', () {
-      expect(
-          streak.firstWhere((a) => a.id == 'ACH-STR-1095').rarity,
+      expect(streak.firstWhere((a) => a.id == 'ACH-STR-1095').rarity,
           AchievementRarity.divine);
     });
   });
@@ -72,9 +68,8 @@ void main() {
   // ── Repetition chain rarity mapping ──────────────────────────────────────
 
   group('Repetition chain — ascending rarity', () {
-    final reps = kAchievements
-        .where((a) => a.id.startsWith('ACH-REP-'))
-        .toList();
+    final reps =
+        kAchievements.where((a) => a.id.startsWith('ACH-REP-')).toList();
 
     test('has 8 repetition achievements', () => expect(reps.length, 8));
 
@@ -101,9 +96,8 @@ void main() {
   // ── Session chain rarity mapping ──────────────────────────────────────────
 
   group('Session chain — ascending rarity', () {
-    final sessions = kAchievements
-        .where((a) => a.id.startsWith('ACH-SES-'))
-        .toList();
+    final sessions =
+        kAchievements.where((a) => a.id.startsWith('ACH-SES-')).toList();
 
     test('has 9 session achievements', () => expect(sessions.length, 9));
 
@@ -165,7 +159,7 @@ void main() {
 
     test('all colours are fully opaque', () {
       for (final c in tierColors) {
-        expect(c.alpha, 0xFF,
+        expect(c.a, closeTo(1.0, 1e-6),
             reason: 'colour $c must be fully opaque');
       }
     });

@@ -15,7 +15,8 @@ class ProgressScreen extends ConsumerWidget {
     final progress = state.progress;
     final reg = IconRegistry.instance;
     final progIcons = reg.section('Progress Screen');
-    final unlockedIds = progress.unlockedAchievements.map((ua) => ua.id).toSet();
+    final unlockedIds =
+        progress.unlockedAchievements.map((ua) => ua.id).toSet();
     final displayedAchievements = visibleAchievements(unlockedIds);
 
     return Scaffold(
@@ -263,12 +264,16 @@ class _AchievementCard extends StatelessWidget {
     final lockedIcon =
         IconRegistry.instance.icon('Other', 'Locked achievement') ??
             Icons.lock_outline;
-    final achievementColor = unlocked ? AppColors.achievementColor(achievement.rarity) : AppColors.textMuted;
+    final achievementColor = unlocked
+        ? AppColors.achievementColor(achievement.rarity)
+        : AppColors.textMuted;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: unlocked ? achievementColor.withAlpha(0x24) : const Color(0x058B5CF6),
+        color: unlocked
+            ? achievementColor.withAlpha(0x24)
+            : const Color(0x058B5CF6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: unlocked ? AppColors.border : AppColors.borderSubtle,
@@ -319,7 +324,7 @@ class _RarityBadge extends StatelessWidget {
     final isAnimated = AppColors.isAnimatedRarity(rarity);
     final color = AppColors.achievementColor(rarity);
     final gradient = AppColors.achievementGradient(rarity);
-    
+
     final label = switch (rarity) {
       AchievementRarity.common => 'Common',
       AchievementRarity.uncommon => 'Uncommon',
@@ -354,11 +359,10 @@ class _RarityBadge extends StatelessWidget {
           Shadow(
             offset: const Offset(2, 2),
             blurRadius: 3,
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withAlpha(77),
           ),
         ],
       ),
     );
   }
 }
-
