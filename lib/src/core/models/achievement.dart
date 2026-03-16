@@ -38,6 +38,59 @@ class Achievement {
       IconRegistry.instance.icon('Achievements', id) ??
       Icons.help_outline;
 }
+/// Returns the subset of [kAchievements] that should be displayed to the user.
+///
+/// Visibility rules per group (sourced from `icons.yml` via [IconRegistry]):
+/// - **always** — all items in the group are always shown.
+/// - **progressive** — shows only unlocked items plus the immediate next item
+///   in the chain (the "teaser"). If the user has nothing unlocked in a
+///   progressive group, only the very first item is shown (as the teaser).
+/// - **never** — items are hidden until earned; only unlocked items appear.
+///
+/// [unlockedIds] is the set of achievement [Achievement.id] values the user
+/// has already earned.
+List<Achievement> visibleAchievements(Set<String> unlockedIds) {
+  final byId = {for (final a in kAchievements) a.id: a};
+  final result = <Achievement>[];
+
+  for (final group in IconRegistry.instance.achievementGroups) {
+    switch (group.visibility) {
+      case 'always':
+        for (final entry in group.items) {
+          final a = byId[entry.id];
+          if (a != null) result.add(a);
+        }
+
+      case 'progressive':
+        bool addedTeaser = false;
+        for (int i = 0; i < group.items.length; i++) {
+          final entry = group.items[i];
+          final a = byId[entry.id];
+          if (a == null) continue;
+          if (unlockedIds.contains(entry.id)) {
+            result.add(a);
+            addedTeaser = false; // unlock clears the pending teaser flag
+          } else if (!addedTeaser) {
+            // First locked item after the unlocked run → show as teaser.
+            result.add(a);
+            addedTeaser = true;
+            break; // remaining chain items stay hidden
+          }
+        }
+
+      case 'never':
+        for (final entry in group.items) {
+          if (unlockedIds.contains(entry.id)) {
+            final a = byId[entry.id];
+            if (a != null) result.add(a);
+          }
+        }
+    }
+  }
+
+  return result;
+}
+
 
 const List<Achievement> kAchievements = [
   // ── Streak achievements ──────────────────────────────────────────────────

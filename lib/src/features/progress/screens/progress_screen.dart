@@ -14,6 +14,8 @@ class ProgressScreen extends ConsumerWidget {
     final progress = state.progress;
     final reg = IconRegistry.instance;
     final progIcons = reg.section('Progress Screen');
+    final unlockedIds = progress.unlockedAchievements.map((ua) => ua.id).toSet();
+    final displayedAchievements = visibleAchievements(unlockedIds);
 
     return Scaffold(
       body: CustomScrollView(
@@ -156,11 +158,10 @@ class ProgressScreen extends ConsumerWidget {
                 crossAxisSpacing: 10,
                 childAspectRatio: 1.0,
               ),
-              itemCount: kAchievements.length,
+              itemCount: displayedAchievements.length,
               itemBuilder: (_, i) {
-                final ach = kAchievements[i];
-                final unlocked =
-                    progress.unlockedAchievements.any((ua) => ua.id == ach.id);
+                final ach = displayedAchievements[i];
+                final unlocked = unlockedIds.contains(ach.id);
                 return _AchievementCard(achievement: ach, unlocked: unlocked);
               },
             ),
