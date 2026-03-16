@@ -5,7 +5,7 @@ description: A workflow to fetch, diagnose, and repair GitHub Actions failures u
 
 # On GitHub CI Failure
 
-Use this skill when the user asks to fix, check, or diagnose a GitHub Actions failure.
+Use this skill when the user asks to fix, check, or diagnose a failure in CI, unit test, integration test or a GitHub Actions workflow.
 
 ## 0. Pre-flight
 - Verify `gh` is authenticated: `gh auth status`

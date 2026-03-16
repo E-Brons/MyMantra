@@ -176,10 +176,12 @@ All analytics are **opt-in only**, disclosed upfront, collect no PII, and defaul
 
 | ID | Feature | Priority | Status | Notes |
 |----|---------|----------|--------|-------|
-| FR-9.1 | Achievement system (14 badges) | P1 | ✅ | Model exists; UI partial |
+| FR-9.1 | Achievement system (35 badges across 6 chains) | P1 | ✅ | Streak×10, Reps×8, Sessions×9, Special×2, Platform×5, Creator×1 |
 | FR-9.2 | Achievement gallery screen | P1 | ✅ | |
 | FR-9.3 | Achievement unlock notification | P1 | ✅ | |
 | FR-9.4 | Point system with streak multiplier | P2 | 📋 | |
+| FR-9.5 | Progressive achievement visibility | P1 | 🚧 | Chain heads always shown (locked); successors hidden until predecessor unlocked; `never` items hidden until earned |
+| FR-9.6 | 10-tier rarity system with animated Divine | P1 | 🚧 | Common→Uncommon→Rare→Super Rare→Epic→Heroic→Exotic→Mythic→Legendary→Divine (rainbow) |
 | FR-10.1 | Shareable achievement images | P2 | 📋 | 1080×1920, no PII |
 | FR-10.2 | Milestone celebrations (confetti/haptics) | P2 | 📋 | 30-day, 10K reps, 100 sessions |
 
@@ -268,6 +270,7 @@ integration framework.
 | 0.6 | 2026-03-07 | Engineering | Step 4 complete: FR-3.12 ✅ — session target sheet (Your default / Mantra's target / Custom) with daily/weekly accumulated-reps support; pumpSession helper updated; 5 new widget tests |
 | 0.7 | 2026-03-07 | Engineering | Step 5 complete: FR-5.6 ✅ FR-5.7 🚧 — Default cycle dropdown + Limit tap rate toggle in Settings Practice section; 3 widget tests; enforcement pending (step 6) |
 | 0.8 | 2026-03-07 | Engineering | Step 6 complete: FR-3.13 ✅ FR-5.7 ✅ — tap rate limiter enforced in SessionScreen; _lastTapTime guard; 2 widget tests |
+| 0.9 | 2026-03-16 | Engineering | FR-9.1 expanded to 34 achievements; FR-9.5 progressive visibility 🚧; FR-9.6 10-tier rarity 🚧 |
 
 # 🐛 BUG: Emoji Rendering on iOS
 | ID | Bug | Priority | Status | Notes |

@@ -70,7 +70,14 @@ h3{color:var(--txt-sec);margin:1.2rem 0 .5rem;font-size:.85rem;font-weight:600;t
 .icon-item-name{font-family:monospace;font-size:.65rem;color:var(--txt-mut);white-space:nowrap}
 
 /* ── Color swatches ─────────────────────────── */
-.color-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:.5rem}
+.color-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:.5rem;align-items:center}
+.color-row span[style*="color"]{line-height:1.8;padding:.4rem .6rem}
+.achievement-gradient{animation:gradient-wave 2s ease-in-out infinite}
+@keyframes gradient-wave{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
 .swatch{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
 .swatch:hover .swatch-box{border-color:var(--v400)}
 .swatch-box{width:64px;height:44px;border-radius:8px;border:2px solid var(--bdr-sub);transition:border-color .15s}
@@ -277,6 +284,7 @@ var colorPalettes = {
     ["Text", {primary:"#EDE9FE",secondary:"#8B83A3",muted:"#5C5478"}],
     ["Accent", {orange:"#F97316",emerald:"#10B981",red:"#EF4444",amber:"#F59E0B"}],
     ["Border", {"default":"#A78BFA33","subtle":"#A78BFA1F"}],
+    ["Achievements", {common:"#8B83A3",uncommon:"#34D399",rare:"#22D3EE",superRare:"#C084FC",epic:"#F59E0B",heroic:"#EF4444",exotic:["#BFFF00","#00FF88","#00D9FF","#00BFFF","#BFFF00"],mythic:["#B22222","#FF6347","#FFD700","#FF6347","#B22222"],legendary:["#FFD700","#FFFACD","#FFED4E","#FFC700","#FFD700"],divine:["#FFD700","#FFE135","#C084FC","#A78BFA","#FFD700"]}],
   ],
   light: [
     ["Brand", {primary:"#6D28D9",onPrimary:"#FFFFFF"}],
@@ -284,6 +292,7 @@ var colorPalettes = {
     ["Text", {primary:"#1A1535",secondary:"#4A4458",muted:"#767185"}],
     ["Accent", {orange:"#F97316",emerald:"#10B981",red:"#EF4444",amber:"#F59E0B"}],
     ["Border", {"default":"#6D28D933","subtle":"#6D28D91F"}],
+    ["Achievements", {common:"#767185",uncommon:"#047857",rare:"#0284C7",superRare:"#7C3AED",epic:"#D97706",heroic:"#DC2626",exotic:["#228B22","#20B2AA","#00CED1","#008B8B","#228B22"],mythic:["#B8500D","#D2691E","#DAA520","#8B4513","#B8500D"],legendary:["#D4AF37","#FFD700","#FFA500","#FF8C00","#D4AF37"],divine:["#DAA520","#D97706","#047857","#0284C7","#7C3AED","#DAA520"]}],
   ]
 };
 var editingColor = null; // {theme, groupIdx, colorName}
@@ -339,15 +348,66 @@ function buildThemeToggle() {
 function parseIconsYml(raw) {
   var sections = [];
   var cur = null;
+  var achievementCategory = null;
+  var currentItem = null;
+  
   raw.split("\n").forEach(function(line) {
     var trimmed = line.trim();
+    var indent = line.match(/^(\s*)/)[1].length;
+    
     if (!trimmed) return;
-    if (line[0] !== " " && trimmed.endsWith(":") && trimmed.indexOf("Icons.") === -1) {
+    
+    // Top-level section (0 indent)
+    if (indent === 0 && trimmed.endsWith(":") && trimmed.indexOf("Icons.") === -1) {
       cur = { title: trimmed.slice(0, -1), items: [] };
       sections.push(cur);
+      achievementCategory = null;
+      currentItem = null;
       return;
     }
-    if (cur && trimmed.indexOf(":") !== -1) {
+    
+    // Handle Achievements nested structure (special case)
+    if (cur && cur.title === "Achievements") {
+      // Achievement subcategory (4 indent, no dash)
+      if (indent === 4 && !trimmed.startsWith("- ") && trimmed.endsWith(":")) {
+        achievementCategory = trimmed.slice(0, -1);
+        currentItem = null;
+        return;
+      }
+      
+      // List item start (6 indent, starts with dash)
+      if (indent === 6 && trimmed.startsWith("- ")) {
+        currentItem = {};
+        return;
+      }
+      
+      // Extract properties from list items (8 indent)
+      if (indent === 8 && currentItem !== null && trimmed.indexOf(":") !== -1) {
+        var colonIdx = trimmed.indexOf(":");
+        var key = trimmed.slice(0, colonIdx).trim();
+        var val = trimmed.slice(colonIdx + 1).trim();
+        
+        if (key === "name") currentItem.name = val;
+        if (key === "icon") currentItem.icon = val.replace(/^Icons\./, "");
+        if (key === "rarity") currentItem.rarity = val;
+        if (key === "id") currentItem.id = val;
+        
+        // When we have all the data we need, add the item
+        if (currentItem.icon && currentItem.name && currentItem.rarity) {
+          cur.items.push({ 
+            context: currentItem.name,  // Just the name, no prefix/suffix
+            icon: currentItem.icon,
+            rarity: currentItem.rarity,
+            achievementName: currentItem.name
+          });
+          currentItem = {};  // Reset for next item
+        }
+      }
+      return;
+    }
+    
+    // Standard key:value parsing for non-Achievement sections (both 2 and 4 space indent)
+    if (cur && (indent === 2 || indent === 4) && trimmed.indexOf(":") !== -1 && !trimmed.startsWith("- ")) {
       var idx = trimmed.indexOf(":");
       var context = trimmed.slice(0, idx).trim();
       var val = trimmed.slice(idx + 1).trim();
@@ -450,16 +510,31 @@ function renderIcons() {
     var grid = el("div", {className:"icon-grid"});
     sec.items.forEach(function(item, ii) {
       var key = si + "-" + ii;
+      
+      // Determine rarity color if this is an achievement
+      var contextColor = null;
+      var contextStyle = "font-size:.78rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+      if (sec.title === "Achievements" && item.rarity) {
+        var isDark = activeTheme === "dark";
+        contextColor = getRarityColor(item.rarity, isDark);
+        if (contextColor) {
+          contextStyle += ";color:" + contextColor + ";font-weight:600";
+        }
+      }
+      
+      var contextEl = el("span", {className:"icon-item-ctx", style: contextStyle}, [item.context]);
+      
       var card = el("div", {
         className: "icon-item",
         onclick: function() { openSidebar(si, ii); }
       }, [
         matIcon(item.icon, 22),
         el("div", {className:"icon-item-info"}, [
-          el("span", {className:"icon-item-ctx"}, [item.context]),
+          contextEl,
           el("span", {className:"icon-item-name"}, ["Icons." + item.icon]),
         ])
       ]);
+      
       if (sidebarKey === key) {
         card.style.borderColor = "var(--v500)";
         card.style.background = "var(--bg-surface)";
@@ -468,6 +543,25 @@ function renderIcons() {
     });
     panel.appendChild(grid);
   });
+}
+
+function getRarityColor(rarity, isDark) {
+  var colors = isDark ? {
+    common: "#8B83A3",
+    uncommon: "#34D399",
+    rare: "#22D3EE",
+    superRare: "#C084FC",
+    epic: "#F59E0B",
+    heroic: "#EF4444"
+  } : {
+    common: "#767185",
+    uncommon: "#047857",
+    rare: "#0284C7",
+    superRare: "#7C3AED",
+    epic: "#D97706",
+    heroic: "#DC2626"
+  };
+  return colors[rarity] || null;
 }
 
 /* ================================================================
@@ -488,29 +582,62 @@ function renderColors() {
 function renderColorGroup(panel, groupName, colors, isDark, groupIdx) {
   panel.appendChild(el("h3", {}, [groupName]));
   var row = el("div", {className:"color-row"});
-  Object.keys(colors).forEach(function(name) {
-    var hex = colors[name];
-    var box = el("div", {className:"swatch-box"});
-    box.style.background = hex;
-    if (!isDark && (hex === "#FFFFFF" || hex === "#FAFAFF" || hex === "#F3F0FF")) {
-      box.style.borderColor = "#ccc";
-    }
-    if (isDark && groupName === "Background") {
-      box.style.borderColor = "rgba(255,255,255,.15)";
-    }
-    if (editingColor && editingColor.theme === activeTheme && editingColor.groupIdx === groupIdx && editingColor.colorName === name) {
-      box.style.borderColor = "var(--v400)";
-      box.style.borderWidth = "3px";
-    }
-    var swatch = el("div", {className:"swatch", onclick: function() {
-      openColorSidebar(activeTheme, groupIdx, name);
-    }}, [
-      box,
-      el("span", {className:"swatch-label"}, [name]),
-      el("span", {className:"swatch-hex"}, [hex]),
-    ]);
-    row.appendChild(swatch);
-  });
+  
+  // Special rendering for Achievements — show as colored text
+  if (groupName === "Achievements") {
+    // Determine shadow color based on theme
+    var shadowColor = isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)";
+    var shadowStyle = "text-shadow:2px 2px 3px " + shadowColor;
+    
+    Object.keys(colors).forEach(function(name) {
+      var value = colors[name];
+      var label = el("span", {}, [name]);
+      
+      // Handle arrays (gradient colors with animation)
+      if (Array.isArray(value)) {
+        var gradientColors = value.join(", ");
+        var backgroundSize = (value.length * 100) + "% 100%";
+        label.className = "achievement-gradient";
+        // Don't apply text-shadow to gradient text (it won't be visible with transparent text)
+        label.style.cssText = "font-size:1rem;font-weight:600;background:linear-gradient(90deg," + gradientColors + ");background-size:" + backgroundSize + ";background-position:0% 50%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;min-width:80px;filter:drop-shadow(2px 2px 3px " + shadowColor + ");cursor:not-allowed;";
+      } else {
+        // Static colors get text-shadow and are clickable
+        label.style.cssText = "font-size:1rem;font-weight:600;color:" + value + ";" + shadowStyle + "cursor:pointer;";
+        // Add click handler for static colors only
+        label.onclick = function(e) {
+          e.stopPropagation();
+          openColorSidebar(activeTheme, groupIdx, name);
+        };
+      }
+      
+      row.appendChild(label);
+      row.appendChild(document.createTextNode("  "));
+    });
+  } else {
+    Object.keys(colors).forEach(function(name) {
+      var hex = colors[name];
+      var box = el("div", {className:"swatch-box"});
+      box.style.background = hex;
+      if (!isDark && (hex === "#FFFFFF" || hex === "#FAFAFF" || hex === "#F3F0FF")) {
+        box.style.borderColor = "#ccc";
+      }
+      if (isDark && groupName === "Background") {
+        box.style.borderColor = "rgba(255,255,255,.15)";
+      }
+      if (editingColor && editingColor.theme === activeTheme && editingColor.groupIdx === groupIdx && editingColor.colorName === name) {
+        box.style.borderColor = "var(--v400)";
+        box.style.borderWidth = "3px";
+      }
+      var swatch = el("div", {className:"swatch", onclick: function() {
+        openColorSidebar(activeTheme, groupIdx, name);
+      }}, [
+        box,
+        el("span", {className:"swatch-label"}, [name]),
+        el("span", {className:"swatch-hex"}, [hex]),
+      ]);
+      row.appendChild(swatch);
+    });
+  }
   panel.appendChild(row);
 }
 

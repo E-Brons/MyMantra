@@ -5,41 +5,200 @@ Progress Screen:
     Repetitions: Icons.all_inclusive
     Practicing since: Icons.event
 
-Achievement Badges:
-    Thought (1 session): Icons.eco
-    Action (3-day streak): Icons.grass
-    Routine (7-day streak): Icons.spa
-    Discipline (14-day streak): Icons.local_florist
-    Habit (30-day streak): Icons.park
-    Grit (60-day streak): Icons.forest
-    Resolve (90 days): Icons.loyalty
-    Persistence (180 days): Icons.workspace_premium
-    Character (365 days): Icons.military_tech
-    Destiny (3 Years): Icons.emoji_events
-    1K Repititions: Icons.flare
-    5K Repititions: Icons.star_border
-    10K Repititions: Icons.star_rate
-    50K Repititions: Icons.stars
-    100K Repititions: Icons.light_mode
-    250K Repititions: Icons.brightness_5
-    500K Repititions: Icons.brightness_7
-    1M Repititions: Icons.verified
-    Early Bird (4am-7am): Icons.wb_twilight
-    Night Owl (after 10pm): Icons.nights_stay
-    100 sessions: Icons.opacity
-    250 sessions: Icons.water_drop
-    500 sessions: Icons.waves
-    1K sessions: Icons.pool
-    2K sessions: Icons.tsunami
-    10K sessions: Icons.surfing
-    50K sessions: Icons.kayaking
-    100K sessions: Icons.sailing
-    Android: Icons.android
-    iOS: Icons.phone_iphone
-    Mac: Icons.laptop_mac
-    Linux: Icons.terminal
-    Web: Icons.filter_drama
-    Creator: Icons.lightbulb
+Achievements:
+    streak:
+      visibility: progressive
+      list:
+      - id: ACH-STR-001
+        name: Thought
+        icon: Icons.eco
+        condition: Complete your very first practice session
+        rarity: common
+      - id: ACH-STR-003
+        name: Action
+        icon: Icons.grass
+        condition: Maintain a 3-day practice streak
+        rarity: uncommon
+      - id: ACH-STR-007
+        name: Routine
+        icon: Icons.spa
+        condition: Maintain a 7-day practice streak
+        rarity: rare
+      - id: ACH-STR-014
+        name: Discipline
+        icon: Icons.local_florist
+        condition: Maintain a 14-day practice streak
+        rarity: superRare
+      - id: ACH-STR-030
+        name: Habit
+        icon: Icons.park
+        condition: Maintain a 30-day practice streak
+        rarity: epic
+      - id: ACH-STR-060
+        name: Grit
+        icon: Icons.forest
+        condition: Maintain a 60-day practice streak
+        rarity: heroic
+      - id: ACH-STR-090
+        name: Resolve
+        icon: Icons.loyalty
+        condition: Maintain a 90-day practice streak
+        rarity: exotic
+      - id: ACH-STR-180
+        name: Persistence
+        icon: Icons.workspace_premium
+        condition: Maintain a 180-day practice streak
+        rarity: mythic
+      - id: ACH-STR-365
+        name: Character
+        icon: Icons.military_tech
+        condition: Maintain a 365-day practice streak
+        rarity: legendary
+      - id: ACH-STR-1095
+        name: Destiny
+        icon: Icons.emoji_events
+        condition: Maintain a 3-year practice streak
+        rarity: divine
+    repetitions:
+      visibility: progressive
+      list:
+      - id: ACH-REP-1K
+        name: 1K Repetitions
+        icon: Icons.flare
+        condition: Complete 1,000 total repetitions
+        rarity: common
+      - id: ACH-REP-5K
+        name: 5K Repetitions
+        icon: Icons.star_border
+        condition: Complete 5,000 total repetitions
+        rarity: uncommon
+      - id: ACH-REP-10K
+        name: 10K Repetitions
+        icon: Icons.star_rate
+        condition: Complete 10,000 total repetitions
+        rarity: rare
+      - id: ACH-REP-50K
+        name: 50K Repetitions
+        icon: Icons.stars
+        condition: Complete 50,000 total repetitions
+        rarity: superRare
+      - id: ACH-REP-100K
+        name: 100K Repetitions
+        icon: Icons.light_mode
+        condition: Complete 100,000 total repetitions
+        rarity: epic
+      - id: ACH-REP-250K
+        name: 250K Repetitions
+        icon: Icons.brightness_5
+        condition: Complete 250,000 total repetitions
+        rarity: exotic
+      - id: ACH-REP-500K
+        name: 500K Repetitions
+        icon: Icons.brightness_7
+        condition: Complete 500,000 total repetitions
+        rarity: mythic
+      - id: ACH-REP-1M
+        name: 1M Repetitions
+        icon: Icons.verified
+        condition: Complete 1,000,000 total repetitions
+        rarity: legendary
+    sessions:
+      visibility: progressive
+      list:
+      - id: ACH-SES-010
+        name: 10 Sessions
+        icon: Icons.opacity
+        condition: Complete 10 practice sessions
+        rarity: uncommon
+      - id: ACH-SES-100
+        name: 100 Sessions
+        icon: Icons.water_drop
+        condition: Complete 100 practice sessions
+        rarity: rare
+      - id: ACH-SES-250
+        name: 250 Sessions
+        icon: Icons.waves
+        condition: Complete 250 practice sessions
+        rarity: superRare
+      - id: ACH-SES-500
+        name: 500 Sessions
+        icon: Icons.pool
+        condition: Complete 500 practice sessions
+        rarity: epic
+      - id: ACH-SES-1K
+        name: 1K Sessions
+        icon: Icons.tsunami
+        condition: Complete 1,000 practice sessions
+        rarity: heroic
+      - id: ACH-SES-2K
+        name: 2K Sessions
+        icon: Icons.surfing
+        condition: Complete 2,000 practice sessions
+        rarity: exotic
+      - id: ACH-SES-10K
+        name: 10K Sessions
+        icon: Icons.kayaking
+        condition: Complete 10,000 practice sessions
+        rarity: mythic
+      - id: ACH-SES-50K
+        name: 50K Sessions
+        icon: Icons.sailing
+        condition: Complete 50,000 practice sessions
+        rarity: legendary
+      - id: ACH-SES-100K
+        name: 100K Sessions
+        icon: Icons.diamond
+        condition: Complete 100,000 practice sessions
+        rarity: divine
+    special:
+      visibility: never
+      list:
+      - id: ACH-TIME-EARLY
+        name: Early Bird
+        icon: Icons.wb_twilight
+        condition: Complete a session between 4 AM and 7 AM
+        rarity: uncommon
+      - id: ACH-TIME-NIGHT
+        name: Night Owl
+        icon: Icons.nights_stay
+        condition: Complete a session after 10 PM
+        rarity: uncommon
+    platform:
+      visibility: never
+      list:
+      - id: ACH-PLT-ANDROID
+        name: Android
+        icon: Icons.android
+        condition: Practice on Android
+        rarity: uncommon
+      - id: ACH-PLT-IOS
+        name: iOS
+        icon: Icons.phone_iphone
+        condition: Practice on iOS
+        rarity: uncommon
+      - id: ACH-PLT-WEB
+        name: Web
+        icon: Icons.filter_drama
+        condition: Practice on the web
+        rarity: rare
+      - id: ACH-PLT-MAC
+        name: Mac
+        icon: Icons.laptop_mac
+        condition: Practice on macOS
+        rarity: superRare
+      - id: ACH-PLT-LINUX
+        name: Linux
+        icon: Icons.terminal
+        condition: Practice on Linux
+        rarity: exotic
+    creation:
+      visibility: always
+      list:
+      - id: ACH-SPL-CREATE
+        name: Creator
+        icon: Icons.lightbulb
+        condition: Create your own personal mantra
+        rarity: uncommon
 
 Other:
     Locked achievement: Icons.lock_outline

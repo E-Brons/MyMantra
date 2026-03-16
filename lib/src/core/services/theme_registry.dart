@@ -16,6 +16,8 @@ class ThemeRegistry {
   // ── Parsed colour maps ────────────────────────────────────────────────
   late final Map<String, Color> _darkColors;
   late final Map<String, Color> _lightColors;
+  late final Map<String, List<Color>> _darkGradients;
+  late final Map<String, List<Color>> _lightGradients;
 
   Future<void> init() async {
     if (_ready) return;
@@ -24,6 +26,8 @@ class ThemeRegistry {
 
     _darkColors = _flattenSection(doc['Dark'] as YamlMap?);
     _lightColors = _flattenSection(doc['Light'] as YamlMap?);
+    _darkGradients = _flattenGradients(doc['Dark'] as YamlMap?);
+    _lightGradients = _flattenGradients(doc['Light'] as YamlMap?);
     _ready = true;
   }
 
@@ -41,6 +45,16 @@ class ThemeRegistry {
   Color dark(String key) => color(key, Brightness.dark);
   Color light(String key) => color(key, Brightness.light);
 
+  /// Retrieve a gradient (color array) by dot-path for the given brightness.
+  List<Color>? gradient(String key, Brightness brightness) {
+    if (!_ready) return null;
+    final map = brightness == Brightness.dark ? _darkGradients : _lightGradients;
+    return map[key] ?? _darkGradients[key];
+  }
+
+  List<Color>? darkGradient(String key) => gradient(key, Brightness.dark);
+  List<Color>? lightGradient(String key) => gradient(key, Brightness.light);
+
   // ── Internal helpers ──────────────────────────────────────────────────
 
   /// Walk a YamlMap tree like { Brand: { violet300: "#C4B5FD" } } and produce
@@ -56,11 +70,41 @@ class ThemeRegistry {
       if (value is YamlMap) {
         for (final kv in value.entries) {
           final leafKey = kv.key.toString();
-          final color = _parseColor(kv.value.toString());
-          if (color != null) {
-            result['$groupName.$leafKey'] = color;
-            // Also store by short key (last wins if duplicated across groups).
-            result[leafKey] = color;
+          // Skip arrays (handled by _flattenGradients)
+          if (kv.value is! YamlList) {
+            final color = _parseColor(kv.value.toString());
+            if (color != null) {
+              result['$groupName.$leafKey'] = color;
+              // Also store by short key (last wins if duplicated across groups).
+              result[leafKey] = color;
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /// Extract color arrays (gradients) from YamlMap.
+  static Map<String, List<Color>> _flattenGradients(YamlMap? section) {
+    final result = <String, List<Color>>{};
+    if (section == null) return result;
+    for (final topEntry in section.entries) {
+      final groupName = topEntry.key.toString();
+      final value = topEntry.value;
+      if (value is YamlMap) {
+        for (final kv in value.entries) {
+          final leafKey = kv.key.toString();
+          if (kv.value is YamlList) {
+            final colors = <Color>[];
+            for (final item in (kv.value as YamlList)) {
+              final color = _parseColor(item.toString());
+              if (color != null) colors.add(color);
+            }
+            if (colors.isNotEmpty) {
+              result['$groupName.$leafKey'] = colors;
+              result[leafKey] = colors;
+            }
           }
         }
       }
