@@ -348,59 +348,66 @@ function buildThemeToggle() {
 function parseIconsYml(raw) {
   var sections = [];
   var cur = null;
-  var achievementCategory = null;  // Track achievement subcategories
-  var inAchievementList = false;
-  var listIndex = 0;
+  var achievementCategory = null;
+  var currentItem = null;
   
   raw.split("\n").forEach(function(line) {
     var trimmed = line.trim();
+    var indent = line.match(/^(\s*)/)[1].length;
+    
     if (!trimmed) return;
     
-    // Top-level section (no indentation)
-    if (line[0] !== " " && trimmed.endsWith(":") && trimmed.indexOf("Icons.") === -1) {
+    // Top-level section (0 indent)
+    if (indent === 0 && trimmed.endsWith(":") && trimmed.indexOf("Icons.") === -1) {
       cur = { title: trimmed.slice(0, -1), items: [] };
       sections.push(cur);
       achievementCategory = null;
-      inAchievementList = false;
+      currentItem = null;
       return;
     }
     
-    // Handle Achievements nested structure
+    // Handle Achievements nested structure (special case)
     if (cur && cur.title === "Achievements") {
-      // Achievement subcategory (2-space indent, ends with colon)
-      if (line.match(/^  [^ ]/) && trimmed.endsWith(":") && !trimmed.startsWith("- ")) {
+      // Achievement subcategory (4 indent, no dash)
+      if (indent === 4 && !trimmed.startsWith("- ") && trimmed.endsWith(":")) {
         achievementCategory = trimmed.slice(0, -1);
-        inAchievementList = false;
-        listIndex = 0;
+        currentItem = null;
         return;
       }
       
-      // List items under achievements (4-space indent, starts with -)
-      if (line.match(/^    - /) && achievementCategory) {
-        inAchievementList = true;
+      // List item start (6 indent, starts with dash)
+      if (indent === 6 && trimmed.startsWith("- ")) {
+        currentItem = {};
         return;
       }
       
-      // Extract icon from list item (6+ space indent, "icon:" line)
-      if (inAchievementList && line.match(/^      icon:\s/) && achievementCategory) {
-        var matches = trimmed.match(/icon:\s*Icons\.(\S+)/);
-        if (matches) {
-          var iconName = matches[1];
-          var context = achievementCategory + " [" + (++listIndex) + "]";
-          cur.items.push({ context: context, icon: iconName });
+      // Extract properties from list items (8 indent)
+      if (indent === 8 && currentItem !== null && trimmed.indexOf(":") !== -1) {
+        var colonIdx = trimmed.indexOf(":");
+        var key = trimmed.slice(0, colonIdx).trim();
+        var val = trimmed.slice(colonIdx + 1).trim();
+        
+        if (key === "name") currentItem.name = val;
+        if (key === "icon") currentItem.icon = val.replace(/^Icons\./, "");
+        if (key === "rarity") currentItem.rarity = val;
+        if (key === "id") currentItem.id = val;
+        
+        // When we have all the data we need, add the item
+        if (currentItem.icon && currentItem.name && currentItem.rarity) {
+          cur.items.push({ 
+            context: currentItem.name,  // Just the name, no prefix/suffix
+            icon: currentItem.icon,
+            rarity: currentItem.rarity,
+            achievementName: currentItem.name
+          });
+          currentItem = {};  // Reset for next item
         }
-        return;
-      }
-      
-      // Reset if we hit something unexpected at wrong indent level
-      if (line.match(/^  [^ ]/) && !trimmed.endsWith(":")) {
-        inAchievementList = false;
       }
       return;
     }
     
-    // Standard key:value parsing for non-Achievement sections
-    if (cur && trimmed.indexOf(":") !== -1 && !trimmed.startsWith("- ")) {
+    // Standard key:value parsing for non-Achievement sections (both 2 and 4 space indent)
+    if (cur && (indent === 2 || indent === 4) && trimmed.indexOf(":") !== -1 && !trimmed.startsWith("- ")) {
       var idx = trimmed.indexOf(":");
       var context = trimmed.slice(0, idx).trim();
       var val = trimmed.slice(idx + 1).trim();
@@ -503,16 +510,31 @@ function renderIcons() {
     var grid = el("div", {className:"icon-grid"});
     sec.items.forEach(function(item, ii) {
       var key = si + "-" + ii;
+      
+      // Determine rarity color if this is an achievement
+      var contextColor = null;
+      var contextStyle = "font-size:.78rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+      if (sec.title === "Achievements" && item.rarity) {
+        var isDark = activeTheme === "dark";
+        contextColor = getRarityColor(item.rarity, isDark);
+        if (contextColor) {
+          contextStyle += ";color:" + contextColor + ";font-weight:600";
+        }
+      }
+      
+      var contextEl = el("span", {className:"icon-item-ctx", style: contextStyle}, [item.context]);
+      
       var card = el("div", {
         className: "icon-item",
         onclick: function() { openSidebar(si, ii); }
       }, [
         matIcon(item.icon, 22),
         el("div", {className:"icon-item-info"}, [
-          el("span", {className:"icon-item-ctx"}, [item.context]),
+          contextEl,
           el("span", {className:"icon-item-name"}, ["Icons." + item.icon]),
         ])
       ]);
+      
       if (sidebarKey === key) {
         card.style.borderColor = "var(--v500)";
         card.style.background = "var(--bg-surface)";
@@ -521,6 +543,25 @@ function renderIcons() {
     });
     panel.appendChild(grid);
   });
+}
+
+function getRarityColor(rarity, isDark) {
+  var colors = isDark ? {
+    common: "#8B83A3",
+    uncommon: "#34D399",
+    rare: "#22D3EE",
+    superRare: "#C084FC",
+    epic: "#F59E0B",
+    heroic: "#EF4444"
+  } : {
+    common: "#767185",
+    uncommon: "#047857",
+    rare: "#0284C7",
+    superRare: "#7C3AED",
+    epic: "#D97706",
+    heroic: "#DC2626"
+  };
+  return colors[rarity] || null;
 }
 
 /* ================================================================
