@@ -33,7 +33,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
             children: [
               Text('Mantra not found.', style: TextStyle(color: AppColors.textSecondary)),
               const SizedBox(height: 12),
-              TextButton(onPressed: () => context.go('/'), child: const Text('Go home')),
+              TextButton(onPressed: () => context.go('/library'), child: const Text('Go home')),
             ],
           ),
         ),
@@ -67,7 +67,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                     ),
                     child: Icon(Icons.arrow_back, size: 18, color: AppColors.textPrimary),
                   ),
-                  onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+                  onPressed: () => context.canPop() ? context.pop() : context.go('/library'),
                 ),
                 title: Text(
                   mantra.title,
@@ -288,7 +288,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
               title: mantra.title,
               onConfirm: () {
                 ref.read(appProvider.notifier).deleteMantra(mantra.id);
-                context.go('/');
+                context.go('/library');
               },
               onCancel: () => setState(() => _showDelete = false),
             ),

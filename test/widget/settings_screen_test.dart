@@ -17,7 +17,8 @@ void main() {
       expect(find.text('Session'), findsWidgets);
     });
 
-    testWidgets('Limit tap rate toggle is visible and on by default', (tester) async {
+    testWidgets('Limit tap rate toggle is visible and on by default',
+        (tester) async {
       await pumpApp(tester);
       await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
@@ -39,8 +40,9 @@ void main() {
         tester.element(find.byType(MaterialApp)),
       );
 
-      // Switches in order: haptic (0), limitClickRate (1), notifications (2).
-      await tester.tap(find.byType(Switch).at(1));
+      // On non-mobile test runners the haptic switch is hidden.
+      // Visible switches in order: limitClickRate (0), notifications (1).
+      await tester.tap(find.byType(Switch).at(0));
       await tester.pumpAndSettle();
 
       expect(container.read(appProvider).settings.limitClickRate, isFalse);

@@ -1,39 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mymantra/src/app/router.dart';
 import 'helpers.dart';
 
 void main() {
-  group('HomeScreen', () {
-    testWidgets('seed mantras are visible on first launch', (tester) async {
+  group('MyPracticeScreen', () {
+    testWidgets('shows empty state when no mantras have been added',
+        (tester) async {
       await pumpApp(tester);
+      expect(find.text('No mantras to practice yet'), findsOneWidget);
+    });
+
+    testWidgets('seeded mantra appears in the practice list', (tester) async {
+      await pumpApp(tester);
+      seedMantra(tester, title: 'Om Mani Padme Hum', text: 'ༀ');
+      await tester.pumpAndSettle();
       expect(find.text('Om Mani Padme Hum'), findsOneWidget);
-      expect(find.text('Abhyāsa-Vairāgya (Yoga Sutra I.12)'), findsOneWidget);
     });
 
-    testWidgets('search field filters the mantra list', (tester) async {
+    testWidgets('tapping a mantra card starts a session', (tester) async {
       await pumpApp(tester);
-      await tester.enterText(find.byType(TextField), 'Yoga');
+      seedMantra(tester, title: 'Om Mani Padme Hum', text: 'ༀ');
       await tester.pumpAndSettle();
-      expect(find.text('Abhyāsa-Vairāgya (Yoga Sutra I.12)'), findsOneWidget);
-      expect(find.text('Om Mani Padme Hum'), findsNothing);
-    });
-
-    testWidgets('search with no match shows empty-state message', (tester) async {
-      await pumpApp(tester);
-      await tester.enterText(find.byType(TextField), 'zzznomatch');
-      await tester.pumpAndSettle();
-      expect(find.textContaining('No mantras found'), findsOneWidget);
-    });
-
-    testWidgets('tapping a mantra card navigates to MantraDetailScreen', (tester) async {
-      await pumpApp(tester);
       await tester.tap(find.text('Om Mani Padme Hum'));
       await tester.pumpAndSettle();
-      expect(find.text('Start Session'), findsOneWidget);
+      // SessionScreen shows the repetition counter
+      expect(find.text('0'), findsOneWidget);
     });
 
-    testWidgets('FAB navigates to CreateMantraScreen', (tester) async {
+    testWidgets('settings icon opens SettingsScreen', (tester) async {
       await pumpApp(tester);
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.pumpAndSettle();
+      expect(find.text('Settings'), findsOneWidget);
+    });
+  });
+
+  group('LibraryScreen', () {
+    testWidgets('+ button navigates to CreateMantraScreen', (tester) async {
+      await pumpApp(tester);
+      appRouter.go('/library');
+      await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(find.text('New Mantra'), findsOneWidget);
