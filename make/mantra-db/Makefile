@@ -23,6 +23,7 @@ ROOT     := $(abspath $(SCRIPTS)../../)
 
 # ── read file paths from settings.yml (one Python call each) ──────────────────
 _cfg = $(shell $(PYTHON) -c "import yaml; c=yaml.safe_load(open('$(SETTINGS)')); v=c$(1); print(v if v is not None else '')" 2>/dev/null)
+_missing = $(if $(wildcard $(1)),,$(1))
 
 URLS_FILE  := $(call _cfg,['search_web']['output'])
 INDEX_FILE := $(call _cfg,['extract_mantra']['output'])
@@ -58,17 +59,17 @@ $(URLS_FILE): | prerequisites
 	@python3 $(SCRIPTS)search_for_urls.py
 
 # ── stage 2: extract mantras from pages ──────────────────────────────────────
-$(INDEX_FILE): $(URLS_FILE) | prerequisites
+$(INDEX_FILE): $(call _missing,$(URLS_FILE)) | prerequisites
 	@printf '%*s\n' $(LINE_LENGTH) '' | tr ' ' '-'
 	@python3 $(SCRIPTS)extract_mantras.py
 
 # ── stage 3: translate, deduplicate and apply aliases ────────────────────────
-$(DEDUPED): $(INDEX_FILE) | prerequisites
+$(DEDUPED): $(call _missing,$(INDEX_FILE)) | prerequisites
 	@printf '%*s\n' $(LINE_LENGTH) '' | tr ' ' '-'
 	@python3 $(SCRIPTS)translate_n_dedup.py
 
 # ── stage 4: enrich with LLMs ────────────────────────────────────────────────
-$(ENRICHED): $(DEDUPED) | prerequisites
+$(ENRICHED): $(call _missing,$(DEDUPED)) | prerequisites
 	@printf '%*s\n' $(LINE_LENGTH) '' | tr ' ' '-'
 	@python3 $(SCRIPTS)enrich_mantras.py
 

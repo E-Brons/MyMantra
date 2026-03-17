@@ -87,37 +87,37 @@ flowchart TD
 Every tunable parameter lives here. Edit this file to change behaviour;
 no script changes are needed.
 
-| Stage | Section | Key | What it controls |
-|---|---|---|---|
-| — | `python.packages` | list | pip packages checked by `prerequisites` |
-| — | `ollama.host` | URL | Ollama server hostname (default `http://localhost`) |
-| — | `ollama.port` | int | Ollama server port (default `11434`) |
-| 1 | `search_web.output` | path | URL list written by Stage 1 |
-| 1 | `search_web.locales` | list of `{locale, search}` | locales and search terms for Stage 1 |
-| 1 | `search_web.delay` | float (sec) | polite delay between WSE requests |
-| 1 | `search_web.results_per_locale` | int | max URLs fetched per search term |
-| 1 | `search_web.cache_dir` | path | HTML cache directory |
-| 2 | `extract_mantra.input` | path | URL list consumed by Stage 2 |
-| 2 | `extract_mantra.output` | path | raw mantra index written by Stage 2 |
-| 2 | `extract_mantra.llm_engines` | list | Ollama models used for extraction |
-| 2 | `extract_mantra.delay` | float (sec) | polite delay between page fetches |
-| 2 | `extract_mantra.max_page_chars` | int | page text truncation limit |
-| 2 | `extract_mantra.cache_dir` | path | HTML cache directory (shared with Stage 1) |
-| 3 | `translate_n_dedup.input` | path | raw index consumed by Stage 3 |
-| 3 | `translate_n_dedup.output` | path | deduplicated index written by Stage 3 |
-| 3 | `translate_n_dedup.aliases` | filename | romanisation alias rules file |
-| 3 | `translate_n_dedup.system` | string | shared system prompt with `{source language}` / `{target language}` placeholders |
-| 3 | `translate_n_dedup.english` | dict | step 1 config: `task`, `llm_engine`, `llm_options` (temperature, num_ctx, timeout) |
-| 3 | `translate_n_dedup.transliteration` | dict | step 3 config: `task`, `llm_engine`, `llm_options` |
-| 3 | `translate_n_dedup.translations` | dict | step 4 config: `llm_engine`, `llm_options`, `languages` (with `task` + `{code: name}` pairs) |
-| 4 | `enrich_mantras.input` | path | deduplicated index consumed by Stage 4 |
-| 4 | `enrich_mantras.output` | path | enriched records written by Stage 4 |
-| 4 | `enrich_mantras.http_timeout` | int (sec) | HTTP timeout for source fetching |
-| 4 | `enrich_mantras.context_filter` | dict | step 0: `llm_filter`, `system`, `llm_timeout`, `llm_temperature`, `chunk_mode`, `min_chunk_len`, `max_chunk_len` |
-| 4 | `enrich_mantras.assignments` | dict | step 1: `llm_students`, `system`, then per-field dicts with `task`, `llm_temperature`, `llm_timeout` |
-| 4 | `enrich_mantras.grader_options` | dict | step 2: `llm_grader`, `system`, `llm_timeout`, `llm_temperature`, `weights` |
-| 5 | `deploy.input` | path | enriched records consumed by Stage 5 |
-| 5 | `deploy.output` | path | final library file written by Stage 5 |
+| Stage | Section                             | Key                        | What it controls                                                                                                 |
+| ----- | ----------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| —     | `python.packages`                   | list                       | pip packages checked by `prerequisites`                                                                          |
+| —     | `ollama.host`                       | URL                        | Ollama server hostname (default `http://localhost`)                                                              |
+| —     | `ollama.port`                       | int                        | Ollama server port (default `11434`)                                                                             |
+| 1     | `search_web.output`                 | path                       | URL list written by Stage 1                                                                                      |
+| 1     | `search_web.locales`                | list of `{locale, search}` | locales and search terms for Stage 1                                                                             |
+| 1     | `search_web.delay`                  | float (sec)                | polite delay between WSE requests                                                                                |
+| 1     | `search_web.results_per_locale`     | int                        | max URLs fetched per search term                                                                                 |
+| 1     | `search_web.cache_dir`              | path                       | HTML cache directory                                                                                             |
+| 2     | `extract_mantra.input`              | path                       | URL list consumed by Stage 2                                                                                     |
+| 2     | `extract_mantra.output`             | path                       | raw mantra index written by Stage 2                                                                              |
+| 2     | `extract_mantra.llm_engines`        | list                       | Ollama models used for extraction                                                                                |
+| 2     | `extract_mantra.delay`              | float (sec)                | polite delay between page fetches                                                                                |
+| 2     | `extract_mantra.max_page_chars`     | int                        | page text truncation limit                                                                                       |
+| 2     | `extract_mantra.cache_dir`          | path                       | HTML cache directory (shared with Stage 1)                                                                       |
+| 3     | `translate_n_dedup.input`           | path                       | raw index consumed by Stage 3                                                                                    |
+| 3     | `translate_n_dedup.output`          | path                       | deduplicated index written by Stage 3                                                                            |
+| 3     | `translate_n_dedup.aliases`         | filename                   | romanisation alias rules file                                                                                    |
+| 3     | `translate_n_dedup.system`          | string                     | shared system prompt with `{source language}` / `{target language}` placeholders                                 |
+| 3     | `translate_n_dedup.english`         | dict                       | step 1 config: `task`, `llm_engine`, `llm_options` (temperature, num_ctx, timeout)                               |
+| 3     | `translate_n_dedup.transliteration` | dict                       | step 3 config: `task`, `llm_engine`, `llm_options`                                                               |
+| 3     | `translate_n_dedup.translations`    | dict                       | step 4 config: `llm_engine`, `llm_options`, `languages` (with `task` + `{code: name}` pairs)                     |
+| 4     | `enrich_mantras.input`              | path                       | deduplicated index consumed by Stage 4                                                                           |
+| 4     | `enrich_mantras.output`             | path                       | enriched records written by Stage 4                                                                              |
+| 4     | `enrich_mantras.http_timeout`       | int (sec)                  | HTTP timeout for source fetching                                                                                 |
+| 4     | `enrich_mantras.context_filter`     | dict                       | step 0: `llm_filter`, `system`, `llm_timeout`, `llm_temperature`, `chunk_mode`, `min_chunk_len`, `max_chunk_len` |
+| 4     | `enrich_mantras.assignments`        | dict                       | step 1: `llm_students`, `system`, then per-field dicts with `task`, `llm_temperature`, `llm_timeout`             |
+| 4     | `enrich_mantras.grader_options`     | dict                       | step 2: `llm_grader`, `system`, `llm_timeout`, `llm_temperature`, `weights`                                      |
+| 5     | `deploy.input`                      | path                       | enriched records consumed by Stage 5                                                                             |
+| 5     | `deploy.output`                     | path                       | final library file written by Stage 5                                                                            |
 
 All `input`/`output` paths are relative to the project root and resolved
 to absolute paths at runtime via `settings.py`.
@@ -352,20 +352,20 @@ make -f make/mantra-db/Makefile deploy
 
 ## Shared infrastructure
 
-| Path | Purpose |
-|---|---|
-| `tmp/mantra_urls.txt` | URL list produced by Stage 1, consumed by Stage 2 |
-| `tmp/mantra_index.json` | Raw discovery index produced by Stage 2 |
-| `tmp/mantra_english_cache.json` | Phrase→English cache for Stage 3 step 1 (resumable) |
-| `tmp/mantra_translit_cache.json` | Phrase→transliteration cache for Stage 3 step 3 (resumable) |
-| `tmp/mantra_index_deduped.json` | Deduplicated + translated index produced by Stage 3 |
-| `tmp/enriched_mantras.json` | Full library records produced by Stage 4 |
-| `tmp/enrich_answers.json` | Student/grader answer cache for Stage 4 resume |
-| `tmp/score_scatter.png` | Speed vs score scatter plot produced by Stage 4 |
-| `make/mantra-db/phrase_aliases.json` | Human-editable romanisation alias rules |
-| `make/mantra-db/settings.yml` | Single source of truth for all pipeline parameters |
-| `make/mantra-db/settings.py` | Shared config loader (`cfg()`, `root_path()`, `ollama()`, `llm_kwargs()`) |
-| `tmp/crawl_cache/` | HTML cache shared by Stages 1, 2, and 4 (avoids re-fetching) |
+| Path                                 | Purpose                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------- |
+| `tmp/mantra_urls.txt`                | URL list produced by Stage 1, consumed by Stage 2                         |
+| `tmp/mantra_index.json`              | Raw discovery index produced by Stage 2                                   |
+| `tmp/mantra_english_cache.json`      | Phrase→English cache for Stage 3 step 1 (resumable)                       |
+| `tmp/mantra_translit_cache.json`     | Phrase→transliteration cache for Stage 3 step 3 (resumable)               |
+| `tmp/mantra_index_deduped.json`      | Deduplicated + translated index produced by Stage 3                       |
+| `tmp/enriched_mantras.json`          | Full library records produced by Stage 4                                  |
+| `tmp/enrich_answers.json`            | Student/grader answer cache for Stage 4 resume                            |
+| `tmp/score_scatter.png`              | Speed vs score scatter plot produced by Stage 4                           |
+| `make/mantra-db/phrase_aliases.json` | Human-editable romanisation alias rules                                   |
+| `make/mantra-db/settings.yml`        | Single source of truth for all pipeline parameters                        |
+| `make/mantra-db/settings.py`         | Shared config loader (`cfg()`, `root_path()`, `ollama()`, `llm_kwargs()`) |
+| `tmp/crawl_cache/`                   | HTML cache shared by Stages 1, 2, and 4 (avoids re-fetching)              |
 
 The crawl cache uses `md5(url)` as filename, so both scripts reuse each
 other's cached pages automatically.
