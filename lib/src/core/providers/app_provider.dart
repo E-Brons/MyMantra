@@ -275,7 +275,14 @@ class AppNotifier extends Notifier<AppState> {
     );
 
     state = state.copyWith(
-      sessions: [session, ...state.sessions],
+      sessions: [
+        session,
+        // Drop any suspended (in-progress) session for this mantra — it is
+        // superseded by the session we just recorded.
+        ...state.sessions.where(
+          (s) => !(s.mantraId == mantraId && !s.completed),
+        ),
+      ],
       progress: state.progress.copyWith(
         currentStreak: newStreak,
         longestStreak: newLongest,

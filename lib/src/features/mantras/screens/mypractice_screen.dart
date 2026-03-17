@@ -338,16 +338,16 @@ class _DynamicBadge extends StatelessWidget {
     }
 
     if (streak > 0) {
-      // Streak state — weightlifting
+      // Streak state — meditating
       return Container(
         width: 44, height: 44,
         decoration: BoxDecoration(
-          color: const Color(0x1AF97316),
+          color: const Color(0x1A10B981),
           shape: BoxShape.circle,
-          border: Border.all(color: const Color(0x33F97316)),
+          border: Border.all(color: const Color(0x3310B981)),
         ),
-        child: Center(
-          child: Icon(Icons.fitness_center, size: 20, color: AppColors.orange),
+        child: const Center(
+          child: Icon(Icons.self_improvement, size: 20, color: Color(0xFF10B981)),
         ),
       );
     }
