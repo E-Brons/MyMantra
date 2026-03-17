@@ -39,7 +39,7 @@ Integration suites are grouped by target type:
 | Target Type | Targets | Rule |
 |-------------|---------|------|
 | Device | iOS simulator, Android emulator | Runs on emulated/simulated mobile targets |
-| Native | macOS, Linux | Runs only when host OS matches target OS |
+| Native | macOS, Linux, Windows | Runs only when host OS matches target OS |
 | Web | Chrome/Web runtime | Runs in browser runtime with web-compatible test code |
 
 ### 2.2 Environment Assumptions

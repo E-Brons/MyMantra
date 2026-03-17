@@ -447,6 +447,7 @@ Additional traditions: Hindu (Om, Gayatri, Mahamrityunjaya), Buddhist (Om Mani P
 | ACH-PLT-WEB | Web | Practice on the web | Rare |
 | ACH-PLT-MAC | Mac | Practice on macOS | Exotic |
 | ACH-PLT-LINUX | Linux | Practice on Linux | Exotic |
+| ACH-PLT-WINDOWS | Windows | Practice on Windows | Super Rare |
 
 **Creation** (always visible):
 
@@ -997,7 +998,7 @@ Both bugs are **P0 blockers** for Phase 1.0 ship to production.
 - [ ] Streak calculation: Correct across timezone changes and date boundaries
 - [ ] **BUG-001 resolved:** Back navigation works on macOS from all routes outside ShellRoute
 - [ ] **BUG-002 resolved:** Android hardware back button shows "Discard session?" when counter > 0
-- [ ] Back navigation verified on all 4 platforms (iOS, Android, macOS, Web)
+- [ ] Back navigation verified on all 5 platforms (iOS, Android, macOS, Windows, Web)
 - [ ] App Store approval (iOS)
 - [ ] Play Store approval (Android)
 - [ ] Beta testing: 10+ users, 7+ days, <5 high-priority bugs

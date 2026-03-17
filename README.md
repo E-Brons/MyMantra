@@ -1,7 +1,7 @@
 # MyMantra
 
 A spiritual practice application for mantra repetition, streaks, and progress tracking.
-Built with Flutter — targets iOS, Android, macOS, and Web from a single codebase.
+Built with Flutter — targets iOS, Android, macOS, Windows, and Web from a single codebase.
 
 ---
 
@@ -19,6 +19,7 @@ make debug TARGET=macos
 make run   TARGET=ios
 make run   TARGET=android
 make run   TARGET=web
+make run   TARGET=windows
 ```
 
 Target configuration (devices, versions, build flags) is in [`target.json`](target.json).
@@ -27,8 +28,8 @@ Target configuration (devices, versions, build flags) is in [`target.json`](targ
 
 ## Prerequisites
 
-- **macOS 26+**
-- **Homebrew** — [brew.sh](https://brew.sh)
+- **macOS 26+** (primary development), or **Windows 10+** (web/windows targets)
+- **Homebrew** — [brew.sh](https://brew.sh) (macOS only)
 - **Xcode 16+** — install from the Mac App Store, or using `xcodes` then run:
   ```bash
   sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
@@ -36,6 +37,8 @@ Target configuration (devices, versions, build flags) is in [`target.json`](targ
   ```
 - **Android Studio** — required for Android target; install the Android SDK and create an AVD via the AVD Manager
 - **adb** (Android Debug Bridge) — bundled with Android Studio; ensure `platform-tools` is on your `PATH`
+
+> **Windows developers:** You only need Flutter SDK, Git, and VS Code. Run `make install TARGET=windows` or `make install TARGET=web` to get started. Xcode, Homebrew, and Android Studio are not needed for web/windows targets.
 
 `make install` checks and installs Flutter and all remaining dependencies automatically.
 
@@ -50,7 +53,7 @@ Target configuration (devices, versions, build flags) is in [`target.json`](targ
 | `make run [TARGET=<t>]`            | Run release build                       |
 | `make build [TARGET=<t>]`          | Build release artifacts                 |
 | `make test`                        | `flutter analyze` + unit + widget tests |
-| `make test-integration TARGET=<t>` | Integration tests (linux or macos)      |
+| `make test-integration TARGET=<t>` | Integration tests (linux, macos, or windows) |
 | `make clean`                       | Remove all build artifacts              |
 
 ---

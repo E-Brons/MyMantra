@@ -9,12 +9,13 @@
 
 ## 1. Targets
 
-There are currently four targets:
+There are currently five targets:
 1. Mobile
   a. iOS
   b. Android
 2. Web
 3. MacOS
+4. Windows
 
 in the future other targets may be added
 
@@ -61,6 +62,7 @@ flowchart TD
         XC["Xcode<br/>iOS · macOS"]:::regular
         GR["Gradle + JDK<br/>Android"]:::regular
         D2J["dart2js / Skwasm<br/>Web"]:::regular
+        MSVC["MSVC / CMake<br/>Windows"]:::regular
         PB["subprocess / HTTP<br/>Python bridge _·future·_"]:::future
     end
 
@@ -77,6 +79,7 @@ flowchart TD
 
     subgraph TGT["**⑥ Target Layer**"]
         MAPP["💻 macOS<br/>myMantra.app"]:::regular
+        WAPP["🪟 Windows<br/>myMantra.exe"]:::regular
         ISIM["_e.g._<br/>📱 iPhone 17<br/>Simulator"]:::regular
         AEMU["_e.g._<br/>📱 Pixel 8<br/>Emulator"]:::regular
         CHR["🌐 Browser"]:::regular
@@ -88,13 +91,14 @@ flowchart TD
 
     DART  --> FSDK
     PYTH  --> PYENV
-    FSDK  --> XC & GR & D2J
+    FSDK  --> XC & GR & D2J & MSVC
     PYENV --> PB
     XC    --> ISDK & MSDK
     GR    --> ASDK
     ISDK  --> IOSRT
     IOSRT --> ISIM
     MSDK  --> MAPP
+    MSVC  --> WAPP
     D2J   --> CHR
     ASDK  --> AVDRT
     AVDRT --> AEMU
@@ -158,13 +162,14 @@ All commands read `target.json` at the project root. To activate or deactivate a
     "ios":     { "target": "iPhone 17",    "version": "26.3", "build": true,  "debug": true  },
     "android": { "target": "Pixel_10_Pro", "version": "16.0", "build": false, "debug": true  },
     "macos":   {                                               "build": true,  "debug": true  },
-    "web":     {                                               "build": true,  "debug": false }
+    "web":     {                                               "build": true,  "debug": false },
+    "windows": {                                               "build": false, "debug": false }
 }
 ```
 
 | Field | Required for | Default | Meaning |
 |---|---|---|---|
-| `target` | `ios`, `android` | — | Device or simulator name; passed as `flutter run -d <value>`; unused for `macos` and `web` |
+| `target` | `ios`, `android` | — | Device or simulator name; passed as `flutter run -d <value>`; unused for `macos`, `web`, and `windows` |
 | `version` | — | — | Informational; minimum OS version |
 | `build` | — | `true` | Include in `make install` and `make build` |
 | `debug` | — | `true` | Include in `make debug`; compile with debug symbols and assertions |
@@ -195,6 +200,7 @@ All commands read `target.json` at the project root. To activate or deactivate a
 | `macos` | Flutter SDK · CocoaPods · `pod install` |
 | `android` | Checks Android Studio and SDK at expected path; prints install URL if absent |
 | `web` | Flutter SDK; no additional tooling |
+| `windows` | Flutter SDK; Visual Studio Build Tools with C++ desktop workload (installed by Visual Studio or standalone) |
 | all targets | Platform scaffold (`flutter create`) if platform dirs are absent · fonts (~35 MB, idempotent per file) |
 
 ```mermaid
@@ -239,6 +245,7 @@ flowchart TD
 | `ios` | `flutter build ios` | `.app` bundle |
 | `android` | `flutter build appbundle` | Android App Bundle (`.aab`) — the format required by Play Store |
 | `macos` | `flutter build macos` | `.app` bundle |
+| `windows` | `flutter build windows` | `.exe` in `build/windows/x64/runner/Release/` |
 | `web` | `flutter build web` | Static files in `build/web/` |
 
 ```mermaid
@@ -280,6 +287,7 @@ In both cases: if exactly one target qualifies it is selected automatically. If 
 | `ios` | Value of the `target` field in `target.json`, passed as `flutter run -d <value>` |
 | `android` | Running emulator ID; `run.sh` boots the AVD named in `target.json` if no emulator is running, then waits for full boot before launching |
 | `macos` | Always `-d macos` |
+| `windows` | Always `-d windows` |
 | `web` | Always `-d chrome`; the `target` field is not used |
 
 ---
@@ -296,6 +304,7 @@ The table below covers the most common known constraints. Constraints enforced i
 | Android Emulator | AVD API level ≤ installed Android SDK | `make install` — `prerequisites.sh` |
 | macOS | macOS version ≥ deployment target | Xcode at build time |
 | Web | No simulator or runtime constraints | N/A |
+| Windows | Visual Studio Build Tools with C++ desktop workload | `make install` — `prerequisites.sh` (when on Windows) |
 | Python service _(future)_ | Python version ≥ `requires-python` in `pyproject.toml` | `make install` — to be added |
 
 ---
