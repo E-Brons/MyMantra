@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
-import '../../../core/providers/launch_notifier.dart';
 
 /// Expectations / onboarding intro (screen 1b).
-/// Marks the app as launched when the user taps either CTA.
 class ExpectationsScreen extends StatelessWidget {
   const ExpectationsScreen({super.key});
 
-  Future<void> _finish(BuildContext context, String destination) async {
-    await launchNotifier.markLaunched();
-    if (!context.mounted) return;
+  void _finish(BuildContext context, String destination) {
     context.go(destination);
   }
 
@@ -69,7 +65,7 @@ class ExpectationsScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
               FilledButton(
-                onPressed: () => _finish(context, '/library'),
+                onPressed: () => _finish(context, '/mypractice'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.violet600,
                   minimumSize: const Size.fromHeight(52),

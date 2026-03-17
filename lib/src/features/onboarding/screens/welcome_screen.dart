@@ -89,7 +89,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton(
-                    onPressed: () => context.go('/expectations'),
+                    onPressed: () => context.go('/mypractice'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textSecondary,
                       side: BorderSide(color: AppColors.borderSubtle),

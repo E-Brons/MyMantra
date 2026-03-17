@@ -202,8 +202,8 @@ class _ResumeDialog extends StatelessWidget {
         OutlinedButton(
           onPressed: onResume,
           style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.violet400,
-            side: BorderSide(color: AppColors.violet500),
+            foregroundColor: AppColors.textSecondary,
+            side: BorderSide(color: AppColors.borderSubtle),
           ),
           child: const Text('Resume'),
         ),
