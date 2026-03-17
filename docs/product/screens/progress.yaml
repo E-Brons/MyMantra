@@ -56,5 +56,5 @@ elements:
       repetitions: [1K, 5K, 10K, 50K, 100K, 250K, 500K, 1M]
       sessions: [10, 100, 250, 500, 1K, 2K, 10K, 50K, 100K]
       time-of-day: [Early Bird (4-7 AM), Night Owl (after 10 PM)]
-      platform: [Android, iOS, macOS, Linux, Web]
+      platform: [Android, iOS, macOS, Windows, Linux, Web]
       special: [Creator (first custom mantra)]

@@ -250,7 +250,7 @@ Multiple scenarios to support:
 
 ### 9.2 Technical Goals
 - **100% Offline Functionality:** Core features never require internet
-- **Cross-Platform Parity:** Feature consistency across iOS, Android, macOS, Web
+- **Cross-Platform Parity:** Feature consistency across iOS, Android, macOS, Windows, Web
 - **Fast Performance:** <50ms counter response, <2s app launch
 - **Data Safety:** No data loss during sync conflicts or app crashes
 

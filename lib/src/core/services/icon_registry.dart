@@ -173,6 +173,7 @@ class IconRegistry {
     'cloud': Icons.cloud,
     'dark_mode': Icons.dark_mode,
     'delete': Icons.delete,
+    'desktop_windows': Icons.desktop_windows_outlined,
     'diamond': Icons.diamond,
     'eco': Icons.eco,
     'edit': Icons.edit,

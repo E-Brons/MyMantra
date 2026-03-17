@@ -357,6 +357,22 @@ while IFS='|' read -r name _device _debug; do
             fi
             ;;
 
+        windows)
+            # Windows desktop target — only meaningful on Windows.
+            if [[ "$(uname -s)" == "MINGW"* || "$(uname -s)" == "MSYS"* || "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+                echo "  windows host detected"
+            else
+                echo "  skipping windows-specific setup (not running on Windows)"
+            fi
+            # Scaffold windows/ platform directory if it doesn't exist yet.
+            if [[ ! -d "$REPO_ROOT/windows" ]]; then
+                echo "  scaffolding windows platform directory..."
+                (cd "$REPO_ROOT" && $FLUTTER create . --platforms windows)
+            else
+                echo "  windows platform directory already exists — skipping"
+            fi
+            ;;
+
         # ── future targets ────────────────────────────────────────────────────
         # python)
         #     command -v uv >/dev/null || pip install uv

@@ -49,6 +49,10 @@ test-integration:
 		for f in integration_test/*_test.dart; do \
 			flutter test "$$f" -d $(TARGET) || exit 1; \
 		done \
+	elif [ "$(TARGET)" = "windows" ]; then \
+		for f in integration_test/*_test.dart; do \
+			flutter test "$$f" -d $(TARGET) || exit 1; \
+		done \
 	else \
 		echo "Error: Target '$(TARGET)' test-integration is currently unsupported."; \
 		exit 1; \

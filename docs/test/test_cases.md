@@ -209,7 +209,7 @@ Target type legend:
 
 File: `integration_test/full_session_flow_test.dart`
 
-| Device (iOS/Android) | Native (macOS/Linux) | Web |
+| Device (iOS/Android) | Native (macOS/Linux/Windows) | Web |
 |---|---|---|
 | Mandatory | Mandatory (macOS), Planned (Linux CI) | Planned |
 
@@ -225,7 +225,7 @@ File: `integration_test/full_session_flow_test.dart`
 
 File: `integration_test/mantra_crud_flow_test.dart`
 
-| Device (iOS/Android) | Native (macOS/Linux) | Web |
+| Device (iOS/Android) | Native (macOS/Linux/Windows) | Web |
 |---|---|---|
 | Implemented | Implemented (macOS), Planned (Linux CI) | Planned |
 
@@ -244,7 +244,7 @@ File: `integration_test/back_navigation_macos_test.dart`
 
 This suite specifically targets **BUG-001**.
 
-| Device (iOS/Android) | Native (macOS/Linux) | Web |
+| Device (iOS/Android) | Native (macOS/Linux/Windows) | Web |
 |---|---|---|
 | N/A | Mandatory (macOS), N/A (Linux) | N/A |
 
@@ -262,7 +262,7 @@ This suite specifically targets **BUG-001**.
 
 File: `integration_test/back_navigation_android_test.dart`
 
-| Device (iOS/Android) | Native (macOS/Linux) | Web |
+| Device (iOS/Android) | Native (macOS/Linux/Windows) | Web |
 |---|---|---|
 | Mandatory (Android), N/A (iOS) | N/A | N/A |
 
@@ -280,7 +280,7 @@ File: `integration_test/back_navigation_android_test.dart`
 
 File: `integration_test/counter_stress_test.dart`
 
-| Device (iOS/Android) | Native (macOS/Linux) | Web |
+| Device (iOS/Android) | Native (macOS/Linux/Windows) | Web |
 |---|---|---|
 | Implemented | Implemented (macOS), Planned (Linux CI) | Planned |
 
@@ -298,7 +298,7 @@ File: `integration_test/emoji_screenshot_integration_test.dart`
 
 This suite specifically targets **BUG-004**.
 
-| Device (iOS/Android) | Native (macOS/Linux) | Web |
+| Device (iOS/Android) | Native (macOS/Linux/Windows) | Web |
 |---|---|---|
 | Mandatory (iOS), Implemented (Android) | Planned (macOS/Linux desktop screenshot path) | N/A |
 

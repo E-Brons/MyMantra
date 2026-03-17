@@ -191,6 +191,11 @@ Achievements:
         icon: Icons.terminal
         condition: Practice on Linux
         rarity: exotic
+      - id: ACH-PLT-WINDOWS
+        name: Windows
+        icon: Icons.desktop_windows
+        condition: Practice on Windows
+        rarity: superRare
     creation:
       visibility: always
       list:

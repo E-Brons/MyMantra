@@ -10,6 +10,7 @@ String? _currentPlatformAchievementId() {
     TargetPlatform.iOS => 'ACH-PLT-IOS',
     TargetPlatform.macOS => 'ACH-PLT-MAC',
     TargetPlatform.linux => 'ACH-PLT-LINUX',
+    TargetPlatform.windows => 'ACH-PLT-WINDOWS',
     _ => null,
   };
 }

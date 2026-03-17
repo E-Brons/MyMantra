@@ -421,7 +421,7 @@ Common, Uncommon, Rare, Super Rare, Epic, Heroic, Exotic, Mythic, Legendary, Div
 - Repetitions: 1K, 5K, 10K, 50K, 100K, 250K, 500K, 1M
 - Sessions: 10, 100, 250, 500, 1K, 2K, 10K, 50K, 100K
 - Time of day: Early Bird (4-7 AM), Night Owl (after 10 PM)
-- Platform: Android, iOS, macOS, Linux, Web
+- Platform: Android, iOS, macOS, Windows, Linux, Web
 - Special: Creator (first custom mantra)
 
 ---
