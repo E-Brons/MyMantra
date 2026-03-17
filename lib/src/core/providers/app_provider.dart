@@ -394,6 +394,7 @@ bool _matchesPlatform(String? platformId) {
     TargetPlatform.iOS     => platformId == 'ios',
     TargetPlatform.macOS   => platformId == 'macos',
     TargetPlatform.linux   => platformId == 'linux',
+    TargetPlatform.windows => platformId == 'windows',
     _                      => false,
   };
 }

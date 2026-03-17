@@ -52,6 +52,9 @@ flutter_launcher_icons:
   linux:
     generate: true
     image_path: "assets/images/icons/Lotus.png"
+  windows:
+    generate: true
+    image_path: "assets/images/icons/Lotus.png"
 
 flutter:
   uses-material-design: true

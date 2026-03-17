@@ -36,6 +36,11 @@ while IFS= read -r name; do
             [[ -d "$dir" ]] && { echo "  macos/build/"; rm -rf "$dir"; } || echo "  macos/build/ (already clean)"
             ;;
 
+        windows)
+            dir="$REPO_ROOT/windows/build"
+            [[ -d "$dir" ]] && { echo "  windows/build/"; rm -rf "$dir"; } || echo "  windows/build/ (already clean)"
+            ;;
+
         web)
             # build/web/ is covered by flutter clean above
             ;;

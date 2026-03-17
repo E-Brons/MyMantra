@@ -305,6 +305,13 @@ const List<Achievement> kAchievements = [
     rarity: AchievementRarity.exotic,
   ),
   Achievement(
+    id: 'ACH-PLT-WINDOWS', title: 'Windows',
+    description: 'Practice on Windows.',
+    iconKey: 'Windows', metric: AchievementMetric.platform, value: 1,
+    platformId: 'windows',
+    rarity: AchievementRarity.superRare,
+  ),
+  Achievement(
     id: 'ACH-PLT-WEB', title: 'Web',
     description: 'Practice on the web.',
     iconKey: 'Web', metric: AchievementMetric.platform, value: 1,

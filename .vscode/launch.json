@@ -30,6 +30,13 @@
       "args": ["-d", "Pixel_10_Pro"]
     },
     {
+      "name": "debug — windows",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": ["-d", "windows"]
+    },
+    {
       "name": "run — ios (release)",
       "request": "launch",
       "type": "dart",

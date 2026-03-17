@@ -3,5 +3,6 @@
     "android": { "target": "Pixel_10_Pro", "version": "16.0",  "build": true,  "debug": false },
     "macos":   {                                               "build": true,  "debug": true  },
     "web":     {                                               "build": true,  "debug": false },
-    "linux":   { "target": "ubuntu-latest", "version": "24.04", "build": false, "debug": false }
+    "linux":   { "target": "ubuntu-latest", "version": "24.04", "build": false, "debug": false },
+    "windows": {                                               "build": false, "debug": false }
 }

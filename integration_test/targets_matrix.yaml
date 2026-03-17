@@ -11,7 +11,7 @@ target_types:
     targets: [ios, android]
   native:
     description: Desktop targets; runnable only when host equals target
-    targets: [macos, linux]
+    targets: [macos, linux, windows]
   web:
     description: Browser-based integration runtime
     targets: [web]
@@ -26,6 +26,7 @@ integration_suites:
       android: true
       macos: true
       linux: false
+      windows: false
       web: false
     mandatory:
       device: true
@@ -41,6 +42,7 @@ integration_suites:
       android: true
       macos: true
       linux: false
+      windows: false
       web: false
     mandatory:
       device: false
@@ -56,6 +58,7 @@ integration_suites:
       android: false
       macos: true
       linux: false
+      windows: false
       web: false
     mandatory:
       device: false
@@ -71,6 +74,7 @@ integration_suites:
       android: true
       macos: false
       linux: false
+      windows: false
       web: false
     mandatory:
       device: true
@@ -86,6 +90,7 @@ integration_suites:
       android: true
       macos: true
       linux: false
+      windows: false
       web: false
     mandatory:
       device: false
@@ -101,6 +106,7 @@ integration_suites:
       android: true
       macos: false
       linux: false
+      windows: false
       web: false
     mandatory:
       device: true

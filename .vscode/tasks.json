@@ -70,7 +70,7 @@
       "id": "target",
       "type": "pickString",
       "description": "Target",
-      "options": ["ios", "android", "macos", "web"],
+      "options": ["ios", "android", "macos", "web", "windows"],
       "default": "ios"
     }
   ]
