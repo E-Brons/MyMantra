@@ -158,7 +158,7 @@ class ProgressScreen extends ConsumerWidget {
                 crossAxisCount: 3,
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
-                childAspectRatio: 0.85,
+                childAspectRatio: 1.05,
               ),
               itemCount: displayedAchievements.length,
               itemBuilder: (_, i) {
@@ -269,12 +269,12 @@ class _AchievementCard extends StatelessWidget {
         : AppColors.textMuted;
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: unlocked
             ? achievementColor.withAlpha(0x24)
             : const Color(0x058B5CF6),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: unlocked ? AppColors.border : AppColors.borderSubtle,
         ),
@@ -284,30 +284,28 @@ class _AchievementCard extends StatelessWidget {
         children: [
           Icon(
             unlocked ? achievement.icon : lockedIcon,
-            size: 22,
+            size: 18,
             color: achievementColor,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             achievement.title,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
               color: unlocked ? AppColors.textPrimary : AppColors.textMuted,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 3),
-          Expanded(
-            child: Text(
-              achievement.description,
-              style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+          const SizedBox(height: 2),
+          Text(
+            achievement.description,
+            style: TextStyle(fontSize: 9.5, color: AppColors.textMuted),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
+          const Spacer(),
           _RarityBadge(rarity: achievement.rarity),
         ],
       ),
@@ -343,7 +341,7 @@ class _RarityBadge extends StatelessWidget {
         text: label,
         colors: gradient,
         baseStyle: const TextStyle(
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: FontWeight.w500,
         ),
       );
@@ -352,13 +350,13 @@ class _RarityBadge extends StatelessWidget {
     return Text(
       label,
       style: TextStyle(
-        fontSize: 10,
+        fontSize: 9,
         color: color,
         fontWeight: FontWeight.w500,
         shadows: [
           Shadow(
-            offset: const Offset(2, 2),
-            blurRadius: 3,
+            offset: const Offset(1, 1),
+            blurRadius: 2,
             color: Colors.black.withAlpha(77),
           ),
         ],

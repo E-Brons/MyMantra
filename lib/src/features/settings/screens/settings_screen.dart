@@ -232,7 +232,7 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               const _InfoRow(label: 'App', value: 'MyMantra'),
               _Divider(),
-              const _InfoRow(label: 'Version', value: '0.9.0-dev'),
+              const _InfoRow(label: 'Version', value: '0.2.0'),
               _Divider(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
