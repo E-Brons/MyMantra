@@ -11,7 +11,6 @@ import '../../../core/models/mantra.dart';
 import '../../../core/models/progress.dart';
 import '../../../core/providers/app_provider.dart';
 import '../../../core/services/haptic_service.dart';
-import '../../../core/utils/date_utils.dart';
 
 class SessionScreen extends ConsumerStatefulWidget {
   final String id;
@@ -24,10 +23,8 @@ class SessionScreen extends ConsumerStatefulWidget {
 class _SessionScreenState extends ConsumerState<SessionScreen>
     with TickerProviderStateMixin {
   int _count = 0;
-  bool _isPaused = false;
   bool _isComplete = false;
   int _duration = 0;
-  bool _showConfirmExit = false;
   List<UnlockedAchievement> _newAchievements = [];
   bool _showCelebration = false;
 
@@ -88,7 +85,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!_isPaused && !_isComplete && _sessionTarget != null) {
+      if (!_isComplete && _sessionTarget != null) {
         setState(() => _duration++);
       }
     });
@@ -102,7 +99,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   }
 
   void _handleTap(TapDownDetails details) {
-    if (_isPaused || _isComplete || _sessionTarget == null) return;
+    if (_isComplete || _sessionTarget == null) return;
 
     // Tap rate limiter: drop taps within 1 second of the last accepted tap.
     final settings = ref.read(appProvider).settings;
@@ -154,11 +151,23 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   }
 
   void _handleExit() {
-    if (_count > 0) {
-      setState(() => _showConfirmExit = true);
-    } else {
-      context.pop();
+    // Per spec: Back always suspends — no discard option.
+    // If no reps counted yet, just navigate back without creating a session.
+    if (_count > 0 && _sessionTarget != null) {
+      final mantra = ref.read(appProvider.notifier).getMantra(widget.id);
+      if (mantra != null) {
+        ref.read(appProvider.notifier).suspendSession(
+          mantraId: mantra.id,
+          mantraTitle: mantra.title,
+          repsCompleted: _count,
+          targetReps: _sessionTarget!,
+          targetCycle: _sessionCycle ?? RepetitionCycle.session,
+          duration: _duration,
+          startTime: _startTime,
+        );
+      }
     }
+    context.go('/mypractice');
   }
 
   void _reset() {
@@ -211,28 +220,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                       children: [
                         _CircleButton(
                           onTap: _handleExit,
-                          child: const Icon(Icons.close, size: 18, color: Colors.white70),
+                          child: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white70),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              mantra.title,
-                              style: const TextStyle(fontSize: 12, color: Colors.white38),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              formatTime(_duration),
-                              style: const TextStyle(fontSize: 11, color: Colors.white24),
-                            ),
-                          ],
+                        Text(
+                          mantra.title,
+                          style: const TextStyle(fontSize: 12, color: Colors.white38),
+                          overflow: TextOverflow.ellipsis,
                         ),
                         _CircleButton(
-                          onTap: () => setState(() => _isPaused = !_isPaused),
-                          child: Icon(
-                            _isPaused ? Icons.play_arrow : Icons.pause,
-                            size: 18,
-                            color: Colors.white70,
-                          ),
+                          onTap: () => context.push('/mantras/${widget.id}/plan/edit'),
+                          child: const Icon(Icons.edit_outlined, size: 16, color: Colors.white70),
                         ),
                       ],
                     ),
@@ -333,23 +330,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                           ),
                         ),
 
-                        // Pause overlay
-                        if (_isPaused)
-                          Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            color: const Color(0xB20D0B1A),
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.pause_circle_outline, size: 48, color: Colors.white38),
-                                SizedBox(height: 12),
-                                Text('Paused', style: TextStyle(fontSize: 16, color: Colors.white60)),
-                                Text('Tap pause button to resume',
-                                    style: TextStyle(fontSize: 13, color: Colors.white30)),
-                              ],
-                            ),
-                          ),
+                        // Pause overlay removed — no pause per spec
                       ],
                     ),
                   ),
@@ -426,28 +407,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                 onExit: () => context.pop(),
               ),
 
-            // ── Exit confirm sheet ──────────────────────────────────────
-            if (_showConfirmExit)
-              _ExitSheet(
-                count: _count,
-                onSave: () {
-                  setState(() => _showConfirmExit = false);
-                  _finishSession(_count, false);
-                },
-                onDiscard: () {
-                  setState(() => _showConfirmExit = false);
-                  context.pop();
-                },
-                onContinue: () => setState(() => _showConfirmExit = false),
-              ),
-
             // ── Celebration overlay ─────────────────────────────────────
             if (_showCelebration)
               _CelebrationOverlay(
                 count: _count,
-                duration: _duration,
                 newAchievements: _newAchievements,
-                onDone: () => context.pop(),
+                onDone: () => context.go('/mypractice'),
               ),
           ],
         ),
@@ -562,111 +527,6 @@ class _BottomAction extends StatelessWidget {
     );
   }
 }
-
-// ─── Exit confirm sheet ───────────────────────────────────────────────────────
-
-class _ExitSheet extends StatelessWidget {
-  final int count;
-  final VoidCallback onSave;
-  final VoidCallback onDiscard;
-  final VoidCallback onContinue;
-
-  const _ExitSheet({
-    required this.count,
-    required this.onSave,
-    required this.onDiscard,
-    required this.onContinue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xB3000000),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
-          decoration: BoxDecoration(
-            color: const Color(0xFF0D0B1A),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Exit Session?',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              const SizedBox(height: 8),
-              Text('You have $count repetitions. Save as partial session?',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-              const SizedBox(height: 20),
-              _SheetButton(
-                label: 'Save & Exit',
-                color: const Color(0x4D8B5CF6),
-                borderColor: AppColors.border,
-                textColor: AppColors.textPrimary,
-                onTap: onSave,
-              ),
-              const SizedBox(height: 10),
-              _SheetButton(
-                label: 'Discard & Exit',
-                color: Colors.transparent,
-                borderColor: const Color(0x33EF4444),
-                textColor: AppColors.red,
-                onTap: onDiscard,
-              ),
-              const SizedBox(height: 10),
-              _SheetButton(
-                label: 'Continue Session',
-                color: Colors.transparent,
-                borderColor: Colors.transparent,
-                textColor: Colors.white60,
-                onTap: onContinue,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SheetButton extends StatelessWidget {
-  final String label;
-  final Color color;
-  final Color borderColor;
-  final Color textColor;
-  final VoidCallback onTap;
-
-  const _SheetButton({
-    required this.label,
-    required this.color,
-    required this.borderColor,
-    required this.textColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor),
-        ),
-        child: Center(
-          child: Text(label, style: TextStyle(fontSize: 15, color: textColor, fontWeight: FontWeight.w500)),
-        ),
-      ),
-    );
-  }
-}
-
 // ─── Target selection sheet ───────────────────────────────────────────────────
 
 class _TargetSheet extends StatelessWidget {
@@ -919,13 +779,11 @@ class _CustomTargetDialogState extends State<_CustomTargetDialog> {
 
 class _CelebrationOverlay extends StatefulWidget {
   final int count;
-  final int duration;
   final List<UnlockedAchievement> newAchievements;
   final VoidCallback onDone;
 
   const _CelebrationOverlay({
     required this.count,
-    required this.duration,
     required this.newAchievements,
     required this.onDone,
   });
@@ -951,6 +809,10 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay>
       CurvedAnimation(parent: _ctrl, curve: const Interval(0, 0.5)),
     );
     _ctrl.forward();
+    // Auto-dismiss after 4 seconds
+    Future.delayed(const Duration(seconds: 4), () {
+      if (mounted) widget.onDone();
+    });
   }
 
   @override
@@ -972,94 +834,85 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay>
         .whereType<Achievement>()
         .toList();
 
-    return Container(
-      color: const Color(0xFF0D0520),
-      child: FadeTransition(
-        opacity: _fade,
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: ScaleTransition(
-              scale: _scale,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    IconRegistry.instance.icon('Other', 'Session complete') ?? Icons.thumb_up,
-                    size: 72,
-                    color: AppColors.violet400,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Session Complete',
-                    style: TextStyle(
-                      fontFamily: 'Cinzel',
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+    return GestureDetector(
+      onTap: widget.onDone, // tap-anywhere to dismiss
+      child: Container(
+        color: const Color(0xFF0D0520),
+        child: FadeTransition(
+          opacity: _fade,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: ScaleTransition(
+                scale: _scale,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      IconRegistry.instance.icon('Other', 'Session complete') ?? Icons.thumb_up,
+                      size: 72,
+                      color: AppColors.violet400,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${widget.count} repetitions · ${formatTime(widget.duration)}',
-                    style: TextStyle(fontSize: 16, color: AppColors.violet300),
-                  ),
-                  if (achievementDefs.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    Text(
-                      'Achievement${achievementDefs.length > 1 ? 's' : ''} Unlocked!',
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Session Complete',
                       style: TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.amber),
-                    ),
-                    const SizedBox(height: 12),
-                    ...achievementDefs.map((ach) => Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0x1AF59E0B),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0x4DF59E0B)),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                ach.icon,
-                                size: 28,
-                                color: const Color(0xFFFBBF24),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(ach.title,
-                                        style: const TextStyle(
-                                            fontSize: 15, fontWeight: FontWeight.w600,
-                                            color: Color(0xFFFBBF24))),
-                                    Text(ach.description,
-                                        style: const TextStyle(fontSize: 12, color: Color(0x99F59E0B))),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                  ],
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: widget.onDone,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.violet600,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        fontFamily: 'Cinzel',
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
                       ),
-                      child: const Text('Continue',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      '${widget.count} repetitions',
+                      style: TextStyle(fontSize: 16, color: AppColors.violet300),
+                    ),
+                    if (achievementDefs.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      Text(
+                        'Achievement${achievementDefs.length > 1 ? 's' : ''} Unlocked!',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.amber),
+                      ),
+                      const SizedBox(height: 12),
+                      ...achievementDefs.map((ach) => Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0x1AF59E0B),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0x4DF59E0B)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(ach.icon, size: 28, color: const Color(0xFFFBBF24)),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(ach.title,
+                                          style: const TextStyle(
+                                              fontSize: 15, fontWeight: FontWeight.w600,
+                                              color: Color(0xFFFBBF24))),
+                                      Text(ach.description,
+                                          style: const TextStyle(
+                                              fontSize: 12, color: Color(0x99F59E0B))),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                    ],
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Tap anywhere to continue',
+                      style: TextStyle(fontSize: 13, color: Colors.white38),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
