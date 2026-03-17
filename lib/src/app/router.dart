@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../core/providers/launch_notifier.dart';
 import '../features/onboarding/screens/welcome_screen.dart';
 import '../features/onboarding/screens/sign_in_screen.dart';
 import '../features/onboarding/screens/expectations_screen.dart';
@@ -13,8 +14,19 @@ import '../features/settings/screens/settings_screen.dart';
 import '../features/settings/screens/feedback_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 
+const _onboardingPaths = {'/welcome', '/sign-in', '/expectations'};
+
 final appRouter = GoRouter(
   initialLocation: '/library',
+  refreshListenable: launchNotifier,
+  redirect: (context, state) {
+    if (launchNotifier.isLoading) return null;
+    if (!launchNotifier.hasLaunched) {
+      if (_onboardingPaths.contains(state.matchedLocation)) return null;
+      return '/welcome';
+    }
+    return null;
+  },
   routes: [
     // ── Onboarding (no bottom nav) ───────────────────────────────────────
     GoRoute(path: '/welcome',       builder: (_, __) => const WelcomeScreen()),
