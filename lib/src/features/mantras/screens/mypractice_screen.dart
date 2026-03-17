@@ -14,8 +14,6 @@ class MyPracticeScreen extends ConsumerStatefulWidget {
 }
 
 class _MyPracticeScreenState extends ConsumerState<MyPracticeScreen> {
-  bool _limitWarningDismissed = false;
-
   void _onMantraTap(Mantra mantra) {
     final notifier = ref.read(appProvider.notifier);
     final suspended = notifier.suspendedSessionFor(mantra.id);
@@ -39,41 +37,6 @@ class _MyPracticeScreenState extends ConsumerState<MyPracticeScreen> {
     } else {
       context.push('/mantras/${mantra.id}/session');
     }
-  }
-
-  Future<void> _onAddMantra() async {
-    final mantras = ref.read(appProvider).mantras;
-    if (mantras.length >= 5 && !_limitWarningDismissed) {
-      final proceed = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('A lot of mantras?',
-              style: TextStyle(color: AppColors.textPrimary)),
-          content: Text(
-            'Practicing more than 5 mantras may dilute your focus. Are you sure?',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-          backgroundColor: AppColors.bgSurface,
-          actions: [
-            TextButton(
-              onPressed: () => ctx.pop(false),
-              child: Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
-            ),
-            FilledButton(
-              onPressed: () {
-                setState(() => _limitWarningDismissed = true);
-                ctx.pop(true);
-              },
-              style: FilledButton.styleFrom(backgroundColor: AppColors.violet600),
-              child: const Text('Continue'),
-            ),
-          ],
-        ),
-      );
-      if (proceed != true) return;
-    }
-    if (!mounted) return;
-    context.push('/mantras/new');
   }
 
   @override
@@ -155,12 +118,6 @@ class _MyPracticeScreenState extends ConsumerState<MyPracticeScreen> {
               ),
             ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onAddMantra,
-        backgroundColor: AppColors.violet600,
-        elevation: 6,
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
   }
