@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>myMantra — Theme Preview</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ───────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ── Theme variables ────────────────────────── */
+:root{
+  --bg-base:#0D0B1A;--bg-surface:#1A1535;--bg-card:#14112A;
+  --brand:#7C3AED;--brand-on:#FFFFFF;
+  --v300:#C4B5FD;--v400:#A78BFA;--v500:#8B5CF6;--v600:#7C3AED;--v700:#6D28D9;
+  --txt-pri:#EDE9FE;--txt-sec:#8B83A3;--txt-mut:#5C5478;
+  --accent-orange:#F97316;--accent-emerald:#10B981;--accent-red:#EF4444;--accent-amber:#F59E0B;
+  --bdr:rgba(167,139,250,.2);--bdr-sub:rgba(167,139,250,.12);
+  --input-fill:rgba(167,139,250,.08);
+  --overlay:rgba(0,0,0,.4);
+}
+[data-theme="light"]{
+  --bg-base:#FAFAFF;--bg-surface:#FFFFFF;--bg-card:#F3F0FF;
+  --brand:#6D28D9;--brand-on:#FFFFFF;
+  --v300:#C4B5FD;--v400:#A78BFA;--v500:#8B5CF6;--v600:#7C3AED;--v700:#6D28D9;
+  --txt-pri:#1A1535;--txt-sec:#4A4458;--txt-mut:#767185;
+  --bdr:rgba(109,40,217,.2);--bdr-sub:rgba(109,40,217,.12);
+  --input-fill:rgba(109,40,217,.06);
+  --overlay:rgba(0,0,0,.2);
+}
+
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-base);color:var(--txt-pri);transition:margin-right .3s}
+body.sidebar-open{margin-right:380px}
+
+/* ── Top bar ────────────────────────────────── */
+.topbar{position:sticky;top:0;z-index:50;background:var(--bg-surface);border-bottom:1px solid var(--bdr-sub);padding:.6rem 2rem;display:flex;align-items:center;gap:1.2rem}
+.topbar h1{font-family:Cinzel,serif;font-size:1.3rem;color:var(--v500);white-space:nowrap}
+.tab-bar{display:flex;gap:.3rem}
+.tab-btn{padding:.4rem 1rem;border:1px solid transparent;border-radius:6px;background:none;color:var(--txt-sec);cursor:pointer;font-size:.82rem;font-weight:500}
+.tab-btn:hover{background:rgba(139,92,246,.08)}
+.tab-btn.active{background:var(--v600);color:#fff;border-color:var(--v600)}
+.topbar-right{margin-left:auto;display:flex;gap:.6rem;align-items:center}
+.theme-toggle{display:flex;align-items:center;gap:.1rem;background:var(--bg-card);border:1px solid var(--bdr-sub);border-radius:8px;padding:2px;overflow:hidden}
+.theme-opt{display:flex;align-items:center;gap:3px;padding:.3rem .6rem;border:none;border-radius:6px;background:none;color:var(--txt-mut);cursor:pointer;font-size:.75rem;font-weight:500;transition:all .15s}
+.theme-opt .material-icons{font-size:16px}
+.theme-opt.active{background:var(--v600);color:#fff}
+.status{font-size:.75rem;color:var(--txt-mut);min-width:50px;text-align:right}
+.save-btn{padding:.35rem 1rem;background:var(--accent-emerald);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:.8rem}
+.save-btn:hover{opacity:.85}
+.save-btn:disabled{opacity:.4;cursor:default}
+
+/* ── Tabs content ───────────────────────────── */
+.tab-content{display:none;padding:1.5rem 2rem 3rem}
+.tab-content.active{display:block}
+
+/* ── Section headings ───────────────────────── */
+h2{color:var(--v500);margin:1.8rem 0 .8rem;border-bottom:1px solid var(--bdr-sub);padding-bottom:.4rem;font-size:1.05rem}
+h2:first-child{margin-top:.5rem}
+h3{color:var(--txt-sec);margin:1.2rem 0 .5rem;font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+
+/* ── Icon grid ──────────────────────────────── */
+.icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.5rem}
+.icon-item{display:flex;align-items:center;gap:.7rem;padding:.65rem .85rem;background:var(--bg-card);border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .12s}
+.icon-item:hover{border-color:var(--v500);background:var(--bg-surface)}
+.icon-item .material-icons{font-size:22px;flex-shrink:0}
+.icon-item-info{display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.icon-item-ctx{font-size:.78rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-item-name{font-family:monospace;font-size:.65rem;color:var(--txt-mut);white-space:nowrap}
+
+/* ── Color swatches ─────────────────────────── */
+.color-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:.5rem;align-items:center}
+.color-row span[style*="color"]{line-height:1.8;padding:.4rem .6rem}
+.achievement-gradient{animation:gradient-wave 2s ease-in-out infinite}
+@keyframes gradient-wave{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.swatch:hover .swatch-box{border-color:var(--v400)}
+.swatch-box{width:64px;height:44px;border-radius:8px;border:2px solid var(--bdr-sub);transition:border-color .15s}
+.swatch-label{font-size:.65rem;color:var(--txt-sec)}
+.swatch-hex{font-family:monospace;font-size:.6rem;color:var(--txt-mut)}
+
+/* ── Color picker (in sidebar) ──────────────── */
+.cpick-preview{width:100%;height:80px;border-radius:10px;border:2px solid var(--bdr-sub);margin-bottom:1rem}
+.cpick-row{display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem}
+.cpick-native{width:48px;height:48px;border:none;border-radius:8px;cursor:pointer;padding:0;background:none}
+.cpick-native::-webkit-color-swatch-wrapper{padding:0}
+.cpick-native::-webkit-color-swatch{border-radius:8px;border:2px solid var(--bdr-sub)}
+.cpick-hex-input{flex:1;padding:.5rem .7rem;background:var(--bg-base);border:1px solid var(--bdr-sub);border-radius:6px;color:var(--txt-pri);font-family:monospace;font-size:.9rem;outline:none}
+.cpick-hex-input:focus{border-color:var(--v500)}
+.cpick-info{font-size:.75rem;color:var(--txt-sec);margin-bottom:.3rem}
+.cpick-info span{color:var(--v400);font-weight:600}
+.cpick-note{font-size:.7rem;color:var(--txt-mut);margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--bdr-sub);line-height:1.5}
+
+/* ── Font specimens ─────────────────────────── */
+.font-specimen{background:var(--bg-card);border:1px solid var(--bdr-sub);border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:.8rem}
+.font-label{font-size:.7rem;color:var(--txt-mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
+
+/* ── Text style list ────────────────────────── */
+.style-list{display:flex;flex-direction:column;gap:.4rem}
+.style-row{display:flex;align-items:baseline;gap:1rem;padding:.5rem .8rem;background:var(--bg-card);border-radius:8px}
+.style-name{font-family:monospace;font-size:.72rem;color:var(--v400);min-width:130px;flex-shrink:0}
+.style-preview{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.style-meta{font-family:monospace;font-size:.6rem;color:var(--txt-mut);min-width:110px;text-align:right;flex-shrink:0}
+
+/* ── Component preview ──────────────────────── */
+.comp-row{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}
+.comp-card{background:var(--bg-card);border:1px solid var(--bdr-sub);border-radius:16px;padding:1.2rem;min-width:200px;flex:1}
+.comp-card h4{font-size:.75rem;color:var(--txt-mut);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.8rem}
+.demo-btn{display:inline-block;background:var(--brand);color:var(--brand-on);border:none;border-radius:16px;padding:.7rem 2rem;font-size:.9rem;font-weight:600;cursor:default}
+.demo-input{width:100%;padding:.55rem .8rem;background:var(--input-fill);border:1px solid var(--bdr-sub);border-radius:12px;color:var(--txt-pri);font-size:.85rem;outline:none}
+.demo-input:focus{border-color:var(--v500)}
+.demo-nav{display:flex;gap:1.5rem;padding:.6rem 1rem;background:var(--bg-surface);border:1px solid var(--bdr-sub);border-radius:12px}
+.demo-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.65rem}
+.demo-nav-item.sel{color:var(--v400)}
+.demo-nav-item.unsel{color:var(--txt-mut)}
+.demo-nav-item .material-icons{font-size:20px}
+.comp-meta{font-family:monospace;font-size:.65rem;color:var(--txt-mut);margin-top:.5rem}
+
+/* ── Sidebar ────────────────────────────────── */
+.sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay);z-index:90}
+.sidebar-overlay.open{display:block}
+.sidebar{position:fixed;top:0;right:-380px;width:380px;height:100vh;background:var(--bg-surface);border-left:2px solid var(--v500);z-index:100;display:flex;flex-direction:column;transition:right .3s}
+.sidebar.open{right:0}
+.sidebar-header{padding:1rem 1.2rem;background:var(--bg-card);border-bottom:1px solid var(--bdr-sub);flex-shrink:0}
+.sidebar-header-top{display:flex;align-items:center;justify-content:space-between}
+.sidebar-close{background:none;border:none;color:var(--txt-sec);font-size:1.4rem;cursor:pointer;padding:.2rem .5rem;border-radius:4px}
+.sidebar-close:hover{color:var(--txt-pri);background:var(--input-fill)}
+.sidebar-current{display:flex;align-items:center;gap:.8rem;margin-top:.8rem;padding:.8rem;background:rgba(124,58,237,.12);border-radius:8px;border:2px solid var(--v500)}
+.sidebar-current .material-icons{font-size:32px}
+.sidebar-current-info{display:flex;flex-direction:column}
+.sidebar-current-ctx{font-weight:600;font-size:.9rem}
+.sidebar-current-name{font-family:monospace;font-size:.75rem;color:var(--v400)}
+.sidebar-search{width:100%;padding:.5rem .8rem;margin-top:.6rem;background:var(--bg-base);border:1px solid var(--bdr-sub);border-radius:6px;color:var(--txt-pri);font-size:.85rem;outline:none}
+.sidebar-search:focus{border-color:var(--v500)}
+.sidebar-body{flex:1;overflow-y:auto;padding:.8rem}
+.sidebar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:.35rem}
+.pick-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:.45rem .3rem;border-radius:6px;border:2px solid transparent;background:var(--bg-card);cursor:pointer;transition:all .1s;color:var(--txt-pri)}
+.pick-btn:hover{border-color:var(--v500);background:var(--bg-surface)}
+.pick-btn.active{border-color:var(--v400);background:rgba(124,58,237,.15)}
+.pick-btn .material-icons{font-size:22px}
+.pick-btn .pick-name{font-family:monospace;font-size:.48rem;color:var(--txt-mut);text-align:center;word-break:break-all}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <h1>myMantra</h1>
+  <div class="tab-bar" id="tab-bar"></div>
+  <div class="topbar-right">
+    <div class="theme-toggle" id="theme-toggle"></div>
+    <span class="status" id="status"></span>
+    <button class="save-btn" id="save-btn" disabled>Save</button>
+  </div>
+</div>
+
+<!-- Tab panels -->
+<div id="panels"></div>
+
+<!-- Sidebar -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-header-top">
+      <span id="sidebar-title" style="color:var(--v400);font-weight:600;font-size:.9rem">Choose Icon</span>
+      <button class="sidebar-close" id="sidebar-close">&times;</button>
+    </div>
+    <div class="sidebar-current" id="sidebar-current"></div>
+    <input class="sidebar-search" id="sidebar-search" type="text" placeholder="Search icons...">
+  </div>
+  <div class="sidebar-body" id="sidebar-body"></div>
+</div>
+
+<script>
+/* ================================================================
+   Material Icons — curated list
+   ================================================================ */
+var ALL_ICONS = [
+  "ac_unit","access_alarm","access_time","accessibility","accessibility_new","account_balance",
+  "account_circle","add","add_circle","adjust","admin_panel_settings","agriculture","air",
+  "airline_seat_recline_normal","alarm","all_inclusive","alt_route","anchor","android",
+  "animation","api","apps","architecture","archive","arrow_back","arrow_forward",
+  "art_track","article","assessment","assignment","assistant","attach_file","audiotrack",
+  "auto_awesome","auto_fix_high","auto_stories","backup","balance","ballot","bar_chart",
+  "batch_prediction","beach_access","bedtime","bike_scooter","biotech","block","blur_circular",
+  "blur_on","bolt","book","bookmark","brightness_1","brightness_2","brightness_3",
+  "brightness_4","brightness_5","brightness_6","brightness_7","brightness_high","brightness_low",
+  "brightness_medium","brush","bubble_chart","bug_report","build","cake","calculate",
+  "calendar_today","camera","campaign","castle","category","celebration","center_focus_strong",
+  "change_history","chat","chat_bubble_outline","check","check_circle","child_care",
+  "church","circle","clean_hands","close","cloud","code","color_lens","commute",
+  "compare","compass_calibration","compost","construction","contact_support","contrast",
+  "control_camera","copyright","cottage","create","crop_free","cruelty_free","dashboard",
+  "dark_mode","data_usage","delete","design_services","developer_board","device_hub",
+  "diamond","dining","directions_boat","directions_run","diversity_1","diversity_2",
+  "diversity_3","dns","domain","done","done_all","double_arrow","download",
+  "drafts","draw","dry","dynamic_feed","eco","edit","electric_bolt","email",
+  "emoji_emotions","emoji_events","emoji_nature","emoji_objects","emoji_people",
+  "energy_savings_leaf","engineering","error","error_outline","event","explore",
+  "extension","face","factory","family_restroom","favorite","favorite_border",
+  "featured_play_list","feedback","festival","filter_drama","filter_hdr","filter_vintage",
+  "fingerprint","fire_extinguisher","fireplace","fitness_center","flag","flare",
+  "flash_on","flight","flip_camera_android","flourescent","flutter_dash","folder",
+  "forest","format_paint","format_quote","forum","front_hand","functions",
+  "gavel","gesture","grade","gradient","grain","graphic_eq","grass","grid_view",
+  "group","hd","healing","health_and_safety","hearing","heart_broken","help",
+  "hexagon","highlight","hiking","history","history_edu","home","hotel",
+  "hourglass_empty","hub","ice_skating","image","inbox","info","insights",
+  "integration_instructions","interests","invert_colors","join_full","join_inner",
+  "kayaking","key","keyboard","label","landscape","language","laptop_mac","launch","layers",
+  "leaderboard","lens","library_books","library_music","light","light_mode",
+  "lightbulb","link","list","local_activity","local_cafe","local_fire_department",
+  "local_florist","local_hospital","local_library","local_offer","local_pharmacy",
+  "local_shipping","location_on","lock","lock_open","lock_outline","login","logout",
+  "looks","loop","loyalty","lunch_dining","lyrics","mail","map","masks","maximize",
+  "media_bluetooth_on","mediation","medical_services","medication","menu_book",
+  "merge","military_tech","minimize","mode_heat","monitor_heart","mood","more_horiz",
+  "mosque","motion_photos_on","mouse","movie","multiple_stop","music_note",
+  "nature","nature_people","navigation","near_me","new_releases","nightlife",
+  "nightlight_round","nights_stay","no_accounts","north","note","notifications",
+  "offline_bolt","opacity","open_in_new","open_with","outdoor_grill","outgoing_mail",
+  "outlet","palette","park","patio","pause","payments","pentagon","people",
+  "percent","person","pets","phone","phone_iphone","photo","piano","pie_chart","pin","place",
+  "plagiarism","play_arrow","plus_one","podcasts","point_of_sale","pool","power",
+  "precision_manufacturing","print","priority_high","privacy_tip","psychology",
+  "psychology_alt","public","push_pin","queue_music","quiz","radar",
+  "radio_button_checked","recommend","record_voice_over","recycling","reduce_capacity",
+  "refresh","remove_red_eye","repeat","replay","report_problem","restaurant",
+  "rocket","rocket_launch","route","rowing","rss_feed","rule","run_circle",
+  "safety_divider","sailing","sanitizer","satellite","savings","schedule","school",
+  "science","score","search","security","self_improvement","send","sensors",
+  "sentiment_satisfied","sentiment_very_satisfied","settings","settings_accessibility",
+  "settings_suggest","share","shield","shopping_cart","show_chart","shuffle",
+  "signal_cellular_alt","spa","space_bar","speaker","speed","sports","sports_esports",
+  "sports_martial_arts","square_foot","star","star_border","star_rate","stars",
+  "stop","storage","storm","straighten","stream","subscriptions","sunny",
+  "support","surfing","swap_horiz","sync","sync_alt","tab","tag","takeout_dining",
+  "task","temple_buddhist","temple_hindu","terminal","terrain","theaters","thermostat",
+  "thumb_down","thumb_up","timer","timelapse","timeline","tips_and_updates",
+  "title","today","toggle_off","toggle_on","token","toll","tonality","topic",
+  "touch_app","tour","track_changes","traffic","translate","travel_explore",
+  "trending_down","trending_flat","trending_up","troubleshoot","tsunami","tune",
+  "tungsten","umbrella","undo","unfold_more","upcoming","update","upgrade",
+  "verified","verified_user","vertical_align_top","vibration","videocam",
+  "view_in_ar","visibility","visibility_off","voice_over_off","volunteer_activism",
+  "vpn_key","warning","warning_amber","water","water_drop","waterfall_chart",
+  "waves","wb_cloudy","wb_incandescent","wb_sunny","wb_twilight","weekend",
+  "whatshot","widgets","wifi","wind_power","wine_bar","work","workspace_premium",
+  "yard"
+];
+
+/* ================================================================
+   Themes registry — extensible
+   ================================================================ */
+var THEMES = [
+  { id: "dark",  label: "Dark",  icon: "dark_mode" },
+  { id: "light", label: "Light", icon: "light_mode" },
+  // Add more here: { id: "amoled", label: "AMOLED", icon: "brightness_1" },
+];
+
+/* ================================================================
+   State
+   ================================================================ */
+var iconsYml = "";
+var themeYml = "";
+var iconSections = [];
+var dirty = false;
+var activeTab = "icons";
+var activeTheme = "dark";
+var sidebarMode = null;  // "icon" | "color"
+var sidebarKey = null;   // icon: "si-ii"
+var searchTerm = "";
+
+// Color palettes — mutable state
+var colorPalettes = {
+  dark: [
+    ["Brand", {violet300:"#C4B5FD",violet400:"#A78BFA",violet500:"#8B5CF6",violet600:"#7C3AED",violet700:"#6D28D9"}],
+    ["Background", {base:"#0D0B1A",surface:"#1A1535",card:"#14112A",session:"#0D0520"}],
+    ["Text", {primary:"#EDE9FE",secondary:"#8B83A3",muted:"#5C5478"}],
+    ["Accent", {orange:"#F97316",emerald:"#10B981",red:"#EF4444",amber:"#F59E0B"}],
+    ["Border", {"default":"#A78BFA33","subtle":"#A78BFA1F"}],
+    ["Achievements", {common:"#8B83A3",uncommon:"#34D399",rare:"#22D3EE",superRare:"#C084FC",epic:"#F59E0B",heroic:"#EF4444",exotic:["#BFFF00","#00FF88","#00D9FF","#00BFFF","#BFFF00"],mythic:["#B22222","#FF6347","#FFD700","#FF6347","#B22222"],legendary:["#FFD700","#FFFACD","#FFED4E","#FFC700","#FFD700"],divine:["#FFD700","#FFE135","#C084FC","#A78BFA","#FFD700"]}],
+  ],
+  light: [
+    ["Brand", {primary:"#6D28D9",onPrimary:"#FFFFFF"}],
+    ["Background", {base:"#FAFAFF",surface:"#FFFFFF",card:"#F3F0FF"}],
+    ["Text", {primary:"#1A1535",secondary:"#4A4458",muted:"#767185"}],
+    ["Accent", {orange:"#F97316",emerald:"#10B981",red:"#EF4444",amber:"#F59E0B"}],
+    ["Border", {"default":"#6D28D933","subtle":"#6D28D91F"}],
+    ["Achievements", {common:"#767185",uncommon:"#047857",rare:"#0284C7",superRare:"#7C3AED",epic:"#D97706",heroic:"#DC2626",exotic:["#228B22","#20B2AA","#00CED1","#008B8B","#228B22"],mythic:["#B8500D","#D2691E","#DAA520","#8B4513","#B8500D"],legendary:["#D4AF37","#FFD700","#FFA500","#FF8C00","#D4AF37"],divine:["#DAA520","#D97706","#047857","#0284C7","#7C3AED","#DAA520"]}],
+  ]
+};
+var editingColor = null; // {theme, groupIdx, colorName}
+
+/* ================================================================
+   DOM helpers
+   ================================================================ */
+function el(tag, attrs, children) {
+  var e = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(function(k) {
+    if (k === "className") e.className = attrs[k];
+    else if (k.indexOf("on") === 0) e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  if (children) children.forEach(function(c) {
+    if (typeof c === "string") e.appendChild(document.createTextNode(c));
+    else if (c) e.appendChild(c);
+  });
+  return e;
+}
+function clearEl(e) { while (e.firstChild) e.removeChild(e.firstChild); }
+function matIcon(name, sz) {
+  var s = el("span", {className:"material-icons"}, [name]);
+  if (sz) s.style.fontSize = sz + "px";
+  return s;
+}
+
+/* ================================================================
+   Theme toggle
+   ================================================================ */
+function setTheme(id) {
+  activeTheme = id;
+  document.documentElement.setAttribute("data-theme", id);
+  buildThemeToggle();
+  renderColors();
+}
+
+function buildThemeToggle() {
+  var container = document.getElementById("theme-toggle");
+  clearEl(container);
+  THEMES.forEach(function(t) {
+    var btn = el("button", {
+      className: "theme-opt" + (activeTheme === t.id ? " active" : ""),
+      onclick: function() { setTheme(t.id); }
+    }, [matIcon(t.icon, 16), t.label]);
+    container.appendChild(btn);
+  });
+}
+
+/* ================================================================
+   YAML-lite parser/serializer for icons.yml
+   ================================================================ */
+function parseIconsYml(raw) {
+  var sections = [];
+  var cur = null;
+  var achievementCategory = null;
+  var currentItem = null;
+  
+  raw.split("\n").forEach(function(line) {
+    var trimmed = line.trim();
+    var indent = line.match(/^(\s*)/)[1].length;
+    
+    if (!trimmed) return;
+    
+    // Top-level section (0 indent)
+    if (indent === 0 && trimmed.endsWith(":") && trimmed.indexOf("Icons.") === -1) {
+      cur = { title: trimmed.slice(0, -1), items: [] };
+      sections.push(cur);
+      achievementCategory = null;
+      currentItem = null;
+      return;
+    }
+    
+    // Handle Achievements nested structure (special case)
+    if (cur && cur.title === "Achievements") {
+      // Achievement subcategory (4 indent, no dash)
+      if (indent === 4 && !trimmed.startsWith("- ") && trimmed.endsWith(":")) {
+        achievementCategory = trimmed.slice(0, -1);
+        currentItem = null;
+        return;
+      }
+      
+      // List item start (6 indent, starts with dash)
+      if (indent === 6 && trimmed.startsWith("- ")) {
+        currentItem = {};
+        return;
+      }
+      
+      // Extract properties from list items (8 indent)
+      if (indent === 8 && currentItem !== null && trimmed.indexOf(":") !== -1) {
+        var colonIdx = trimmed.indexOf(":");
+        var key = trimmed.slice(0, colonIdx).trim();
+        var val = trimmed.slice(colonIdx + 1).trim();
+        
+        if (key === "name") currentItem.name = val;
+        if (key === "icon") currentItem.icon = val.replace(/^Icons\./, "");
+        if (key === "rarity") currentItem.rarity = val;
+        if (key === "id") currentItem.id = val;
+        
+        // When we have all the data we need, add the item
+        if (currentItem.icon && currentItem.name && currentItem.rarity) {
+          cur.items.push({ 
+            context: currentItem.name,  // Just the name, no prefix/suffix
+            icon: currentItem.icon,
+            rarity: currentItem.rarity,
+            achievementName: currentItem.name
+          });
+          currentItem = {};  // Reset for next item
+        }
+      }
+      return;
+    }
+    
+    // Standard key:value parsing for non-Achievement sections (both 2 and 4 space indent)
+    if (cur && (indent === 2 || indent === 4) && trimmed.indexOf(":") !== -1 && !trimmed.startsWith("- ")) {
+      var idx = trimmed.indexOf(":");
+      var context = trimmed.slice(0, idx).trim();
+      var val = trimmed.slice(idx + 1).trim();
+      var iconName = val.replace(/^Icons\./, "");
+      if (iconName) cur.items.push({ context: context, icon: iconName });
+    }
+  });
+  return sections;
+}
+
+function serializeIconsYml(sections) {
+  var lines = [];
+  sections.forEach(function(sec, si) {
+    if (si > 0) lines.push("");
+    lines.push(sec.title + ":");
+    sec.items.forEach(function(item) {
+      var indent = sec.title === "Tags" ? "  " : "    ";
+      lines.push(indent + item.context + ": Icons." + item.icon);
+    });
+  });
+  lines.push("");
+  return lines.join("\n");
+}
+
+/* ================================================================
+   API
+   ================================================================ */
+function apiRead(filename) {
+  return fetch("/api/read/" + filename).then(function(r) { return r.json(); });
+}
+function apiWrite(filename, content) {
+  return fetch("/api/write/" + filename, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({content: content})
+  }).then(function(r) { return r.json(); });
+}
+
+function setStatus(msg) {
+  document.getElementById("status").textContent = msg;
+  if (msg) setTimeout(function() {
+    var s = document.getElementById("status");
+    if (s.textContent === msg) s.textContent = "";
+  }, 3000);
+}
+function markDirty() {
+  dirty = true;
+  document.getElementById("save-btn").disabled = false;
+}
+function save() {
+  setStatus("Saving...");
+  Promise.all([
+    apiWrite("icons.yml", serializeIconsYml(iconSections)),
+    apiWrite("theme.yml", themeYml)
+  ]).then(function() {
+    dirty = false;
+    document.getElementById("save-btn").disabled = true;
+    setStatus("Saved");
+  });
+}
+
+/* ================================================================
+   Tabs — 3 tabs now (Icons, Colors, Typography)
+   ================================================================ */
+var TABS = [
+  { id: "icons",      label: "Icons" },
+  { id: "colors",     label: "Colors" },
+  { id: "typography", label: "Typography" },
+];
+
+function buildTabs() {
+  var bar = document.getElementById("tab-bar");
+  clearEl(bar);
+  TABS.forEach(function(t) {
+    var btn = el("button", {
+      className: "tab-btn" + (activeTab === t.id ? " active" : ""),
+      onclick: function() { activeTab = t.id; buildTabs(); showTab(); }
+    }, [t.label]);
+    bar.appendChild(btn);
+  });
+}
+
+function showTab() {
+  TABS.forEach(function(t) {
+    var panel = document.getElementById("panel-" + t.id);
+    if (panel) panel.className = "tab-content" + (activeTab === t.id ? " active" : "");
+  });
+}
+
+/* ================================================================
+   Render: Icons tab
+   ================================================================ */
+function renderIcons() {
+  var panel = document.getElementById("panel-icons");
+  if (!panel) return;
+  clearEl(panel);
+
+  iconSections.forEach(function(sec, si) {
+    panel.appendChild(el("h2", {}, [sec.title]));
+    var grid = el("div", {className:"icon-grid"});
+    sec.items.forEach(function(item, ii) {
+      var key = si + "-" + ii;
+      
+      // Determine rarity color if this is an achievement
+      var contextColor = null;
+      var contextStyle = "font-size:.78rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+      if (sec.title === "Achievements" && item.rarity) {
+        var isDark = activeTheme === "dark";
+        contextColor = getRarityColor(item.rarity, isDark);
+        if (contextColor) {
+          contextStyle += ";color:" + contextColor + ";font-weight:600";
+        }
+      }
+      
+      var contextEl = el("span", {className:"icon-item-ctx", style: contextStyle}, [item.context]);
+      
+      var card = el("div", {
+        className: "icon-item",
+        onclick: function() { openSidebar(si, ii); }
+      }, [
+        matIcon(item.icon, 22),
+        el("div", {className:"icon-item-info"}, [
+          contextEl,
+          el("span", {className:"icon-item-name"}, ["Icons." + item.icon]),
+        ])
+      ]);
+      
+      if (sidebarKey === key) {
+        card.style.borderColor = "var(--v500)";
+        card.style.background = "var(--bg-surface)";
+      }
+      grid.appendChild(card);
+    });
+    panel.appendChild(grid);
+  });
+}
+
+function getRarityColor(rarity, isDark) {
+  var colors = isDark ? {
+    common: "#8B83A3",
+    uncommon: "#34D399",
+    rare: "#22D3EE",
+    superRare: "#C084FC",
+    epic: "#F59E0B",
+    heroic: "#EF4444"
+  } : {
+    common: "#767185",
+    uncommon: "#047857",
+    rare: "#0284C7",
+    superRare: "#7C3AED",
+    epic: "#D97706",
+    heroic: "#DC2626"
+  };
+  return colors[rarity] || null;
+}
+
+/* ================================================================
+   Render: Colors tab
+   ================================================================ */
+function renderColors() {
+  var panel = document.getElementById("panel-colors");
+  if (!panel) return;
+  clearEl(panel);
+
+  var groups = colorPalettes[activeTheme] || colorPalettes.dark;
+  var isDark = activeTheme === "dark";
+  var label = THEMES.filter(function(t) { return t.id === activeTheme; })[0];
+  panel.appendChild(el("h2", {}, [label ? label.label + " Theme" : "Colors"]));
+  groups.forEach(function(g, gi) { renderColorGroup(panel, g[0], g[1], isDark, gi); });
+}
+
+function renderColorGroup(panel, groupName, colors, isDark, groupIdx) {
+  panel.appendChild(el("h3", {}, [groupName]));
+  var row = el("div", {className:"color-row"});
+  
+  // Special rendering for Achievements — show as colored text
+  if (groupName === "Achievements") {
+    // Determine shadow color based on theme
+    var shadowColor = isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)";
+    var shadowStyle = "text-shadow:2px 2px 3px " + shadowColor;
+    
+    Object.keys(colors).forEach(function(name) {
+      var value = colors[name];
+      var label = el("span", {}, [name]);
+      
+      // Handle arrays (gradient colors with animation)
+      if (Array.isArray(value)) {
+        var gradientColors = value.join(", ");
+        var backgroundSize = (value.length * 100) + "% 100%";
+        label.className = "achievement-gradient";
+        // Don't apply text-shadow to gradient text (it won't be visible with transparent text)
+        label.style.cssText = "font-size:1rem;font-weight:600;background:linear-gradient(90deg," + gradientColors + ");background-size:" + backgroundSize + ";background-position:0% 50%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;min-width:80px;filter:drop-shadow(2px 2px 3px " + shadowColor + ");cursor:not-allowed;";
+      } else {
+        // Static colors get text-shadow and are clickable
+        label.style.cssText = "font-size:1rem;font-weight:600;color:" + value + ";" + shadowStyle + "cursor:pointer;";
+        // Add click handler for static colors only
+        label.onclick = function(e) {
+          e.stopPropagation();
+          openColorSidebar(activeTheme, groupIdx, name);
+        };
+      }
+      
+      row.appendChild(label);
+      row.appendChild(document.createTextNode("  "));
+    });
+  } else {
+    Object.keys(colors).forEach(function(name) {
+      var hex = colors[name];
+      var box = el("div", {className:"swatch-box"});
+      box.style.background = hex;
+      if (!isDark && (hex === "#FFFFFF" || hex === "#FAFAFF" || hex === "#F3F0FF")) {
+        box.style.borderColor = "#ccc";
+      }
+      if (isDark && groupName === "Background") {
+        box.style.borderColor = "rgba(255,255,255,.15)";
+      }
+      if (editingColor && editingColor.theme === activeTheme && editingColor.groupIdx === groupIdx && editingColor.colorName === name) {
+        box.style.borderColor = "var(--v400)";
+        box.style.borderWidth = "3px";
+      }
+      var swatch = el("div", {className:"swatch", onclick: function() {
+        openColorSidebar(activeTheme, groupIdx, name);
+      }}, [
+        box,
+        el("span", {className:"swatch-label"}, [name]),
+        el("span", {className:"swatch-hex"}, [hex]),
+      ]);
+      row.appendChild(swatch);
+    });
+  }
+  panel.appendChild(row);
+}
+
+/* ================================================================
+   Render: Typography tab (fonts + text styles + components)
+   ================================================================ */
+function renderTypography() {
+  var panel = document.getElementById("panel-typography");
+  if (!panel) return;
+  clearEl(panel);
+
+  // ── Display font ──
+  panel.appendChild(el("h2", {}, ["Display Font"]));
+  var cinzelSpec = el("div", {className:"font-specimen"});
+  cinzelSpec.appendChild(el("div", {className:"font-label"}, ["Cinzel \u2014 Titles, headers, screen headings"]));
+  var s1 = el("div", {}, ["Om Namah Shivaya"]);
+  s1.style.cssText = "font-family:Cinzel,serif;font-size:2rem;font-weight:600;margin-bottom:.5rem";
+  cinzelSpec.appendChild(s1);
+  var s1b = el("div", {}, ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"]);
+  s1b.style.cssText = "font-family:Cinzel,serif;font-size:1rem;color:var(--txt-sec)";
+  cinzelSpec.appendChild(s1b);
+  var s1c = el("div", {}, ["abcdefghijklmnopqrstuvwxyz  0123456789"]);
+  s1c.style.cssText = "font-family:Cinzel,serif;font-size:1rem;color:var(--txt-mut)";
+  cinzelSpec.appendChild(s1c);
+  panel.appendChild(cinzelSpec);
+
+  // Weights
+  var wSpec = el("div", {className:"font-specimen"});
+  wSpec.appendChild(el("div", {className:"font-label"}, ["Cinzel \u2014 Weight Scale"]));
+  [400,500,600,700,800,900].forEach(function(w) {
+    var r = el("div", {}, ["myMantra  \u2014  weight " + w]);
+    r.style.cssText = "font-family:Cinzel,serif;font-size:1.1rem;font-weight:" + w + ";margin-bottom:.3rem";
+    wSpec.appendChild(r);
+  });
+  panel.appendChild(wSpec);
+
+  // ── Body font ──
+  panel.appendChild(el("h2", {}, ["Body Font"]));
+  var sysSpec = el("div", {className:"font-specimen"});
+  sysSpec.appendChild(el("div", {className:"font-label"}, ["System Default \u2014 Body text, labels, UI chrome"]));
+  var s2 = el("div", {}, ["The quick brown fox jumps over the lazy dog."]);
+  s2.style.cssText = "font-size:1rem;margin-bottom:.3rem";
+  sysSpec.appendChild(s2);
+  var s2b = el("div", {}, ["ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789"]);
+  s2b.style.cssText = "font-size:.85rem;color:var(--txt-sec)";
+  sysSpec.appendChild(s2b);
+  panel.appendChild(sysSpec);
+
+  // ── Script fonts ──
+  panel.appendChild(el("h2", {}, ["Script Fonts"]));
+  var scripts = [
+    {family:"Noto Sans Devanagari", label:"NotoSansDevanagari \u2014 Sanskrit, Hindi", sample:"\u0913\u0902 \u0928\u092E\u0903 \u0936\u093F\u0935\u093E\u092F"},
+    {family:"Noto Sans Hebrew",     label:"NotoSansHebrew \u2014 Hebrew",             sample:"\u05E9\u05DE\u05E2 \u05D9\u05E9\u05E8\u05D0\u05DC"},
+    {family:"Noto Sans Arabic",     label:"NotoSansArabic \u2014 Arabic",             sample:"\u0628\u0633\u0645 \u0627\u0644\u0644\u0647 \u0627\u0644\u0631\u062D\u0645\u0646"},
+    {family:"Noto Serif Tibetan",   label:"NotoSerifTibetan \u2014 Tibetan",          sample:"\u0F00 \u0F58\u0F0B\u0F4E\u0F72\u0F0B\u0F54\u0F51\u0F0B\u0F58\u0F7A"},
+    {family:"Noto Sans Thai",       label:"NotoSansThai \u2014 Thai",                 sample:"\u0E2A\u0E27\u0E31\u0E2A\u0E14\u0E35\u0E04\u0E23\u0E31\u0E1A"},
+    {family:"Noto Sans Tamil",      label:"NotoSansTamil \u2014 Tamil",               sample:"\u0B93\u0BAE\u0BCD \u0BA8\u0BAE\u0B9A\u0BBF\u0BB5\u0BBE\u0BAF"},
+    {family:"Noto Sans Gujarati",   label:"NotoSansGujarati \u2014 Gujarati",         sample:"\u0A93\u0AAE\u0ACD \u0AA8\u0AAE\u0A83 \u0AB6\u0ABF\u0AB5\u0ABE\u0AAF"},
+    {family:"Noto Sans SC",         label:"NotoSansSC \u2014 Simplified Chinese",     sample:"\u5357\u65E0\u963F\u5F25\u9640\u4F5B"},
+    {family:"Noto Sans JP",         label:"NotoSansJP \u2014 Japanese",               sample:"\u5357\u7121\u963F\u5F25\u9640\u4ECF"},
+    {family:"Noto Sans KR",         label:"NotoSansKR \u2014 Korean",                 sample:"\uB098\uBB34\uC544\uBBF8\uD0C0\uBD88"},
+  ];
+  scripts.forEach(function(s) {
+    var spec = el("div", {className:"font-specimen"});
+    spec.appendChild(el("div", {className:"font-label"}, [s.label]));
+    var sample = el("div", {}, [s.sample]);
+    sample.style.cssText = "font-family:'" + s.family + "',sans-serif;font-size:1rem";
+    spec.appendChild(sample);
+    panel.appendChild(spec);
+  });
+
+  // ── Text Style Hierarchy ──
+  panel.appendChild(el("h2", {}, ["Text Style Hierarchy"]));
+  var styles = [
+    {name:"displayLarge",  font:"Cinzel", weight:"400", color:"primary",   size:"57px", sample:"Display Large"},
+    {name:"displayMedium", font:"Cinzel", weight:"400", color:"primary",   size:"45px", sample:"Display Medium"},
+    {name:"headlineLarge", font:"system", weight:"700", color:"primary",   size:"32px", sample:"Headline Large"},
+    {name:"headlineMedium",font:"system", weight:"600", color:"primary",   size:"28px", sample:"Headline Medium"},
+    {name:"titleLarge",    font:"system", weight:"600", color:"primary",   size:"22px", sample:"Title Large"},
+    {name:"titleMedium",   font:"system", weight:"500", color:"primary",   size:"16px", sample:"Title Medium"},
+    {name:"bodyLarge",     font:"system", weight:"400", color:"primary",   size:"16px", sample:"Body Large \u2014 The quick brown fox jumps over the lazy dog"},
+    {name:"bodyMedium",    font:"system", weight:"400", color:"secondary", size:"14px", sample:"Body Medium \u2014 The quick brown fox jumps over the lazy dog"},
+    {name:"bodySmall",     font:"system", weight:"400", color:"muted",     size:"12px", sample:"Body Small \u2014 The quick brown fox jumps over the lazy dog"},
+    {name:"labelLarge",    font:"system", weight:"600", color:"primary",   size:"14px", sample:"LABEL LARGE"},
+    {name:"labelMedium",   font:"system", weight:"500", color:"secondary", size:"12px", sample:"LABEL MEDIUM"},
+    {name:"labelSmall",    font:"system", weight:"500", color:"muted",     size:"11px", sample:"LABEL SMALL"},
+  ];
+  var colorMap = {primary:"var(--txt-pri)",secondary:"var(--txt-sec)",muted:"var(--txt-mut)"};
+  var list = el("div", {className:"style-list"});
+  styles.forEach(function(s) {
+    var preview = el("span", {className:"style-preview"}, [s.sample]);
+    var sz = parseInt(s.size);
+    preview.style.fontSize = (sz > 32 ? 32 : sz) + "px";
+    preview.style.fontWeight = s.weight;
+    preview.style.color = colorMap[s.color];
+    if (s.font === "Cinzel") preview.style.fontFamily = "Cinzel, serif";
+
+    list.appendChild(el("div", {className:"style-row"}, [
+      el("span", {className:"style-name"}, [s.name]),
+      preview,
+      el("span", {className:"style-meta"}, [s.weight + " / " + s.color]),
+    ]));
+  });
+  panel.appendChild(list);
+
+  // ── Components ──
+  panel.appendChild(el("h2", {}, ["Components"]));
+
+  var row1 = el("div", {className:"comp-row"});
+
+  // Card
+  var cardDemo = el("div", {className:"comp-card"});
+  cardDemo.appendChild(el("h4", {}, ["Card"]));
+  cardDemo.appendChild(el("div", {}, ["Card content with default styling"]));
+  cardDemo.appendChild(el("div", {className:"comp-meta"}, ["borderRadius: 16  /  border: subtle  /  elevation: 0"]));
+  row1.appendChild(cardDemo);
+
+  // Button
+  var btnDemo = el("div", {className:"comp-card"});
+  btnDemo.appendChild(el("h4", {}, ["Elevated Button"]));
+  btnDemo.appendChild(el("div", {className:"demo-btn"}, ["Start Session"]));
+  btnDemo.appendChild(el("div", {className:"comp-meta"}, ["brand / white / radius 16 / pad 14"]));
+  row1.appendChild(btnDemo);
+  panel.appendChild(row1);
+
+  var row2 = el("div", {className:"comp-row"});
+
+  // Input
+  var inputDemo = el("div", {className:"comp-card"});
+  inputDemo.appendChild(el("h4", {}, ["Input Field"]));
+  inputDemo.appendChild(el("input", {className:"demo-input", placeholder:"Search mantras..."}));
+  inputDemo.appendChild(el("div", {className:"comp-meta"}, ["fill: brand/8%  /  radius 12  /  focus: violet500"]));
+  row2.appendChild(inputDemo);
+
+  // Bottom nav
+  var navDemo = el("div", {className:"comp-card"});
+  navDemo.appendChild(el("h4", {}, ["Bottom Navigation"]));
+  navDemo.appendChild(el("div", {className:"demo-nav"}, [
+    el("div", {className:"demo-nav-item sel"}, [matIcon("home",20), "Home"]),
+    el("div", {className:"demo-nav-item unsel"}, [matIcon("auto_stories",20), "Library"]),
+    el("div", {className:"demo-nav-item unsel"}, [matIcon("show_chart",20), "Progress"]),
+    el("div", {className:"demo-nav-item unsel"}, [matIcon("settings",20), "Settings"]),
+  ]));
+  row2.appendChild(navDemo);
+  panel.appendChild(row2);
+}
+
+/* ================================================================
+   Sidebar — shared open/close, two modes: icon & color
+   ================================================================ */
+function openSidebarUI() {
+  document.getElementById("sidebar").classList.add("open");
+  document.getElementById("sidebar-overlay").classList.add("open");
+  document.body.classList.add("sidebar-open");
+}
+
+function closeSidebar() {
+  sidebarMode = null;
+  sidebarKey = null;
+  editingColor = null;
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebar-overlay").classList.remove("open");
+  document.body.classList.remove("sidebar-open");
+  renderIcons();
+  renderColors();
+}
+
+/* ── Icon sidebar ── */
+function openSidebar(si, ii) {
+  sidebarMode = "icon";
+  sidebarKey = si + "-" + ii;
+  editingColor = null;
+  searchTerm = "";
+  document.getElementById("sidebar-search").value = "";
+  document.getElementById("sidebar-search").style.display = "";
+  openSidebarUI();
+  renderSidebarHeader(si, ii);
+  renderSidebarBody(si, ii);
+  renderIcons();
+}
+
+function renderSidebarHeader(si, ii) {
+  var item = iconSections[si].items[ii];
+  var cur = document.getElementById("sidebar-current");
+  clearEl(cur);
+  cur.appendChild(matIcon(item.icon, 32));
+  cur.appendChild(el("div", {className:"sidebar-current-info"}, [
+    el("span", {className:"sidebar-current-ctx"}, [item.context]),
+    el("span", {className:"sidebar-current-name"}, ["Icons." + item.icon]),
+  ]));
+  document.getElementById("sidebar-title").textContent = iconSections[si].title + " \u2014 " + item.context;
+}
+
+function renderSidebarBody(si, ii) {
+  var item = iconSections[si].items[ii];
+  var body = document.getElementById("sidebar-body");
+  clearEl(body);
+  var grid = el("div", {className:"sidebar-grid"});
+  var lowerSearch = searchTerm.toLowerCase();
+  ALL_ICONS.forEach(function(iconName) {
+    if (lowerSearch && iconName.indexOf(lowerSearch) === -1) return;
+    var isActive = iconName === item.icon;
+    var btn = el("button", {
+      className: "pick-btn" + (isActive ? " active" : ""),
+      onclick: function() {
+        item.icon = iconName;
+        markDirty();
+        renderSidebarHeader(si, ii);
+        renderSidebarBody(si, ii);
+        renderIcons();
+      }
+    }, [
+      matIcon(iconName, 22),
+      el("span", {className:"pick-name"}, [iconName])
+    ]);
+    grid.appendChild(btn);
+  });
+  body.appendChild(grid);
+  body.scrollTop = 0;
+}
+
+/* ── Color sidebar ── */
+function openColorSidebar(themeName, groupIdx, colorName) {
+  sidebarMode = "color";
+  sidebarKey = null;
+  editingColor = {theme: themeName, groupIdx: groupIdx, colorName: colorName};
+  document.getElementById("sidebar-search").style.display = "none";
+  openSidebarUI();
+  renderColorSidebar();
+  renderColors();
+}
+
+function getEditingColorValue() {
+  if (!editingColor) return "#000000";
+  var group = colorPalettes[editingColor.theme][editingColor.groupIdx];
+  return group[1][editingColor.colorName] || "#000000";
+}
+
+function setEditingColorValue(val) {
+  if (!editingColor) return;
+  var group = colorPalettes[editingColor.theme][editingColor.groupIdx];
+  group[1][editingColor.colorName] = val;
+  updateThemeYmlColor(editingColor.theme, group[0], editingColor.colorName, val);
+  markDirty();
+}
+
+function renderColorSidebar() {
+  var groupData = colorPalettes[editingColor.theme][editingColor.groupIdx];
+  var groupName = groupData[0];
+  var colorName = editingColor.colorName;
+  var val = getEditingColorValue();
+  var hexForPicker = toHex6(val);
+
+  // Header
+  var cur = document.getElementById("sidebar-current");
+  clearEl(cur);
+  var previewBox = el("div", {});
+  previewBox.style.cssText = "width:48px;height:48px;border-radius:10px;border:2px solid var(--bdr-sub);flex-shrink:0";
+  previewBox.style.background = val;
+  cur.appendChild(previewBox);
+  cur.appendChild(el("div", {className:"sidebar-current-info"}, [
+    el("span", {className:"sidebar-current-ctx"}, [groupName + " / " + colorName]),
+    el("span", {className:"sidebar-current-name"}, [val]),
+  ]));
+  var themeLabel = THEMES.filter(function(t) { return t.id === editingColor.theme; })[0];
+  document.getElementById("sidebar-title").textContent = (themeLabel ? themeLabel.label : "") + " \u2014 " + groupName;
+
+  // Body
+  var body = document.getElementById("sidebar-body");
+  clearEl(body);
+
+  var bigPreview = el("div", {className:"cpick-preview"});
+  bigPreview.style.background = val;
+  body.appendChild(bigPreview);
+
+  var row = el("div", {className:"cpick-row"});
+  var native = el("input", {className:"cpick-native", type:"color"});
+  native.value = hexForPicker;
+  native.addEventListener("input", function() {
+    var nv = native.value;
+    hexInput.value = nv;
+    bigPreview.style.background = nv;
+    previewBox.style.background = nv;
+    cur.querySelector(".sidebar-current-name").textContent = nv;
+    setEditingColorValue(nv);
+    renderColors();
+  });
+  row.appendChild(native);
+
+  var hexInput = el("input", {className:"cpick-hex-input", type:"text"});
+  hexInput.value = val;
+  hexInput.addEventListener("input", function() {
+    var v = hexInput.value.trim();
+    if (/^#([0-9a-fA-F]{3,8})$/.test(v)) {
+      bigPreview.style.background = v;
+      previewBox.style.background = v;
+      native.value = toHex6(v);
+      cur.querySelector(".sidebar-current-name").textContent = v;
+      setEditingColorValue(v);
+      renderColors();
+    }
+  });
+  row.appendChild(hexInput);
+  body.appendChild(row);
+
+  var info = el("div", {className:"cpick-info"}, []);
+  info.appendChild(el("span", {}, [editingColor.theme]));
+  info.appendChild(document.createTextNode(" > " + groupName + " > " + colorName));
+  body.appendChild(info);
+
+  var note = el("div", {className:"cpick-note"}, [
+    "Supports #RGB, #RRGGBB, and #RRGGBBAA. Changes save to theme.yml."
+  ]);
+  body.appendChild(note);
+}
+
+function toHex6(v) {
+  if (!v || v[0] !== "#") return "#000000";
+  var h = v.slice(1);
+  if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  if (h.length >= 6) return "#" + h.slice(0,6);
+  return "#000000";
+}
+
+function updateThemeYmlColor(themeName, groupName, colorName, newVal) {
+  var lines = themeYml.split("\n");
+  var inTheme = false;
+  var inGroup = false;
+  var themeHeader = themeName.charAt(0).toUpperCase() + themeName.slice(1) + ":";
+  for (var i = 0; i < lines.length; i++) {
+    var trimmed = lines[i].trim();
+    if (/^\S/.test(lines[i]) && trimmed.endsWith(":")) {
+      inTheme = (trimmed === themeHeader);
+      inGroup = false;
+      continue;
+    }
+    if (!inTheme) continue;
+    if (/^\s{2}\S/.test(lines[i]) && trimmed.endsWith(":") && trimmed.indexOf('"') === -1) {
+      inGroup = (trimmed === groupName + ":");
+      continue;
+    }
+    if (!inGroup) continue;
+    var keyMatch = trimmed.match(/^(\S+):\s/);
+    if (keyMatch && keyMatch[1] === colorName) {
+      var leading = lines[i].match(/^(\s*)/)[1];
+      var commentMatch = lines[i].match(/(\s+#[^"]*$)/);
+      var comment = commentMatch ? commentMatch[1] : "";
+      lines[i] = leading + colorName + ': "' + newVal + '"' + comment;
+      break;
+    }
+  }
+  themeYml = lines.join("\n");
+}
+
+/* ================================================================
+   Event listeners
+   ================================================================ */
+document.getElementById("sidebar-close").addEventListener("click", closeSidebar);
+document.getElementById("sidebar-overlay").addEventListener("click", closeSidebar);
+document.getElementById("sidebar-search").addEventListener("input", function(e) {
+  searchTerm = e.target.value;
+  if (sidebarKey) {
+    var p = sidebarKey.split("-");
+    renderSidebarBody(parseInt(p[0]), parseInt(p[1]));
+  }
+});
+document.getElementById("save-btn").addEventListener("click", save);
+
+/* ================================================================
+   Init
+   ================================================================ */
+function buildPanels() {
+  var panels = document.getElementById("panels");
+  clearEl(panels);
+  TABS.forEach(function(t) {
+    panels.appendChild(el("div", {
+      id: "panel-" + t.id,
+      className: "tab-content" + (activeTab === t.id ? " active" : "")
+    }));
+  });
+}
+
+function renderAll() {
+  renderIcons();
+  renderColors();
+  renderTypography();
+}
+
+buildTabs();
+buildThemeToggle();
+buildPanels();
+setStatus("Loading...");
+
+Promise.all([apiRead("icons.yml"), apiRead("theme.yml")]).then(function(results) {
+  iconsYml = results[0].content;
+  themeYml = results[1].content;
+  iconSections = parseIconsYml(iconsYml);
+  renderAll();
+  setStatus("Loaded");
+}).catch(function(err) {
+  setStatus("Error loading");
+  console.error(err);
+});
+</script>
+</body>
+</html>

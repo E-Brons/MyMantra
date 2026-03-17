@@ -990,6 +990,74 @@ if current_streak > longest_streak:
 
 ---
 
+#### SR-9.4: Progressive Achievement Visibility
+**Priority**: High (Phase 3.0)
+**Description**: Achievements within a progressive chain are hidden from the gallery until their direct predecessor is unlocked.
+
+**Input**: User's set of unlocked achievement IDs
+
+**Process**:
+1. For each progressive chain (streak, repetitions, sessions):
+   a. Always show the chain head (index 0) — display as locked until earned
+   b. For each subsequent item at index N: show (as locked) only if item N-1 is in the unlocked set
+   c. Per-item `visible: always` overrides — always show regardless of chain position
+   d. Per-item `visible: never` overrides — hide entirely until the achievement is earned
+2. For `visibility: never` groups (special, platform): hide all items until earned; they appear in the grid upon unlock
+3. For `visibility: always` groups (creation): always show all items (locked until earned)
+
+**Output**: Filtered list of visible achievements for the progress screen grid
+
+**Acceptance Criteria**:
+- Fresh user sees exactly: Thought (locked), 1K Reps (locked), 10 Sessions (locked), Creator (locked)
+- Unlocking Thought causes Action to appear in the grid (as locked)
+- Unlocking Action causes Routine to appear (as locked)
+- Early Bird / Night Owl / Platform achievements absent from grid until earned
+- No earned achievement is ever hidden
+
+---
+
+#### SR-9.5: 10-Tier Rarity System
+**Priority**: High (Phase 3.0)
+**Description**: Each achievement carries a rarity tier, displayed as a colour-coded label on its card. Colors are theme-aware and adapt to both Dark and Light themes.
+
+**Static Tiers** (Common through Heroic):
+
+| # | Tier | Dark Theme | Light Theme |
+|---|------|-----------|------------|
+| 1 | Common | Grey (#8B83A3) | Grey (#767185) |
+| 2 | Uncommon | Green (#34D399) | Dark Green (#047857) |
+| 3 | Rare | Cyan (#22D3EE) | Dark Cyan (#0284C7) |
+| 4 | Super Rare | Purple (#C084FC) | Dark Purple (#7C3AED) |
+| 5 | Epic | Amber (#F59E0B) | Dark Amber (#D97706) |
+| 6 | Heroic | Red (#EF4444) | Dark Red (#DC2626) |
+
+**Animated Gradient Tiers** (Exotic through Divine):
+
+| # | Tier | Animation Type | Duration | Effect |
+|---|------|---------------|----------|--------|
+| 7 | Exotic | Gradient wave | 2s loop | Green → Teal → Cyan (tropical cocktail) |
+| 8 | Mythic | Gradient wave | 2s loop | Crimson → Scarlet → Gold (raging fire) |
+| 9 | Legendary | Gradient wave | 2s loop | Gold → Cream → Gold (shimmering metal) |
+| 10 | Divine | Gradient wave | 2s loop | Gold → Purple (rainbow spectrum)  |
+
+**Technical Specifications**:
+- **Color Source**: All colors loaded from `assets/data/theme.yml` via `ThemeRegistry`
+- **Static Rarities**: Rendered with text shadow (2px offset, 3px blur, 30% opacity black/white)
+- **Animated Rarities**: Rendered using `AchievementGradientText` widget with `ShaderMask` for gradient effects
+- **Animation**: Uses `AnimationController` with 2-second loop duration; only the label widget rebuilds
+- **Theme Support**: All colors automatically switch based on brightness (dark/light theme)
+- **Accessibility**: Shadow effects ensure text readability on all backgrounds
+
+**Acceptance Criteria**:
+- All 10 rarity tiers render with theme-correct colors from theme.yml
+- Static rarities (1-6) display with subtle shadow effect
+- Animated rarities (7-10) display smooth gradient wave animation
+- Animation does not cause jank (uses AnimationController; rebuilds only affected widgets)
+- Colors adapt correctly when theme changes
+- Shadow effects work on both dark and light backgrounds
+
+---
+
 ### 3.10 Navigation Requirements
 
 Cross-platform back navigation is a first-class requirement. Users must be able to leave
@@ -1363,3 +1431,4 @@ Mantra (1) ──< (N) Session
 |---------|------|--------|---------|
 | 0.1 | 2025-11-XX | Engineering | Initial draft |
 | 0.2 | 2026-03-07 | Engineering | Added SR-3.11, SR-NAV-1..4, BUG-001/002 documentation, updated Phase 1 acceptance criteria |
+| 0.3 | 2026-03-16 | Engineering | Added SR-9.4 progressive achievement visibility; SR-9.5 10-tier rarity system with animated Divine tier |

@@ -22,6 +22,7 @@ dependencies:
   # Utilities
   uuid: ^4.5.1
   intl: ^0.20.2
+  yaml: ^3.1.2
 
   # Icons
   cupertino_icons: ^1.0.8
@@ -32,6 +33,25 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/images/icons/Lotus.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/images/icons/Lotus.png"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
+  macos:
+    generate: true
+    image_path: "assets/images/icons/Lotus.png"
+  linux:
+    generate: true
+    image_path: "assets/images/icons/Lotus.png"
 
 flutter:
   uses-material-design: true
@@ -80,7 +100,7 @@ flutter:
 
     - family: NotoSansGujarati         # Gujarati (Jain mantras)
       fonts:
-        - asset: assets/fonts/NotoSansGujarati-Variable.ttf
+        - asset: assets/fonts/NotoGujarati-Variable.ttf
 
     # ── CJK ────────────────────────────────────────────────────────────────
     - family: NotoSansSC               # Simplified Chinese (Mandarin Buddhist mantras)
@@ -94,3 +114,7 @@ flutter:
     - family: NotoSansKR               # Korean (Korean Buddhist mantras)
       fonts:
         - asset: assets/fonts/NotoSansKR-Variable.ttf
+
+    - family: NotoColorEmoji           # Color emoji
+      fonts:
+        - asset: assets/fonts/NotoColorEmoji.ttf

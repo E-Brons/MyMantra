@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import '../../../core/services/icon_registry.dart';
+
 class BuiltInLanguage {
   final String code;
   final String name;
@@ -217,11 +220,25 @@ const List<BuiltInMantra> kBuiltInMantras = [
   ),
 ];
 
-const List<Map<String, String>> kCategories = [
-  {'id': 'all', 'label': 'All', 'emoji': '✨'},
-  {'id': 'Yogic Philosophy', 'label': 'Yogic', 'emoji': '🧘'},
-  {'id': 'Buddhist', 'label': 'Buddhist', 'emoji': '☸️'},
-  {'id': 'Vedic', 'label': 'Vedic', 'emoji': '🔥'},
-  {'id': 'Universal', 'label': 'Universal', 'emoji': '🌍'},
-  {'id': 'Advaita Vedanta', 'label': 'Advaita', 'emoji': '∞'},
+class CategoryDef {
+  final String id;
+  final String label;
+  /// Key in the "Categories" section of icons.yml; defaults to [label].
+  final String? _ymlKey;
+
+  const CategoryDef({required this.id, required this.label, String? ymlKey})
+      : _ymlKey = ymlKey;
+
+  /// Icon resolved at runtime from the "Categories" section of icons.yml.
+  IconData get icon =>
+      IconRegistry.instance.icon('Categories', _ymlKey ?? label) ?? Icons.help_outline;
+}
+
+const List<CategoryDef> kCategories = [
+  CategoryDef(id: 'all', label: 'All'),
+  CategoryDef(id: 'Yogic Philosophy', label: 'Yogic'),
+  CategoryDef(id: 'Buddhist', label: 'Buddhist'),
+  CategoryDef(id: 'Vedic', label: 'Vedic'),
+  CategoryDef(id: 'Universal', label: 'Universal'),
+  CategoryDef(id: 'Advaita Vedanta', label: 'Advaita', ymlKey: 'Advaita Vedanta'),
 ];

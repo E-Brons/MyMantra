@@ -8,78 +8,50 @@ Built with Flutter — targets iOS, Android, macOS, and Web from a single codeba
 ## Quick Start
 
 ```bash
-make setup        # First-time: installs Flutter, scaffolds platform dirs, gets deps
-make run-web      # Run in Chrome (no emulator needed)
+make install   # First-time: install tools and verify environment
+make debug     # Run the app with hot reload (defaults to macOS)
 ```
+
+To target a specific platform:
+
+```bash
+make debug TARGET=macos
+make run   TARGET=ios
+make run   TARGET=android
+make run   TARGET=web
+```
+
+Target configuration (devices, versions, build flags) is in [`target.json`](target.json).
 
 ---
 
-## Installation
+## Prerequisites
 
-### Prerequisites
-
-- **macOS 12+** (for iOS/macOS targets)
+- **macOS 26+**
 - **Homebrew** — [brew.sh](https://brew.sh)
-- **Xcode 16+** — install from the Mac App Store, then run:
+- **Xcode 16+** — install from the Mac App Store, or using `xcodes` then run:
   ```bash
   sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
   sudo xcodebuild -runFirstLaunch
   ```
+- **Android Studio** — required for Android target; install the Android SDK and create an AVD via the AVD Manager
+- **adb** (Android Debug Bridge) — bundled with Android Studio; ensure `platform-tools` is on your `PATH`
 
-### Step-by-step
-
-```bash
-# 1. Install Flutter SDK
-make install-flutter    # runs: brew install flutter
-
-# 2. Scaffold platform directories (ios/, android/, macos/, web/)
-#    Only needed once — safe to re-run, existing lib/ is preserved
-make scaffold
-
-# 3. Install dependencies
-make get
-
-# 4. Install CocoaPods dependencies (iOS/macOS only)
-make pods
-
-# 5. Add fonts (download from Google Fonts)
-#    Place in assets/fonts/:
-#      - Cinzel-Regular.ttf, Cinzel-SemiBold.ttf, Cinzel-Bold.ttf
-#      - NotoSansDevanagari-Regular.ttf, NotoSansDevanagari-Medium.ttf
-#    Download: https://fonts.google.com/specimen/Cinzel
-#              https://fonts.google.com/noto/specimen/Noto+Sans+Devanagari
-
-# 6. Check everything is healthy
-make doctor
-```
-
-Or run all of the above in one go:
-
-```bash
-make setup
-```
+`make install` checks and installs Flutter and all remaining dependencies automatically.
 
 ---
 
-## Running the App
+## Make Commands
 
-### Recommended order for development
-
-| Target | Command | Requirement |
-|--------|---------|-------------|
-| Web (Chrome) | `make run-web` | None — fastest to start |
-| iOS Simulator | `make run-ios` | Xcode + Simulator (included with Xcode) |
-| macOS | `make run-macos` | Xcode |
-| Android Emulator | `make run-android` | Android Studio + AVD |
-
-**Web is the recommended starting point** — no emulator, no provisioning profiles,
-instant hot reload. Switch to iOS Simulator once you need to validate native behaviour
-(haptics, notifications, safe-area).
-
-### Hot reload
-
-With the app running, press `r` in the terminal to hot-reload, `R` to hot-restart.
-In VS Code, use the Flutter sidebar or `F5` to launch with full debug support.
+| Command                            | What it does                            |
+| ---------------------------------- | --------------------------------------- |
+| `make install [TARGET=<t>]`        | Install tools and verify environment    |
+| `make debug [TARGET=<t>]`          | Run with hot reload                     |
+| `make run [TARGET=<t>]`            | Run release build                       |
+| `make build [TARGET=<t>]`          | Build release artifacts                 |
+| `make test`                        | `flutter analyze` + unit + widget tests |
+| `make test-integration TARGET=<t>` | Integration tests (linux or macos)      |
+| `make clean`                       | Remove all build artifacts              |
 
 ---
 
@@ -88,71 +60,51 @@ In VS Code, use the Flutter sidebar or `F5` to launch with full debug support.
 ```
 lib/
 ├── main.dart
-├── app/
-│   ├── app.dart               # MaterialApp.router entry
-│   ├── router.dart            # go_router navigation
-│   └── theme/                 # AppColors, AppTheme
-├── core/
-│   ├── models/                # Mantra, Session, Progress, Settings, Achievement
-│   ├── providers/             # AppNotifier (Riverpod) — all state
-│   ├── services/              # StorageService (SharedPreferences), HapticService
-│   └── utils/                 # date_utils (streak calc, ID gen, formatters)
-├── features/
-│   ├── mantras/screens/       # HomeScreen, MantraDetailScreen, CreateMantraScreen
-│   ├── session/screens/       # SessionScreen (ring counter, haptics, celebration)
-│   ├── library/               # LibraryScreen + 7 built-in mantras
-│   ├── progress/screens/      # ProgressScreen (stats + 14 achievements)
-│   └── settings/screens/      # SettingsScreen
-└── shared/widgets/            # AppScaffold (bottom nav shell)
+└── src/
+    ├── app/
+    │   ├── app.dart                    # MaterialApp.router entry
+    │   ├── router.dart                 # go_router navigation
+    │   └── theme/                      # AppColors, AppTheme
+    ├── core/
+    │   ├── models/                     # Mantra, Session, Progress, Settings, Achievement
+    │   ├── providers/                  # AppNotifier (Riverpod) — all state
+    │   ├── services/                   # StorageService (SharedPreferences), HapticService
+    │   └── utils/                      # date_utils (streak calc, ID gen, formatters)
+    ├── features/
+    │   ├── mantras/screens/            # HomeScreen, MantraDetailScreen, CreateMantraScreen
+    │   ├── session/screens/            # SessionScreen (ring counter, haptics, celebration)
+    │   ├── library/
+    │   │   ├── data/                   # built_in_mantras, LibraryMantra model
+    │   │   └── screens/                # LibraryScreen
+    │   ├── progress/screens/           # ProgressScreen (stats + achievements)
+    │   └── settings/screens/           # SettingsScreen
+    └── shared/widgets/                 # AppScaffold (bottom nav shell)
 ```
 
 ---
 
-## Make Commands
+## Documentation
 
-```bash
-# Setup
-make install-flutter   Install Flutter SDK via Homebrew
-make scaffold          Generate platform dirs (run once)
-make get               flutter pub get
-make pods              pod install (iOS/macOS)
-make setup             Full first-time setup (all of the above)
-make doctor            flutter doctor
+| Document                                                                | Description                                                      |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [Application Foundations](docs/product/application_foundations.md)      | Vision, goals, and guiding principles                            |
+| [Product Requirements (PRD)](docs/product/product_requirements.md)      | Full feature requirements, UX flows, KPIs                        |
+| [Built-in Mantras Library](docs/product/builtin_mantras_library.md)     | Curated mantra content with Sanskrit/English/Hebrew metadata     |
+| [Software Architecture](docs/software/software_architecture.md)         | Clean Architecture layers, module structure, tech stack          |
+| [Software Requirements (SRS)](docs/software/software_requirements.md)   | Functional and non-functional requirements                       |
+| [Folder Structure](docs/software/folder_structure.md)                   | Annotated source layout                                          |
+| [Build System Architecture](docs/software/build-system-architecture.md) | Make targets, `target.json`, toolchain stages                    |
+| [Git Workflow](docs/software/git_workflow.md)                           | Branching strategy, commit conventions, merge gate, release flow |
 
-# Run (debug)
-make run-web           Chrome
-make run-ios           iOS Simulator
-make run-macos         macOS native
-make run-android       Android Emulator
+Full list with versions and status: [`docs/catalog.csv`](docs/catalog.csv).
 
-# Build (release)
-make build-web         Build web release → build/web/
-make build-ios         Build iOS .ipa
-make build-android     Build Android .aab
-make build-macos       Build macOS .app
+### Contributor quick-reference
 
-# Quality
-make test              flutter test
-make test-coverage     flutter test --coverage
-make lint              flutter analyze
-make clean             Remove build artifacts
-```
+| I want to…                                            | Start here                                                                                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Open a PR or understand the branch/commit/merge rules | [Git Workflow](docs/software/git_workflow.md)                                                                                                                 |
+| Implement a feature                                   | [PRD](docs/product/product_requirements.md) → [SRS](docs/software/software_requirements.md) → [Software Architecture](docs/software/software_architecture.md) |
+| File a bug                                            | [SRS](docs/software/software_requirements.md) — identify the violated requirement                                                                             |
+| Fix a bug                                             | [Git Workflow §8](docs/software/git_workflow.md) — follow the Red → Green testing idiom                                                                       |
 
----
 
-## Design Reference
-
-The Figma/React prototype is preserved in git history at commit `8c03645`.
-To browse it: `git show 8c03645:src/pages/Session.tsx`
-
----
-
-## Docs
-
-See `docs/` for the full documentation suite:
-
-- `flutter-build-environment.md` — platform-specific build setup
-- `vscode-setup.md` — VS Code configuration
-- `folder_structure.md` — Clean Architecture layout
-- `product_requirements.md` — PRD (60+ pages)
-- `mantra_architecture.md` — Technical architecture

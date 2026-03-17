@@ -30,6 +30,61 @@ _install_flutter() {
     fi
 }
 
+_install_ruby() {
+    if ! command -v rbenv >/dev/null 2>&1; then
+        echo "  installing rbenv and ruby-build..."
+        brew install rbenv ruby-build
+    fi
+}
+
+_install_github_cli() {
+    if ! command -v gh >/dev/null 2>&1; then
+        echo "  installing GitHub CLI..."
+        brew install gh
+    fi
+}
+
+_install_python() {
+    if ! command -v pyenv >/dev/null 2>&1; then
+        echo "  installing pyenv (Python version manager)..."
+        brew install pyenv
+    fi
+
+    local req_file="$REPO_ROOT/test/driver/python_requirements.txt"
+    local venv_dir="$REPO_ROOT/.venv"
+
+    if [[ ! -f "$req_file" ]]; then
+        echo "  no driver python requirements found at test/driver/python_requirements.txt — skipping"
+        return
+    fi
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "  python3 is required to create a virtual environment" >&2
+        exit 1
+    fi
+
+    if [[ ! -d "$venv_dir" ]]; then
+        echo "  creating python virtual environment: $venv_dir"
+        python3 -m venv "$venv_dir"
+    else
+        echo "  python virtual environment already exists: $venv_dir"
+    fi
+
+    echo "  activating venv and installing test/driver python packages..."
+    # shellcheck disable=SC1091
+    source "$venv_dir/bin/activate"
+    python -m pip install --upgrade pip
+    python -m pip install -r "$req_file"
+    deactivate || true
+}
+
+_install_xcodes() {
+    if ! command -v xcodes >/dev/null 2>&1; then
+        echo "  installing xcodes (iOS runtime manager)..."
+        brew install xcodes
+    fi
+}
+
 _scaffold() {
     if [[ ! -d "$REPO_ROOT/ios" && ! -d "$REPO_ROOT/android" ]]; then
         echo "  scaffolding platform directories..."
@@ -109,6 +164,7 @@ _install_fonts() {
     _dl "$GF/notosanssc/NotoSansSC%5Bwght%5D.ttf"                       NotoSansSC-Variable.ttf
     _dl "$GF/notosansjp/NotoSansJP%5Bwght%5D.ttf"                       NotoSansJP-Variable.ttf
     _dl "$GF/notosanskr/NotoSansKR%5Bwght%5D.ttf"                       NotoSansKR-Variable.ttf
+    _dl "$GF/notocoloremoji/NotoColorEmoji.ttf"                        NotoColorEmoji.ttf
     _dl "$GF/inter/Inter%5Bopsz,wght%5D.ttf"                            Inter-Variable.ttf
     _dl "$GF/plusjakartasans/PlusJakartaSans%5Bwght%5D.ttf"             PlusJakartaSans-Variable.ttf
     _dl "$GF/outfit/Outfit%5Bwght%5D.ttf"                               Outfit-Variable.ttf
@@ -181,6 +237,36 @@ mkdir -p "$REPO_ROOT/assets/audio/notification-sounds" \
 echo ""
 echo "==> install: flutter"
 _install_flutter
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo ""
+    echo "==> install: ruby (rbenv)"
+    _install_ruby
+
+    echo ""
+    echo "==> install: github cli"
+    _install_github_cli
+
+    echo ""
+    echo "==> install: python (pyenv)"
+    _install_python
+
+    echo ""
+    echo "==> install: tesseract (OCR engine)"
+    if ! command -v tesseract >/dev/null 2>&1; then
+        echo "  installing tesseract via homebrew..."
+        brew install tesseract
+    else
+        echo "  tesseract already installed: $(tesseract --version | head -1)"
+    fi
+
+    echo ""
+    echo "==> install: xcodes"
+    _install_xcodes
+else
+    echo ""
+    echo "==> install: skipping macOS-only tools (rbenv, gh, pyenv, xcodes) on $OSTYPE"
+fi
 
 echo ""
 echo "==> install: scaffold"

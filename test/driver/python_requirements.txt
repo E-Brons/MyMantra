@@ -1,0 +1,4 @@
+# Python requirements for screenshot validation helpers.
+Pillow
+tesseract
+pytesseract

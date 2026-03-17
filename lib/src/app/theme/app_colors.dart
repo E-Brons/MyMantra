@@ -1,35 +1,84 @@
 import 'package:flutter/material.dart';
+import '../../core/models/achievement.dart';
+import '../../core/services/theme_registry.dart';
 
+/// App-wide colour tokens, resolved from `assets/data/theme.yml` at runtime.
+///
+/// Call [AppColors.setBrightness] when the theme changes.
+/// **theme.yml is the single source of truth** — no hex values are hardcoded here.
 class AppColors {
   AppColors._();
 
-  // Brand
-  static const Color violet600 = Color(0xFF7C3AED);
-  static const Color violet700 = Color(0xFF6D28D9);
-  static const Color violet500 = Color(0xFF8B5CF6);
-  static const Color violet400 = Color(0xFFA78BFA);
-  static const Color violet300 = Color(0xFFC4B5FD);
+  static Brightness _brightness = Brightness.dark;
 
-  // Background layers (dark)
-  static const Color bgBase    = Color(0xFF0D0B1A);
-  static const Color bgSurface = Color(0xFF1A1535);
-  static const Color bgCard    = Color(0xFF14112A);
+  static void setBrightness(Brightness b) => _brightness = b;
+  static bool get isDark => _brightness == Brightness.dark;
 
-  // Session screen
-  static const Color sessionBg = Color(0xFF0D0520);
+  static ThemeRegistry get _r => ThemeRegistry.instance;
 
-  // Text
-  static const Color textPrimary   = Color(0xFFEDE9FE); // violet-100
-  static const Color textSecondary = Color(0xFF8B83A3);
-  static const Color textMuted     = Color(0xFF5C5478);
+  // ── Brand (from Dark palette, shared) ────────────────────────────────
+  static Color get violet300 => _r.dark('Brand.violet300');
+  static Color get violet400 => _r.dark('Brand.violet400');
+  static Color get violet500 => _r.dark('Brand.violet500');
+  static Color get violet600 => _r.dark('Brand.violet600');
+  static Color get violet700 => _r.dark('Brand.violet700');
 
-  // Accent
-  static const Color orange = Color(0xFFF97316);
-  static const Color emerald = Color(0xFF10B981);
-  static const Color red    = Color(0xFFEF4444);
-  static const Color amber  = Color(0xFFF59E0B);
+  // ── Background layers ────────────────────────────────────────────────
+  static Color get bgBase    => _r.color('Background.base',    _brightness);
+  static Color get bgSurface => _r.color('Background.surface', _brightness);
+  static Color get bgCard    => _r.color('Background.card',    _brightness);
+  static Color get sessionBg => _r.dark('Background.session');
 
-  // Borders
-  static const Color border        = Color(0x33A78BFA); // violet/20
-  static const Color borderSubtle  = Color(0x1FA78BFA); // violet/12
+  // ── Text ─────────────────────────────────────────────────────────────
+  static Color get textPrimary   => _r.color('Text.primary',   _brightness);
+  static Color get textSecondary => _r.color('Text.secondary', _brightness);
+  static Color get textMuted     => _r.color('Text.muted',     _brightness);
+
+  // ── Accent ───────────────────────────────────────────────────────────
+  static Color get orange  => _r.dark('Accent.orange');
+  static Color get emerald => _r.dark('Accent.emerald');
+  static Color get red     => _r.dark('Accent.red');
+  static Color get amber   => _r.dark('Accent.amber');
+
+  // ── Borders ──────────────────────────────────────────────────────────
+  static Color get border       => _r.color('Border.default', _brightness);
+  static Color get borderSubtle => _r.color('Border.subtle',  _brightness);
+
+  // ── Achievements ────────────────────────────────────────────────────────
+  static Color achievementColor(AchievementRarity rarity) {
+    final key = _rarityToKey(rarity);
+    return _r.color('Achievements.$key', _brightness);
+  }
+
+  static List<Color>? achievementGradient(AchievementRarity rarity) {
+    if (!_isGradientRarity(rarity)) return null;
+    final key = _rarityToKey(rarity);
+    return _r.gradient('Achievements.$key', _brightness);
+  }
+
+  static bool isAnimatedRarity(AchievementRarity rarity) {
+    return _isGradientRarity(rarity);
+  }
+
+  static bool _isGradientRarity(AchievementRarity rarity) {
+    return rarity == AchievementRarity.exotic ||
+           rarity == AchievementRarity.mythic ||
+           rarity == AchievementRarity.legendary ||
+           rarity == AchievementRarity.divine;
+  }
+
+  static String _rarityToKey(AchievementRarity rarity) {
+    return switch (rarity) {
+      AchievementRarity.common => 'common',
+      AchievementRarity.uncommon => 'uncommon',
+      AchievementRarity.rare => 'rare',
+      AchievementRarity.superRare => 'superRare',
+      AchievementRarity.epic => 'epic',
+      AchievementRarity.heroic => 'heroic',
+      AchievementRarity.exotic => 'exotic',
+      AchievementRarity.mythic => 'mythic',
+      AchievementRarity.legendary => 'legendary',
+      AchievementRarity.divine => 'divine',
+    };
+  }
 }

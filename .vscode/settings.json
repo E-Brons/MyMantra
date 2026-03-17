@@ -7,8 +7,9 @@
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
   "editor.inlineSuggest.enabled": true,
-  "editor.rulers": [80],
-
+  "editor.rulers": [
+    80
+  ],
   // Dart formatter (used by Flutter extension)
   "[dart]": {
     "editor.defaultFormatter": "Dart-Code.dart-code",
@@ -19,18 +20,16 @@
     "editor.tabCompletion": "onlySnippets",
     "editor.wordBasedSuggestions": "off"
   },
-
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
   },
-
   // Files
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.eol": "\n",
   "files.exclude": {
-    ".metadata":true,
-    "pubspec.lock":true,
+    ".metadata": true,
+    "pubspec.lock": true,
     "**/.git": true,
     "**/.DS_Store": true,
     "**/.dart_tool": true,
@@ -45,7 +44,6 @@
     "linux/": true,
     "windows/": true
   },
-
   // Search
   "search.exclude": {
     "**/.dart_tool": true,
@@ -60,23 +58,37 @@
     "linux/": true,
     "windows/": true
   },
-
   // Dart / Flutter specific
   "dart.flutterSdkPath": null,
   "dart.debugExternalPackageLibraries": false,
   "dart.debugSdkLibraries": false,
   "dart.openDevTools": "flutter",
   "dart.warnWhenEditingFilesOutsideWorkspace": true,
-
   // Git
   "git.autofetch": true,
   "git.confirmSync": false,
-
   // Terminal
   "terminal.integrated.defaultProfile.osx": "zsh",
-
   // Color accent
   "workbench.colorCustomizations": {
     "editorRuler.foreground": "#8B5CF6"
-  }
+  },
+  "chat.tools.terminal.autoApprove": {
+    "flutter": true,
+    "gh": true,
+    "git add": true,
+    "git commit": true,
+    "git fetch": true,
+    "git log": true,
+    "git remote get-url origin": true,
+    "/^\\./test/driver/icon_placement_test\\.sh --device-id emulator-5554$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^make test-integration TARGET=macos 2>&1$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+  },
+  "inlineChat.defaultModel": "Claude Sonnet 4.6 (copilotcli)"
 }

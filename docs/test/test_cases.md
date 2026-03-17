@@ -195,13 +195,23 @@ File: `test/widget/progress_screen_test.dart`
 
 ---
 
-## TC-I: Integration Tests (macOS target)
+## TC-I: Integration Tests (primary macOS + targeted iOS)
 
 Run with: `flutter test integration_test/ -d macos`
+
+Target type legend:
+- Mandatory = must pass for release gate on this target type
+- Implemented = runnable today but not a release gate
+- Planned = not implemented yet
+- N/A = intentionally not applicable
 
 ### TC-I-01 — Full Session Flow
 
 File: `integration_test/full_session_flow_test.dart`
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Mandatory | Mandatory (macOS), Planned (Linux CI) | Planned |
 
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
@@ -214,6 +224,10 @@ File: `integration_test/full_session_flow_test.dart`
 ### TC-I-02 — Mantra CRUD Flow
 
 File: `integration_test/mantra_crud_flow_test.dart`
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Implemented | Implemented (macOS), Planned (Linux CI) | Planned |
 
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
@@ -230,6 +244,10 @@ File: `integration_test/back_navigation_macos_test.dart`
 
 This suite specifically targets **BUG-001**.
 
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| N/A | Mandatory (macOS), N/A (Linux) | N/A |
+
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
 | I-03-1 | Home → tap mantra → tap back arrow | HomeScreen rendered | 🔴 (BUG-001) |
@@ -243,6 +261,10 @@ This suite specifically targets **BUG-001**.
 ### TC-I-04 — Back Navigation (Android emulator)
 
 File: `integration_test/back_navigation_android_test.dart`
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Mandatory (Android), N/A (iOS) | N/A | N/A |
 
 | # | Steps | Expected | Status |
 |---|-------|----------|--------|
@@ -258,11 +280,33 @@ File: `integration_test/back_navigation_android_test.dart`
 
 File: `integration_test/counter_stress_test.dart`
 
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Implemented | Implemented (macOS), Planned (Linux CI) | Planned |
+
 | # | Description | Expected | Status |
 |---|-------------|----------|--------|
 | I-05-1 | 108 rapid taps → counter = 108 | no missed taps | 🟢 |
 | I-05-2 | Tap at ≥10 taps/second for 10 seconds | no missed taps, no double-count | 🟢 |
 | I-05-3 | Auto-complete fires exactly at 108 | completion screen shown | 🟢 |
+
+---
+
+### TC-I-06 — Emoji Rendering (iOS host-driven visual check)
+
+File: `integration_test/emoji_screenshot_integration_test.dart`
+
+This suite specifically targets **BUG-004**.
+
+| Device (iOS/Android) | Native (macOS/Linux) | Web |
+|---|---|---|
+| Mandatory (iOS), Implemented (Android) | Planned (macOS/Linux desktop screenshot path) | N/A |
+
+| # | Steps | Expected | Status |
+|---|-------|----------|--------|
+| I-06-1 | Run `flutter drive` with `test/driver/integration_test_driver.dart` on iOS simulator; capture `mantra_library` screenshot | OCR validator finds all expected emoji glyphs | 🔴 (BUG-004) |
+| I-06-2 | Capture `progress` screenshot in same run | OCR validator finds all expected emoji glyphs | 🔴 (BUG-004) |
+| I-06-3 | Capture `session_complete` screenshot in same run | OCR validator finds all expected emoji glyphs | 🔴 (BUG-004) |
 
 ---
 
@@ -272,8 +316,8 @@ File: `integration_test/counter_stress_test.dart`
 |----------|------------|-----------------|--------------|-----------------|
 | Unit | 34 | 27 | 0 | 7 |
 | Widget | 28 | 20 | 5 | 3 |
-| Integration | 16 | 8 | 7 | 1 |
-| **Total** | **78** | **55** | **12** | **11** |
+| Integration | 19 | 8 | 10 | 1 |
+| **Total** | **81** | **55** | **15** | **11** |
 
 ### Known failures requiring implementation before they can pass
 
@@ -281,6 +325,7 @@ File: `integration_test/counter_stress_test.dart`
 |-----|---------------|------------|
 | BUG-001 (macOS back) | W-02-4, W-05-1, I-03-1..5 | `canPop()` guard + `PopScope` |
 | BUG-002 (Android back in session) | W-03-8, W-05-5, I-04-3..5 | `PopScope` on SessionScreen |
+| BUG-004 (iOS emoji rendering) | I-06-1..3 | Fix iOS glyph/font rendering and keep screenshot validator green |
 | Unsaved-changes guard | W-04-5 | Navigation intercept on CreateMantraScreen |
 
 ---

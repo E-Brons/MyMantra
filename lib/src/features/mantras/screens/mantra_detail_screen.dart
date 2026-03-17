@@ -5,6 +5,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/models/mantra.dart';
 import '../../../core/models/session.dart';
 import '../../../core/providers/app_provider.dart';
+import '../../../core/services/icon_registry.dart';
 import '../../../core/utils/date_utils.dart';
 
 class MantraDetailScreen extends ConsumerStatefulWidget {
@@ -30,7 +31,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Mantra not found.', style: TextStyle(color: AppColors.textSecondary)),
+              Text('Mantra not found.', style: TextStyle(color: AppColors.textSecondary)),
               const SizedBox(height: 12),
               TextButton(onPressed: () => context.go('/'), child: const Text('Go home')),
             ],
@@ -64,7 +65,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                       color: Color(0x1A8B5CF6),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.arrow_back, size: 18, color: AppColors.textPrimary),
+                    child: Icon(Icons.arrow_back, size: 18, color: AppColors.textPrimary),
                   ),
                   onPressed: () => context.canPop() ? context.pop() : context.go('/'),
                 ),
@@ -82,20 +83,20 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                     color: const Color(0xFF1A1535),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: AppColors.border),
                     ),
                     itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'edit', child: Row(
+                      PopupMenuItem(value: 'edit', child: Row(
                         children: [
                           Icon(Icons.edit_outlined, size: 16, color: AppColors.violet400),
-                          SizedBox(width: 10),
-                          Text('Edit'),
+                          const SizedBox(width: 10),
+                          const Text('Edit'),
                         ],
                       )),
-                      const PopupMenuItem(value: 'delete', child: Row(
+                      PopupMenuItem(value: 'delete', child: Row(
                         children: [
                           Icon(Icons.delete_outline, size: 16, color: AppColors.red),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text('Delete', style: TextStyle(color: AppColors.red)),
                         ],
                       )),
@@ -164,11 +165,11 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              const Icon(Icons.tag, size: 13, color: AppColors.violet400),
+                              Icon(Icons.tag, size: 13, color: AppColors.violet400),
                               const SizedBox(width: 4),
                               Text(
                                 '${mantra.targetRepetitions} repetitions',
-                                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                               ),
                               if (mantra.tradition != null) ...[
                                 const SizedBox(width: 12),
@@ -180,7 +181,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                                   ),
                                   child: Text(
                                     mantra.tradition!,
-                                    style: const TextStyle(fontSize: 11, color: AppColors.violet300),
+                                    style: TextStyle(fontSize: 11, color: AppColors.violet300),
                                   ),
                                 ),
                               ],
@@ -218,12 +219,12 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Reminders',
+                        Text('Reminders',
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                         TextButton.icon(
                           onPressed: () => setState(() => _showAddReminder = true),
-                          icon: const Icon(Icons.add, size: 15, color: AppColors.violet400),
-                          label: const Text('Add', style: TextStyle(color: AppColors.violet400, fontSize: 13)),
+                          icon: Icon(Icons.add, size: 15, color: AppColors.violet400),
+                          label: Text('Add', style: TextStyle(color: AppColors.violet400, fontSize: 13)),
                           style: TextButton.styleFrom(minimumSize: Size.zero, padding: const EdgeInsets.symmetric(horizontal: 8)),
                         ),
                       ],
@@ -239,10 +240,10 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: AppColors.border, style: BorderStyle.solid),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
                               Icon(Icons.notifications_off_outlined, size: 16, color: AppColors.violet400),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Text('No reminders yet — tap to add',
                                   style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
                             ],
@@ -258,7 +259,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                     const SizedBox(height: 24),
 
                     // ── Recent sessions ───────────────────────────────────
-                    const Text('Recent Sessions',
+                    Text('Recent Sessions',
                         style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                     const SizedBox(height: 8),
                     if (recentSessions.isEmpty)
@@ -268,7 +269,7 @@ class _MantraDetailScreenState extends ConsumerState<MantraDetailScreen> {
                           border: Border.all(color: AppColors.borderSubtle),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Center(
+                      child: Center(
                           child: Text('No sessions yet. Start practicing!',
                               style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
                         ),
@@ -325,19 +326,19 @@ class _ReminderTile extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.notifications_outlined, size: 16, color: AppColors.violet400),
+          Icon(Icons.notifications_outlined, size: 16, color: AppColors.violet400),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(reminder.time,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
                 Text(
                   reminder.days.length == 7
                       ? 'Every day'
                       : reminder.days.map((d) => _days[d]).join(', '),
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -350,7 +351,7 @@ class _ReminderTile extends ConsumerWidget {
             activeThumbColor: AppColors.violet500,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, size: 16, color: AppColors.textMuted),
+            icon: Icon(Icons.delete_outline, size: 16, color: AppColors.textMuted),
             onPressed: () =>
                 ref.read(appProvider.notifier).deleteReminder(mantraId, reminder.id),
           ),
@@ -384,11 +385,11 @@ class _SessionTile extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.violet400),
+                    Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.violet400),
                     const SizedBox(width: 6),
                     Text(
                       '${session.startTime.month}/${session.startTime.day}',
-                      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                      style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
                     ),
                   ],
                 ),
@@ -397,14 +398,14 @@ class _SessionTile extends StatelessWidget {
                   children: [
                     Text(
                       '${session.repsCompleted}/${session.targetReps} reps',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                     const SizedBox(width: 12),
-                    const Icon(Icons.access_time, size: 11, color: AppColors.textMuted),
+                    Icon(Icons.access_time, size: 11, color: AppColors.textMuted),
                     const SizedBox(width: 3),
                     Text(
                       formatDuration(session.duration),
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -414,7 +415,7 @@ class _SessionTile extends StatelessWidget {
           if (session.completed)
             const Icon(Icons.check_circle_outline, size: 16, color: Color(0xFF10B981))
           else
-            const Text('partial', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            Text('partial', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
         ],
       ),
     );
@@ -449,9 +450,9 @@ class _AddReminderSheetState extends ConsumerState<_AddReminderSheet> {
             onTap: () {},
             child: Container(
               padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
-              decoration: const BoxDecoration(
-                color: Color(0xFF0D0B1A),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D0B1A),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                 border: Border(top: BorderSide(color: AppColors.border)),
               ),
               child: Column(
@@ -461,16 +462,16 @@ class _AddReminderSheetState extends ConsumerState<_AddReminderSheet> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Add Reminder',
+                      Text('Add Reminder',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                       IconButton(
                         onPressed: widget.onClose,
-                        icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                        icon: Icon(Icons.close, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  const Text('Time', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                  Text('Time', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
                   const SizedBox(height: 8),
                   GestureDetector(
                     onTap: () async {
@@ -486,11 +487,11 @@ class _AddReminderSheetState extends ConsumerState<_AddReminderSheet> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.access_time, size: 18, color: AppColors.violet400),
+                          Icon(Icons.access_time, size: 18, color: AppColors.violet400),
                           const SizedBox(width: 12),
                           Text(
                             _time.format(context),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary,
                             ),
                           ),
@@ -499,7 +500,7 @@ class _AddReminderSheetState extends ConsumerState<_AddReminderSheet> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text('Repeat on', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                  Text('Repeat on', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
                   const SizedBox(height: 8),
                   Row(
                     children: List.generate(7, (i) {
@@ -585,15 +586,19 @@ class _DeleteDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('⚠️', style: TextStyle(fontSize: 36)),
+              Icon(
+                IconRegistry.instance.icon('Other', 'Warning (mantra detail)') ?? Icons.error_outline,
+                size: 36,
+                color: AppColors.red,
+              ),
               const SizedBox(height: 12),
-              const Text('Delete Mantra',
+              Text('Delete Mantra',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
               const SizedBox(height: 8),
               Text(
                 'Are you sure you want to delete "$title"? This cannot be undone.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 24),
               Row(
@@ -602,7 +607,7 @@ class _DeleteDialog extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: onCancel,
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.border),
+                        side: BorderSide(color: AppColors.border),
                       ),
                       child: const Text('Cancel'),
                     ),
