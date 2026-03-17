@@ -6,6 +6,7 @@ import '../models/progress.dart';
 import '../models/settings.dart';
 
 const _kStateKey = 'mymantra_state';
+const _kLaunchedKey = 'mymantra_launched';
 
 class StorageService {
   StorageService._();
@@ -36,5 +37,15 @@ class StorageService {
       'settings': settings.toJson(),
     };
     await prefs.setString(_kStateKey, jsonEncode(data));
+  }
+
+  Future<bool> hasLaunched() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kLaunchedKey) ?? false;
+  }
+
+  Future<void> markLaunched() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kLaunchedKey, true);
   }
 }

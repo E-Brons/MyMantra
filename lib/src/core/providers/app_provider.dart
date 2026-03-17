@@ -326,8 +326,54 @@ class AppNotifier extends Notifier<AppState> {
     return filtered.take(limit).toList();
   }
 
+  /// Returns the suspended (ongoing) session for [mantraId], if any.
+  Session? suspendedSessionFor(String mantraId) {
+    try {
+      return state.sessions.firstWhere(
+        (s) => s.mantraId == mantraId && !s.completed,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Creates or replaces the suspended session for [mantraId].
+  ///
+  /// Calling this removes any existing suspended session for the same mantra
+  /// and inserts the new one at the front of the list.
+  void suspendSession({
+    required String mantraId,
+    required String mantraTitle,
+    required int repsCompleted,
+    required int targetReps,
+    RepetitionCycle targetCycle = RepetitionCycle.session,
+    required int duration,
+    required DateTime startTime,
+  }) {
+    // Drop any prior suspended session for this mantra.
+    final filtered = state.sessions
+        .where((s) => !(s.mantraId == mantraId && !s.completed))
+        .toList();
+
+    final session = Session(
+      id: generateId(),
+      mantraId: mantraId,
+      mantraTitle: mantraTitle,
+      repsCompleted: repsCompleted,
+      targetReps: targetReps,
+      targetCycle: targetCycle,
+      duration: duration,
+      startTime: startTime,
+      completed: false,
+    );
+
+    state = state.copyWith(sessions: [session, ...filtered]);
+    _persist();
+  }
+
   /// Sum of repsCompleted for [mantraId] within the current day (daily cycle)
   /// or ISO week starting Monday (weekly cycle).
+  /// Only counts completed sessions; suspended sessions are excluded.
   /// Returns 0 for [RepetitionCycle.session] — sessions are always independent.
   int getAccumulatedReps(String mantraId, RepetitionCycle cycle) {
     if (cycle == RepetitionCycle.session) return 0;
@@ -336,7 +382,7 @@ class AppNotifier extends Notifier<AppState> {
     final today = DateTime(now.year, now.month, now.day);
 
     return state.sessions
-        .where((s) => s.mantraId == mantraId)
+        .where((s) => s.mantraId == mantraId && s.completed)
         .where((s) {
           final day = DateTime(s.startTime.year, s.startTime.month, s.startTime.day);
           if (cycle == RepetitionCycle.daily) {
