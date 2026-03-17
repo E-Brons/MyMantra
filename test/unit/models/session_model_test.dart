@@ -141,4 +141,44 @@ void main() {
       expect(Session.fromJson(json).targetCycle, RepetitionCycle.session);
     });
   });
+
+  // ── copyWith ──────────────────────────────────────────────────────────────
+
+  group('Session.copyWith', () {
+    final base = Session(
+      id: 'cw-01',
+      mantraId: 'm-1',
+      mantraTitle: 'Om',
+      repsCompleted: 0,
+      targetReps: 108,
+      duration: 0,
+      startTime: DateTime(2026, 1, 1),
+      completed: false,
+    );
+
+    test('no-arg copyWith returns equal values', () {
+      final copy = base.copyWith();
+      expect(copy.id, base.id);
+      expect(copy.completed, base.completed);
+      expect(copy.repsCompleted, base.repsCompleted);
+    });
+
+    test('copyWith updates repsCompleted', () {
+      final copy = base.copyWith(repsCompleted: 54);
+      expect(copy.repsCompleted, 54);
+      expect(copy.targetReps, base.targetReps);
+    });
+
+    test('copyWith marks completed', () {
+      final copy = base.copyWith(completed: true, repsCompleted: 108, duration: 300);
+      expect(copy.completed, isTrue);
+      expect(copy.repsCompleted, 108);
+      expect(copy.duration, 300);
+    });
+
+    test('copyWith does not mutate original', () {
+      base.copyWith(completed: true);
+      expect(base.completed, isFalse);
+    });
+  });
 }

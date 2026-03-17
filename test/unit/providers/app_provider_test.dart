@@ -97,6 +97,69 @@ void main() {
     });
   });
 
+  // ── suspendSession / suspendedSessionFor ──────────────────────────────────
+
+  group('AppNotifier.suspendSession', () {
+    test('suspendedSessionFor returns null when no session exists', () {
+      final n = _notifier();
+      final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
+      expect(n.suspendedSessionFor(m.id), isNull);
+    });
+
+    test('suspended session is stored with completed=false', () {
+      final n = _notifier();
+      final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
+      n.suspendSession(
+        mantraId: m.id, mantraTitle: m.title,
+        repsCompleted: 30, targetReps: 108,
+        duration: 90, startTime: DateTime.now(),
+      );
+      final s = n.suspendedSessionFor(m.id);
+      expect(s, isNotNull);
+      expect(s!.completed, isFalse);
+      expect(s.repsCompleted, 30);
+    });
+
+    test('second suspendSession replaces the first', () {
+      final n = _notifier();
+      final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
+      n.suspendSession(
+        mantraId: m.id, mantraTitle: m.title,
+        repsCompleted: 10, targetReps: 108,
+        duration: 30, startTime: DateTime.now(),
+      );
+      n.suspendSession(
+        mantraId: m.id, mantraTitle: m.title,
+        repsCompleted: 45, targetReps: 108,
+        duration: 120, startTime: DateTime.now(),
+      );
+      final suspended = n.state.sessions
+          .where((s) => s.mantraId == m.id && !s.completed)
+          .toList();
+      expect(suspended.length, 1);
+      expect(suspended.first.repsCompleted, 45);
+    });
+
+    test('suspendSession does not affect completed sessions', () {
+      final n = _notifier();
+      final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
+      n.completeSession(
+        mantraId: m.id, mantraTitle: m.title,
+        repsCompleted: 108, targetReps: 108,
+        duration: 300, startTime: DateTime.now(), completed: true,
+      );
+      n.suspendSession(
+        mantraId: m.id, mantraTitle: m.title,
+        repsCompleted: 20, targetReps: 108,
+        duration: 60, startTime: DateTime.now(),
+      );
+      final completed = n.state.sessions
+          .where((s) => s.mantraId == m.id && s.completed)
+          .toList();
+      expect(completed.length, 1);
+    });
+  });
+
   // ── getAccumulatedReps ────────────────────────────────────────────────────
 
   group('AppNotifier.getAccumulatedReps', () {
@@ -106,12 +169,25 @@ void main() {
       n.completeSession(
         mantraId: m.id, mantraTitle: m.title,
         repsCompleted: 50, targetReps: 108,
-        duration: 120, startTime: DateTime.now(), completed: false,
+        duration: 120, startTime: DateTime.now(), completed: true,
       );
       expect(n.getAccumulatedReps(m.id, RepetitionCycle.session), 0);
     });
 
-    test('daily: sums reps from sessions today only', () {
+    test('suspended sessions are excluded from accumulated reps', () {
+      final n = _notifier();
+      final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
+      final today = DateTime.now();
+      // Suspended — should NOT count
+      n.suspendSession(
+        mantraId: m.id, mantraTitle: m.title,
+        repsCompleted: 40, targetReps: 108,
+        duration: 100, startTime: today,
+      );
+      expect(n.getAccumulatedReps(m.id, RepetitionCycle.daily), 0);
+    });
+
+    test('daily: sums reps from completed sessions today only', () {
       final n = _notifier();
       final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
       final today = DateTime.now();
@@ -121,14 +197,15 @@ void main() {
         mantraId: m.id, mantraTitle: m.title,
         repsCompleted: 40, targetReps: 108,
         targetCycle: RepetitionCycle.daily,
-        duration: 100, startTime: today, completed: false,
+        duration: 100, startTime: today, completed: true,
       );
       n.completeSession(
         mantraId: m.id, mantraTitle: m.title,
         repsCompleted: 30, targetReps: 108,
         targetCycle: RepetitionCycle.daily,
-        duration: 80, startTime: today, completed: false,
+        duration: 80, startTime: today, completed: true,
       );
+      // Yesterday — should NOT count toward today
       n.completeSession(
         mantraId: m.id, mantraTitle: m.title,
         repsCompleted: 108, targetReps: 108,
@@ -136,11 +213,10 @@ void main() {
         duration: 300, startTime: yesterday, completed: true,
       );
 
-      // Only today's two sessions count (40 + 30 = 70)
       expect(n.getAccumulatedReps(m.id, RepetitionCycle.daily), 70);
     });
 
-    test('daily: returns 0 when no sessions today', () {
+    test('daily: returns 0 when no completed sessions today', () {
       final n = _notifier();
       final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
       final yesterday = DateTime.now().subtract(const Duration(days: 1));
@@ -152,7 +228,7 @@ void main() {
       expect(n.getAccumulatedReps(m.id, RepetitionCycle.daily), 0);
     });
 
-    test('weekly: sums reps from sessions within the ISO week', () {
+    test('weekly: sums reps from completed sessions within the ISO week', () {
       final n = _notifier();
       final m = n.createMantra(title: 'Om', text: 'Om', targetRepetitions: 108);
       final now = DateTime.now();
@@ -163,14 +239,15 @@ void main() {
         mantraId: m.id, mantraTitle: m.title,
         repsCompleted: 54, targetReps: 108,
         targetCycle: RepetitionCycle.weekly,
-        duration: 150, startTime: monday, completed: false,
+        duration: 150, startTime: monday, completed: true,
       );
       n.completeSession(
         mantraId: m.id, mantraTitle: m.title,
         repsCompleted: 54, targetReps: 108,
         targetCycle: RepetitionCycle.weekly,
-        duration: 150, startTime: now, completed: false,
+        duration: 150, startTime: now, completed: true,
       );
+      // Last week — should NOT count
       n.completeSession(
         mantraId: m.id, mantraTitle: m.title,
         repsCompleted: 108, targetReps: 108,
@@ -178,7 +255,6 @@ void main() {
         duration: 300, startTime: lastMonday, completed: true,
       );
 
-      // Only this week's two sessions count (54 + 54 = 108)
       expect(n.getAccumulatedReps(m.id, RepetitionCycle.weekly), 108);
     });
 
@@ -192,7 +268,7 @@ void main() {
         mantraId: m1.id, mantraTitle: m1.title,
         repsCompleted: 60, targetReps: 108,
         targetCycle: RepetitionCycle.daily,
-        duration: 150, startTime: today, completed: false,
+        duration: 150, startTime: today, completed: true,
       );
       n.completeSession(
         mantraId: m2.id, mantraTitle: m2.title,

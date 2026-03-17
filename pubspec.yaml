@@ -114,7 +114,3 @@ flutter:
     - family: NotoSansKR               # Korean (Korean Buddhist mantras)
       fonts:
         - asset: assets/fonts/NotoSansKR-Variable.ttf
-
-    - family: NotoColorEmoji           # Color emoji
-      fonts:
-        - asset: assets/fonts/NotoColorEmoji.ttf
