@@ -21,6 +21,7 @@ import re
 import subprocess
 import time
 from pathlib import Path
+from typing import Optional
 
 import trafilatura
 
@@ -78,7 +79,7 @@ def _append_index(url: str, h: str, html_bytes: int, text_chars: int) -> None:
 # ── HTML fetching ─────────────────────────────────────────────────────────────
 
 
-def fetch_html(url: str) -> str | None:
+def fetch_html(url: str) -> Optional[str]:
     """Fetch URL with curl, caching the raw HTML.
 
     Returns HTML string or None on failure. Failed fetches are cached

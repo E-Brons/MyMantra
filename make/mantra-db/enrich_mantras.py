@@ -25,6 +25,7 @@ import re
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 import litellm
 from tqdm import tqdm
@@ -175,7 +176,7 @@ def load_existing() -> dict[str, dict]:
     return idx
 
 
-def find_match(phrase: str, existing: dict[str, dict]) -> dict | None:
+def find_match(phrase: str, existing: dict[str, dict]) -> Optional[dict]:
     key = phrase.strip().lower()
     if key in existing:
         return existing[key]
@@ -387,7 +388,7 @@ _AnswerKey = tuple[str, str, str]  # (phrase, field_name, model)
 
 async def call_student(
     model: str, phrase: str, filtered_context: str,
-    existing_match: dict | None, task: str,
+    existing_match: Optional[dict], task: str,
     temperature: float,
 ) -> str:
     """Call a student model with pre-filtered context. Returns answer only."""

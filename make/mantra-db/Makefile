@@ -14,19 +14,26 @@
 SHELL := /bin/bash
 .ONESHELL:
 
+PYTHON ?= python3
+
 SELF     := $(abspath $(lastword $(MAKEFILE_LIST)))
 SCRIPTS  := $(dir $(SELF))
 SETTINGS := $(SCRIPTS)/settings.yml
 ROOT     := $(abspath $(SCRIPTS)../../)
 
 # ── read file paths from settings.yml (one Python call each) ──────────────────
-_cfg = $(shell python3 -c "import yaml; c=yaml.safe_load(open('$(SETTINGS)')); print(c$(1))" 2>/dev/null)
+_cfg = $(shell $(PYTHON) -c "import yaml; c=yaml.safe_load(open('$(SETTINGS)')); v=c$(1); print(v if v is not None else '')" 2>/dev/null)
 
 URLS_FILE  := $(call _cfg,['search_web']['output'])
 INDEX_FILE := $(call _cfg,['extract_mantra']['output'])
 DEDUPED    := $(call _cfg,['translate_n_dedup']['output'])
 ENRICHED   := $(call _cfg,['enrich_mantras']['output'])
 DEPLOYED   := $(call _cfg,['deploy']['output'])
+
+# Check parsing filenames failed (commonly: PyYAML missing in the active venv), `_cfg` returns
+ifeq ($(strip $(ENRICHED)),)
+$(error Failed to read ['enrich_mantras']['output'] from $(SETTINGS). Is PyYAML installed for $(PYTHON)? Try: $(PYTHON) -m pip install pyyaml)
+endif
 
 PIPELINE_STR = Mantra DB Pipeline:  WWW -(1)-> $(URLS_FILE) -(2)-> ${INDEX_FILE} -(3)-> ${DEDUPED} -(4)-> ${ENRICHED} -(deploy)-> ${DEPLOYED}
 LINE_LENGTH = $(shell echo -n '$(PIPELINE_STR)' | wc -c)

@@ -9,12 +9,13 @@ Usage in any pipeline script:
 """
 
 from pathlib import Path
+from typing import Optional
 
 _SELF = Path(__file__).parent
 ROOT = _SELF.parent.parent  # make/mantra-db/ → make/ → project root
 _SETTINGS = _SELF / "settings.yml"
 
-_cache: dict | None = None
+_cache: Optional[dict] = None
 
 
 def cfg() -> dict:

@@ -38,6 +38,7 @@ import re
 import sys
 from datetime import date
 from pathlib import Path
+from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import cfg, root_path
@@ -157,7 +158,7 @@ def normalize(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip().lower()
 
 
-def find_existing(entry: dict, library: list[dict]) -> dict | None:
+def find_existing(entry: dict, library: list[dict]) -> Optional[dict]:
     key = normalize(entry.get("transliteration", "") or entry.get("name", ""))
     for lib_entry in library:
         for field in ("transliteration", "name", "original"):
@@ -232,7 +233,7 @@ def merge_fields(base: dict, incoming: dict) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def count_urls_crawled() -> int | None:
+def count_urls_crawled() -> Optional[int]:
     urls_file = _ROOT / cfg()["search_web"]["output"]
     if not urls_file.exists():
         return None
