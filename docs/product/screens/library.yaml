@@ -1,0 +1,46 @@
+screen: Library
+id: "2"
+type: full-screen
+nav: bottom-tabs
+
+elements:
+  - id: search-bar
+    type: text-input
+    position: top
+    placeholder: "Search by title, tradition..."
+    action: filter-mantra-list
+
+  - id: category-chips
+    type: chip-group
+    position: below-search
+    scroll: horizontal
+    items:
+      - "All"
+      - "Popular"
+      - "Yogic Philosophy"
+      - "Buddhist"
+      - "Hebrew"
+      - "Christian"
+      - "Secular"
+    action: filter-mantra-list
+    note: "on first launch from onboarding, Popular is pre-selected"
+
+  - id: mantra-list
+    type: scrollable-list
+    position: center
+    item-type: mantra-card
+    item-elements:
+      - signature-badge
+      - short-title
+      - source
+      - difficulty
+      - primary-text
+      - translation
+      - tags
+    action: navigate → Practice Plan (3)
+
+  - id: create-fab
+    type: fab
+    position: top-right
+    icon: "+"
+    action: navigate → Create Mantra (2b)

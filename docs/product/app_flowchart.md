@@ -1,763 +1,781 @@
-# MyMantra - Application Flow Chart
+# MyMantra — Application Flows
 
-**Version:** 0.1
-**Date:** November 2025
-**Status:** Unsynched — outdated
-**Application Name:** MyMantra
-
-## Overview
-This document describes the complete user flow through the MyMantra application, including screen navigation and user journeys.
+**Version:** 0.2
+**Date:** 2026-03-16
+**Status:** Active
 
 ---
 
-## Section 1: Complete Application Flowchart
+## Table of Contents
+1. [User Flows](#1-user-flows)
+  - [Flow 1: First Launch](#flow-1-first-launch)
+  - [Flow 2: Practicing a Mantra](#flow-2-practicing-a-mantra)
+  - [Flow 3: Adding a Mantra from Library](#flow-3-adding-a-mantra-from-library)
+  - [Flow 4: Creating a New Mantra](#flow-4-creating-a-new-mantra)
+  - [Flow 5: MyPractice Screen](#flow-5-mypractice-screen)
+  - [Flow 6: Achievement Screen (Progress Tab)](#flow-6-achievement-screen-progress-tab)
+  - [Flow 7: Editing a Mantra](#flow-7-editing-a-mantra)
+  - [Flow 8: Deleting a Mantra](#flow-8-deleting-a-mantra)
+  - [Flow 9: Settings](#flow-9-settings)
+  - [Flow 10: User Feedback](#flow-10-user-feedback)
+  - [Summary: Screen Navigation Map](#screen-navigation-map)
+2. [Screens Details](#2-screens-details)
+  - [List of screens](#list-of-screens)
+3. [Change Log](#3-change-log)
 
-### Full Application Structure
+## 1. User flows
+
+### Flow 1: First Launch
+
+First-time users are greeted with a welcome screen, introduced to the app's purpose, and guided to pick their first mantra.
 
 ```mermaid
 graph TD
-    WELCOME[Welcome] --> AUTH{Authenticated?}
-    AUTH -->|No| LOGIN[Login]
-    AUTH -->|Yes| MAIN[Main Dashboard]
+    LAUNCH([App Launch]) --> WELCOME(Welcome Screen)
+    WELCOME -->|Sign In| SIGNIN("Sign In <br/> _(currently a stub)_")
+    WELCOME -->|Continue Offline| ONBOARD(What to Expect Screen)
+    SIGNIN --> ONBOARD
 
-    LOGIN -->|Success| MAIN
-    LOGIN -.->|Sign Up| REGISTER[Registration]
-    LOGIN -.->|Compare Plans| PLANCOMP[Plan Comparison]
+    ONBOARD -->|"Start from library" - recommended| LIBRARY([→ Library Screen])
+    ONBOARD -->|"Create your own"| CREATE([→ Create Mantra Screen])
 
-    REGISTER -->|Success| PLANSEL[Plan Selection]
-    REGISTER -.->|Login Link| LOGIN
-
-    PLANSEL -->|Select Plan| MAIN
-
-    MAIN -->|Click Mantra| VIEW[View/Play Mantra]
-    MAIN -->|Add Button| CREATE[Create Mantra]
-    MAIN -->|Profile Icon| SETTINGS[Settings]
-
-    VIEW -->|Edit| EDIT[Edit Mantra]
-    VIEW -->|Delete| DELCONF{Confirm Delete?}
-    VIEW -->|Set Goals| GOALS[Goals]
-    VIEW -->|Back| MAIN
-
-    DELCONF -->|Yes| MAIN
-    DELCONF -->|No| VIEW
-
-    EDIT -->|Save| MAIN
-    EDIT -->|Cancel| VIEW
-
-    CREATE -->|Save| MAIN
-    CREATE -->|Cancel| UNSAVED{Unsaved Changes?}
-
-    UNSAVED -->|Discard| MAIN
-    UNSAVED -->|Keep Editing| CREATE
-
-    GOALS -->|Add| GOALFORM[Add/Edit Goal]
-    GOALS -->|Edit| GOALFORM
-    GOALS -->|Back| VIEW
-
-    GOALFORM -->|Save| GOALS
-    GOALFORM -->|Cancel| GOALS
-
-    SETTINGS -->|About| ABOUT[About]
-    SETTINGS -->|Compare Plans| PLANCOMP
-    SETTINGS -->|Logout| LOGCONF{Confirm Logout?}
-    SETTINGS -->|Back| MAIN
-
-    ABOUT -->|Back| SETTINGS
-
-    PLANCOMP -->|Select Plan| PLANCHANGE{Confirm Change?}
-    PLANCOMP -->|Back| SETTINGS
-
-    PLANCHANGE -->|Yes| SETTINGS
-    PLANCHANGE -->|No| PLANCOMP
-
-    LOGCONF -->|Yes| LOGIN
-    LOGCONF -->|No| SETTINGS
+    style WELCOME fill:#9333ea,color:#fff
+    style SIGNIN fill:#8525cc,color:#fff
+    style ONBOARD fill:#7010c8,color:#fff
+    style LIBRARY fill:#0d9488,color:#fff
+    style CREATE fill:#EFEB1B,color:#000
 ```
+
+#### Screen 1: Welcome
+
+- App logo with calligraphy styling
+- Philosophy quote: *"Abhyasa Vairagyabhyam Tan-Nirodhah"* — by practice and non-attachment the mind is still (Yoga Sutras 1.12)
+- Language selector icon
+  - On mobile: defaults to system language
+  - On other platforms (or as fallback): English
+- Two actions:
+  - **Sign In** (stub — full auth is Phase 2.0)
+  - **Continue Offline**
+- Note at bottom: "You will always be able to change this selection later in Settings"
+
+#### Screen 1a: Sign in
+- Currently a stub, as sign-in is futuristic phase
+
+#### Screen 1b: What to Expect
+
+Introductory copy:
+
+> Developing the habit of Practicing Mantra, one step at a time.
+>
+> This app was made to help you improve your life through practicing the ancient traditions of Mantras.
+>
+> You will be able to:
+> - Practice traditional Mantras
+> - Get reminders on when to practice
+> - Count your practice at your own pace, or listen to the mantra on your way to work
+> - Create your personal mantras, goals and habits
+> - Get motivated, empowered, healthier and happier
+
+Followed by a choice:
+
+- **"Start with a mantra from our library"** (recommended) — continues to Flow 3 (Library)
+- **"Create your own"** — continues to Flow 4 (Create Mantra)
+
+#### Screen 3a: Library (first mantra selection)
+
+- Library screen opens with the **"Popular"** tag pre-selected as a search filter
+- The filter selection should be clearly visible and easy to remove, so the user understands they can browse freely
+- User picks a mantra → continues through Flow 3 → lands on MyPractice
+
+#### Screen 3b: Create Mantra
+
+- Standard Create Mantra screen (see Flow 4)
+- User fills in their mantra and saves → lands on MyPractice
+
+#### Language model
+
+Every mantra has three textual layers for the user:
+
+1. **Original form** — in the original script (e.g., Devanagari, Tibetan, Hebrew)
+2. **Transliteration** — in Latin characters, as a pronunciation guide for users who cannot read the original script
+3. **Translation** — in the user's selected UI language
 
 ---
 
-## Section 2: Complete User Journeys
+### Flow 2: Practicing a Mantra
 
-### 2.1 First-Time User Journey
-New users who have never registered before.
+The core loop. User taps a mantra on the MyPractice screen and enters an immersive practice session.
 
 ```mermaid
 graph TD
-    A[Welcome] --> B[Registration]
-    B --> C[Plan Selection]
-    C --> D[Main Dashboard]
+    MYPRACTICE([MyPractice Screen]) -->|Tap mantra| CHECK{Ongoing session?}
+    CHECK -->|Yes| PROMPT{Resume or New Session?}
+    CHECK -->|No| PRACTICE(Practice Screen)
+
+    PROMPT -->|Resume| PRACTICE
+    PROMPT -->|New Session| PRACTICE
+
+    PRACTICE -->|Tap circle| COUNT{Count < target?}
+    COUNT -->|Yes| PRACTICE
+    COUNT -->|No| AUTOCOMPLETE[Auto-complete → Done]
+
+    PRACTICE -->|Done button| COMPLETE[Session Complete]
+    PRACTICE -->|Back button| SUSPEND[Session Suspended]
+    PRACTICE -->|Edit button| EDIT(Mantra Settings Screen)
+
+    COMPLETE --> ACHIEVE{Achievements unlocked?}
+    ACHIEVE -->|Yes| OVERLAY(Celebration Overlay)
+    ACHIEVE -->|No| MYPRACTICE_END([→ MyPractice])
+    OVERLAY --> MYPRACTICE_END
+    AUTOCOMPLETE --> ACHIEVE
+
+    SUSPEND --> MYPRACTICE_BACK([→ MyPractice])
+    EDIT -->|Save / Back| PRACTICE
+
+    style MYPRACTICE fill:#7c3aed,color:#fff
+    style PRACTICE fill:#300B9D,color:#fff
+    style EDIT fill:#EFEB1B,color:#000
+    style OVERLAY fill:#f59e0b,color:#000
+    style MYPRACTICE_END fill:#7c3aed,color:#fff
+    style MYPRACTICE_BACK fill:#7c3aed,color:#fff
 ```
 
-**Steps:**
-1. User opens app for first time
-2. Welcome screen displays (2-3 seconds)
-3. Auto-proceeds to Registration
-4. User creates account
-5. User selects plan (Free or Premium)
-6. User arrives at Main Dashboard
+#### Entry (from MyPractice screen)
+
+- User taps a mantra card
+- **If the mantra has an ongoing (suspended) session:** prompt with two options — "Resume" or "New Session"
+- **If no ongoing session:** go straight to the Practice Screen
+
+#### Practice Screen layout
+
+- **Center:** large circle — counter display + progress indicator
+- **Bottom:** **Done** button — bold, in the theme's primary color
+- **Top-left:** **Back** — small icon + text, muted color
+- **Top-right:** **Edit** — small icon + text, muted color
+
+No timer. Timing practice is counter to the app's philosophy of non-attachment.
+
+#### Practice modes
+
+Practice mode is a **per-mantra setting**, configured when the mantra is added to MyPractice (not a per-session choice):
+
+1. **Tap to count** — user says the mantra and taps the circle to count each repetition (available now)
+2. **Listen** — user listens to the mantra audio (future)
+3. **AI listens** — user says the mantra, AI detects and counts repetitions (future)
+
+#### Exit paths
+
+- **Done** — session marked complete regardless of whether the target rep count was reached. Progress is saved, streaks updated, achievement checks run. Celebration overlay shown if new achievements are unlocked.
+- **Back** — session suspended at the current rep count. The session remains open and resumable. User returns to MyPractice.
+- **Auto-complete** — when reps reach the target, behaves the same as Done.
+- **Edit** — opens the Mantra Settings screen. Returns to Practice Screen when done editing.
+
+#### Session model
+
+- Each mantra independently tracks its own open session (if any)
+- Multiple mantras can have open sessions simultaneously — no inter-relations
+- Every session is either ongoing or complete — there is no discard
+
+#### Reaching Mantra Settings screen
+
+The Mantra Settings screen is **not** part of the normal practice flow. It is reached only via:
+
+- **A.** Adding a mantra from the library (Flow 3)
+- **B.** Creating a new mantra (Flow 4)
+- **C.** Tapping "Edit" from within a practice session
 
 ---
 
-### 2.2 Returning User Journey
-Users who have already registered and logged in.
+### Flow 3: Adding a Mantra from Library
+
+User browses the built-in mantra library, selects a mantra, configures its settings, and adds it to their practice.
 
 ```mermaid
 graph TD
-    A[Welcome] --> B{Authenticated?}
-    B -->|Yes| C[Main Dashboard]
-    B -->|No| D[Login]
-    D --> C
+    MYPRACTICE([MyPractice Screen]) -->|Library tab| LIBRARY(Library Screen)
+    ONBOARD([What to Expect Screen]) -->|"Start from library"| LIBRARY
+
+    LIBRARY -->|Search / filter / browse| LIBRARY
+    LIBRARY -->|Tap mantra card| SETTINGS(Mantra Settings Screen)
+
+    SETTINGS -->|Scroll, configure, tap Add| MYPRACTICE_END([→ MyPractice])
+    SETTINGS -->|Back| LIBRARY
+
+    style MYPRACTICE fill:#7c3aed,color:#fff
+    style ONBOARD fill:#7010c8,color:#fff
+    style LIBRARY fill:#0d9488,color:#fff
+    style SETTINGS fill:#EFEB1B,color:#000
+    style MYPRACTICE_END fill:#7c3aed,color:#fff
 ```
 
-**Steps:**
-1. User opens app
-2. Welcome screen displays (2-3 seconds)
-3. Auto-login check
-4. If authenticated: proceed to Main Dashboard
-5. If not authenticated: show Login screen
-
----
-
-### 2.3 Create Mantra Journey
-
-```mermaid
-graph TD
-    A[Main Dashboard] -->|Add Button| B[Create Mantra]
-    B -->|Enter Details| C{Save Option}
-    C -->|Save| D[Main Dashboard]
-```
-
-**Steps:**
-1. User clicks "+ Add Mantra" button
-2. Create Mantra screen opens
-3. User can choose between:
-   - Creating a user-defined custom mantra
-   - Selecting from built-in mantras
-4. For user-defined mantras:
-   - User enters title and text
-   - Optional: Add category, tags
-   - Optional: Use voice input to record mantra (premium feature)
-   - Optional: Use text-to-speech to generate voice from text (premium feature)
-   - Optional: Use translation (premium feature)
-5. User saves mantra
-6. Returns to Main Dashboard
-
----
-
-### 2.4 Edit Mantra Journey
-
-```mermaid
-graph TD
-    A[Main Dashboard] -->|Click Mantra| B[View/Play Mantra]
-    B -->|Edit Button| C[Edit Mantra]
-    C -->|Save| B
-    B -->|Back| A
-```
-
-**Steps:**
-1. User clicks on a mantra card
-2. View/Play Mantra screen opens
-3. User clicks Edit button
-4. Edit Mantra screen opens with pre-filled data
-5. User modifies content
-6. User saves changes
-7. Returns to View/Play Mantra screen
-8. User navigates back to Main Dashboard
-
----
-
-### 2.5 Delete Mantra Journey
-
-```mermaid
-graph TD
-    A[Main Dashboard] -->|Click Mantra| B[View/Play Mantra]
-    B -->|Delete Button| C{Confirm Delete?}
-    C -->|Yes| A
-    C -->|No| B
-```
-
-**Steps:**
-1. User clicks on a mantra card
-2. View/Play Mantra screen opens
-3. User clicks Delete button
-4. Confirmation dialog appears
-5. User confirms deletion
-6. Mantra deleted, returns to Main Dashboard
-
----
-
-### 2.6 Set Goals Journey
-
-```mermaid
-graph TD
-    A[View/Play Mantra] -->|Set Goals| B[Goals]
-    B -->|Add Goal| C[Add/Edit Goal]
-    C -->|Select Mantra| D[Choose Time & Repeat]
-    D -->|Save| B
-    B -->|Back| A
-```
-
-**Note:** Goals are accessed from the View/Play Mantra screen only. Users set practice goals (reminders) for specific mantras to build habits.
-
-**Permission Requirements:**
-- When first accessing Goals from View/Play Mantra or Login screens, the app requests notification permissions via a pop-up
-- This permission request can appear on different screens as needed
-
-**Steps:**
-1. User navigates to Goals from View/Play Mantra screen
-2. If first time: system requests notification permissions via pop-up
-3. User clicks "+ Add Goal"
-4. Mantra is pre-selected (current mantra from View screen)
-5. User sets time
-6. User sets repeat options (daily, weekdays, custom, once)
-7. User saves goal
-8. Returns to Goals screen
-
----
-
-### 2.7 Change Plan Journey
-
-```mermaid
-graph TD
-    A[Main Dashboard] -->|Profile Icon| B[Settings]
-    B -->|Compare Plans| C[Plan Comparison]
-    C -->|Select Plan| D{Confirm Change?}
-    D -->|Yes| B
-    D -->|No| C
-```
-
-**Alternative entry point:**
-```mermaid
-graph TD
-    A[Login] -->|Compare Plans| B[Plan Comparison]
-```
-
-**Steps:**
-1. User navigates to Settings
-2. User clicks "Compare Plans" or "Upgrade"
-3. Plan Comparison screen shows features
-4. User selects new plan
-5. Confirmation dialog appears
-6. User confirms plan change
-7. Plan updated, returns to Settings
-
----
-
-### 2.8 Logout Journey
-
-```mermaid
-graph TD
-    A[Main Dashboard] -->|Profile Icon| B[Settings]
-    B -->|Logout| C{Confirm Logout?}
-    C -->|Yes| D[Login]
-    C -->|No| B
-```
-
-**Steps:**
-1. User navigates to Settings
-2. User clicks "Logout"
-3. Confirmation dialog appears
-4. User confirms logout
-5. Session cleared, redirected to Login screen
-
----
-
-### 2.9 Play Mantra (Voice Playback) Journey
-
-```mermaid
-graph TD
-    A[Main Dashboard] -->|Click Mantra| B[View/Play Mantra]
-    B -->|Play Button| C[Audio Playing]
-    C -->|Pause/Stop| B
-    B -->|Back| A
-```
-
-**Steps:**
-1. User clicks on a mantra card
-2. View/Play Mantra screen opens
-3. User clicks Play button (only available if mantra has recorded voice)
-4. Recorded voice plays the mantra
-5. Playback controls available (pause/stop)
-6. User can navigate back when finished
-
-**Note:** Not all mantras have voice recordings. Voice can be added during mantra creation through:
-- Recording your own voice (always available)
-- Using text-to-speech to generate voice (optional, premium feature)
-
----
-
-### 2.10 Password Reset Journey
-
-**REMOVED:** Password reset is no longer needed as authentication is exclusively through Google, Apple, or Meta accounts.
-
----
-
-## Section 3: Individual Screen Details
-
-### 3.1 Welcome
-**Purpose:** Brand introduction, animated loading screen
-
-**Elements:**
-- Animated lotus opening (GIF/Lottie animation)
-- Main mantra text in Sanskrit (overlay)
-- Auto-proceeds after 2-3 seconds (no user interaction)
-
-**Navigation:**
-- Auto → Login (if not authenticated)
-- Auto → Main Dashboard (if authenticated)
-
----
-
-### 3.2 Login
-**Purpose:** Authenticate returning users
-
-**Elements:**
-- "Sign in with Google" button
-- "Sign in with Apple" button
-- "Sign in with Meta" button
-- "Don't have an account? Sign Up" link
-- "Compare Plans" link (bottom or header)
-
-**Navigation:**
-- Login success → Main Dashboard
-- Sign Up link → Registration
-- Compare Plans link → Plan Comparison
-
-**Permission Requirements:**
-- Notification permission pop-up may appear after successful login (if not previously granted)
-
----
-
-### 3.3 Registration
-**Purpose:** Create new user account
-
-**Elements:**
-- "Sign up with Google" button
-- "Sign up with Apple" button
-- "Sign up with Meta" button
-- "Already have an account? Login" link
-- Terms & Privacy Policy checkbox
-
-**Navigation:**
-- Success → Plan Selection
-- Login link → Login
-
-**Validation:**
-- Terms acceptance required
-- OAuth authentication handles email validation
-
----
-
-### 3.4 Plan Selection
-**Purpose:** Choose between available subscription plans
-
-**Elements:**
-- Feature comparison table/cards
-- Plan options with pricing (if applicable)
-- Feature availability indicators per plan
-- "Select" button for each plan
-- Highlight differences between plans
-
-**Navigation:**
-- Select plan → Main Dashboard (first time)
-- Also accessible from Settings → Plan Comparison
-
-**Notes:**
-- Features are configurable (see Feature Flags section)
-- Plan-to-feature mapping determined later
-
----
-
-### 3.5 Plan Comparison
-**Purpose:** View and compare plan features, change current plan
-
-**Elements:**
-- Same as Plan Selection
-- Shows current plan indicator
-- "Change Plan" / "Upgrade" / "Downgrade" options
-
-**Navigation:**
-- Accessible from Login and Settings
-- Select plan → Confirmation dialog → Settings
-
----
-
-### 3.6 Main Dashboard
-**Purpose:** Central hub, display all user mantras
-
-**Header Elements:**
-- App logo/name
-- User profile icon → Settings
-
-**Main Content:**
-- Search bar (filter mantras by title/text)
-- Mantra cards/list items displaying:
-  - Mantra title
-  - Preview text (first line or excerpt)
-  - Category/tag badge (optional)
-  - Last modified date
-  - Play button icon (only if mantra has voice recording)
-- Empty state: "Create your first mantra" with call-to-action
-- Floating Action Button (FAB): "+ Add Mantra"
-
-**Bottom Navigation (optional):**
-- Home icon (current)
-- Settings icon
-
-**Navigation:**
-- Click mantra card → View/Play Mantra
-- "+ Add Mantra" FAB → Create Mantra
-- Profile icon → Settings
-- Search filters mantras in real-time
-
-**Note:** Goals are set from the View/Play Mantra screen, not from the Main Dashboard. This reinforces the principle of "practice, no attachment" - users focus on their mantras, not on managing notifications.
-
----
-
-### 3.8 View/Play Mantra
-**Purpose:** Display and interact with a single mantra
-
-**Header:**
-- Back button (top-left)
-- Edit button (pencil icon)
-- Delete button (trash icon)
-
-**Content:**
-- Mantra title (large, prominent)
-- Full mantra text (scrollable if long)
-- Category/tags badges
-- Created date
-- Last modified date
+#### Library Screen
+
+- Search bar: filter by title, short title, or tradition
+- Category chips (horizontal scroll): All, Popular, Yogic Philosophy, Buddhist, etc.
+- Mantra cards showing: signature badge, short title, source, difficulty, primary text, translation, tags
+
+#### Mantra Settings Screen
+
+Reached after tapping a mantra card in the Library. This is the **same screen** used when editing an existing mantra (via "Edit" in a practice session), with minor variations depending on context.
+
+**Read-only details** (from the library entry):
+- Original text (in original script)
+- Transliteration
+- Translation
+- Traditions
+- Benefits
+- Difficulty
+- Tags
+
+**Configurable settings** (visually distinct — different color/button style):
+- Target repetition count
+- Count mode: Session / Daily / Weekly
+- Practice mode: Tap to count / Listen (future) / AI listens (future)
+- Reminders: add one or more (entirely optional)
 
 **Actions:**
-- Play button (plays recorded voice) → Playback controls (only visible if mantra has voice recording)
-- "Set Goals" button → Goals screen
-- Favorite/pin toggle icon
-- Share button (optional, future feature)
+- **"Add to MyPractice"** (bottom of screen) — adds the mantra and navigates to MyPractice
+- **Back** — returns to Library without adding (Android back button also works)
 
-**Playback Controls (when playing):**
-- Pause button
-- Stop button
-- Progress indicator (optional)
+#### Settings inheritance
 
-**Navigation:**
-- Back → Main Dashboard
-- Edit → Edit Mantra
-- Delete → Confirmation dialog → Main Dashboard
-- Set Goals → Goals (pre-filled with this mantra)
+Configurable fields display the effective value with a subtle source label:
 
-**Permission Requirements:**
-- Notification permission pop-up may appear when accessing "Set Goals" for the first time
+```
+User explicit selection  →  User global defaults  →  Mantra's library recommendation
+```
+
+- Both levels default to "inherit," so unless the user changes anything, the library mantra's recommended values apply
+- Fields show the effective value with a label indicating the source:
+  - `108 (recommended)` — value comes from the library mantra
+  - `108 (your default)` — value comes from user's global Settings
+  - `108` (no label) — explicitly set by the user for this mantra
+- The user can override at either level: globally in Settings, or per-mantra on this screen
 
 ---
 
-### 3.9 Create Mantra
-**Purpose:** Add a new mantra to the collection
+### Flow 4: Creating a New Mantra
 
-**Header:**
-- Back/Cancel button
-- "Create Mantra" title
-- Save button (enabled when valid)
+User creates a custom mantra from scratch and adds it to their practice.
 
-**Mantra Type Selection:**
-- Toggle/tabs to choose between:
-  - User-defined custom mantra (default)
-  - Built-in mantras (pre-populated library)
+```mermaid
+graph TD
+    LIBRARY([Library Screen]) -->|FAB + top-right| SETTINGS(Mantra Settings Screen)
+    ONBOARD([What to Expect Screen]) -->|"Create your own"| SETTINGS
 
-**Form Fields (for user-defined mantras):**
-- Title input (required, single-line)
-- Mantra text area (required, multi-line, expandable)
-- Category dropdown/selector (optional)
-- Tags input (optional, comma-separated or chips)
+    SETTINGS -->|Fill in details, configure, tap Add| MYPRACTICE([→ MyPractice])
+    SETTINGS -->|Back| LIBRARY_BACK([→ Library])
 
-**Voice Options:**
-- Record voice button (microphone icon) - allows user to record themselves
-- Text-to-speech button (speaker icon) - generates voice from text (optional, premium feature)
-- Play recorded/generated voice (preview before saving)
-- Re-record/regenerate option
+    style LIBRARY fill:#0d9488,color:#fff
+    style ONBOARD fill:#7010c8,color:#fff
+    style SETTINGS fill:#EFEB1B,color:#000
+    style MYPRACTICE fill:#7c3aed,color:#fff
+    style LIBRARY_BACK fill:#0d9488,color:#fff
+```
 
-**Premium/Feature-Flagged Actions:**
-- Text-to-speech generation - shows "Premium" badge if disabled
-- Translation button (globe icon) - shows "Premium" badge if disabled
+#### Entry points
+
+- **Library screen** — floating action button (circle with **+** icon, no text) at the top-right
+- **Onboarding** — "Create your own" option (see Flow 1)
+
+Note: MyPractice has no FAB. All mantra addition (from library or custom) starts from the Library tab.
+
+#### Mantra Settings Screen (create mode)
+
+Same screen as Flow 3 (adding from library) and Flow 5 (editing), but with all fields empty.
+
+**User-entered fields:**
+- Title (required)
+- Mantra text (required) — in original script
+- Transliteration (optional)
+- Translation (optional)
+- Tradition (optional)
+
+**Configurable settings** (same as Flow 3):
+- Target repetition count
+- Count mode: Session / Daily / Weekly
+- Practice mode: Tap to count / Listen (future) / AI listens (future)
+- Reminders (optional)
 
 **Actions:**
-- "Save" button
+- **"Add to MyPractice"** (bottom of screen) — saves the mantra and navigates to MyPractice
+- **Back** — returns to Library
 
-**Navigation:**
-- Save → Main Dashboard (with success message)
-- Cancel → Unsaved changes warning → Main Dashboard
-- Text-to-speech/Translation (if disabled) → Upgrade prompt modal
+#### Settings inheritance (create mode)
 
-**Validation:**
-- Title required
-- Mantra text required
-- Show error messages inline
+Since there is no library recommendation for a custom mantra, the inheritance chain is shorter:
 
-**Note:** Voice recording is always optional. Users can save mantras with or without voice recordings.
+```
+User explicit selection  →  User global defaults
+```
+
+Fields show the effective value with a label: `108 (your default)` or `108` (no label) if explicitly set.
+
+#### Future enhancement
+
+AI-guided mantra creation — a conversational service that helps users discover or compose a personal mantra based on their intentions and needs. Paid option due to API costs. See Phase 4.0 (Guru-Guided Mantra Creation) in features.md.
+
+---
+### Flow 5: MyPractice Screen
+
+The main hub. Shows all mantras the user has added to their practice. This is the center of the app.
+
+```mermaid
+graph TD
+    MYPRACTICE(MyPractice Screen) -->|Tap mantra card| CHECK{Ongoing session?}
+    CHECK -->|Yes| PROMPT{Resume or New Session?}
+    CHECK -->|No| PRACTICE([→ Practice Screen])
+    PROMPT -->|Resume| PRACTICE
+    PROMPT -->|New Session| PRACTICE
+
+    MYPRACTICE -->|Settings icon - top right| SETTINGS([→ Settings Screen])
+    MYPRACTICE -->|Library tab| LIBRARY([→ Library Screen])
+    MYPRACTICE -->|Progress tab| PROGRESS([→ Progress Screen])
+
+    style MYPRACTICE fill:#7c3aed,color:#fff
+    style PRACTICE fill:#300B9D,color:#fff
+    style SETTINGS fill:#475569,color:#fff
+    style LIBRARY fill:#0d9488,color:#fff
+    style PROGRESS fill:#059669,color:#fff
+```
+
+#### Navigation structure
+
+3-tab bottom navigation:
+
+| Position | Tab | Size |
+|----------|-----|------|
+| Left | Library | Small |
+| Center | MyPractice | Big (dominant) |
+| Right | Progress | Small |
+
+- **Settings** — small gear icon, top-right corner, visible only on MyPractice screen. Navigates to a full Settings screen.
+- No search bar. No FAB. Adding mantras happens via the Library tab.
+
+#### Mantra cards
+
+Cards are displayed in the order the user added them. Each card shows:
+
+- **Title in original script** — large, prominent
+- **Title in user's language** — smaller, faded shade
+- **Dynamic badge** — one of three states:
+  - **Idle** — prayer icon (invites user to start a session)
+  - **Ongoing** — mini-ring showing suspended session progress (same visual language as the big practice ring, card-sized)
+  - **Streak** — weightlifting/energy icon (encourages continuation). Hidden if a session is ongoing.
+
+#### Empty state
+
+Shown when the user has no mantras in MyPractice:
+
+> "No Mantras to practice yet. To Start — select one from Library or Create your own."
+
+#### Mantra limit warning
+
+No hard limit on the number of mantras. However, when the user attempts to add a 6th mantra, a soft warning is shown:
+
+> "Note: are you sure? Practicing more than 5 mantras may dilute your focus."
+
+Dismissible — user can proceed if they choose.
 
 ---
 
-### 3.10 Edit Mantra
-**Purpose:** Modify existing mantra
 
-**Elements:**
-- Identical to Create Mantra, but:
-  - Title: "Edit Mantra"
-  - Fields pre-filled with existing data
-  - Additional "Delete" button in header or bottom
+### Flow 6: Achievement Screen (Progress Tab)
 
-**Navigation:**
-- Same as Create Mantra
-- Delete → Confirmation dialog → Main Dashboard
+A quiet, display-only screen showing the user's overall practice stats and earned achievements. Intentionally understated — aligned with the app's philosophy of non-attachment.
 
----
+```mermaid
+graph TD
+    NAV([Bottom Nav: Progress tab]) --> PROGRESS(Progress Screen)
 
-### 3.11 Goals
-**Purpose:** Configure mantra practice reminders and goal settings
+    style PROGRESS fill:#059669,color:#fff
+```
 
-**Header:**
-- Back button
-- "Goals" title
+#### Stats summary
 
-**Global Settings Section:**
-- "Enable Goals" toggle (master switch for all goal reminders)
-- Notification sound selector dropdown
-- Vibration toggle
+Aggregate totals across all mantras:
 
-**Scheduled Goals Section:**
-- List of active goals displaying:
-  - Mantra name/title
-  - Time(s) scheduled
-  - Days of week (icons or abbreviations)
-  - Edit icon
-  - Delete icon
-- "+ Add Goal" button
-- Empty state: "No practice goals set"
+- **Current streak** (days)
+- **Longest streak** (days)
+- **Total sessions**
+- **Total repetitions** (formatted: 1.2K, 50K, 1M, etc.)
+- **Member since** (date)
 
-**Navigation:**
-- Back → View/Play Mantra
-- Add Goal → Add/Edit Goal
-- Edit goal → Add/Edit Goal (pre-filled)
-- Delete goal → Confirmation dialog → Goals
+#### Achievement gallery
 
-**Note:** This screen is only accessible from View/Play Mantra, reinforcing focused practice on individual mantras.
+2-column grid. Display only — tapping does nothing.
 
----
+**Progressive visibility:**
+- **Unlocked** — full color, icon, title, description, rarity badge
+- **Locked teaser** (next in chain after an unlocked achievement) — greyed out, lock icon, title visible
+- **Hidden** (further down the chain) — not rendered at all
 
-### 3.12 Add/Edit Goal
-**Purpose:** Create or modify a scheduled practice goal
+**Rarity tiers (10 levels):**
+Common, Uncommon, Rare, Super Rare, Epic, Heroic, Exotic, Mythic, Legendary, Divine
 
-**Elements:**
-- Mantra display (pre-selected, non-editable - shows which mantra this goal is for)
-- Time picker (hour:minute, AM/PM or 24h)
-- Repeat options (radio buttons or segmented control):
-  - Daily
-  - Weekdays (Mon-Fri)
-  - Weekends (Sat-Sun)
-  - Custom (opens day selector)
-  - Once (single occurrence)
-- Day selector (if Custom selected):
-  - Checkboxes or toggles for each day
-- "Save" button
-- "Cancel" button
+- Higher rarities (Exotic+) use animated gradient text
+- Divine tier has rainbow animation
 
-**Navigation:**
-- Save → Goals
-- Cancel → Goals
-
-**Validation:**
-- Time required
-- At least one day selected if Custom
-
-**Notes:**
-- Mantra is always pre-selected from the View/Play Mantra screen
-- These are practice goals/reminders, not traditional notifications
+**Achievement categories (40+):**
+- Streak: 1, 3, 7, 14, 30, 60, 90, 180, 365, 1095 days
+- Repetitions: 1K, 5K, 10K, 50K, 100K, 250K, 500K, 1M
+- Sessions: 10, 100, 250, 500, 1K, 2K, 10K, 50K, 100K
+- Time of day: Early Bird (4-7 AM), Night Owl (after 10 PM)
+- Platform: Android, iOS, macOS, Linux, Web
+- Special: Creator (first custom mantra)
 
 ---
 
-### 3.13 Settings
-**Purpose:** App configuration and account management
+### Flow 7: Editing a Mantra
 
-**Header:**
-- Back button
-- "Settings" title
+User modifies an existing mantra's details or settings from within a practice session.
 
-**Account Section:**
-- User email/name display (from OAuth provider)
-- "Logout" button
+```mermaid
+graph TD
+    PRACTICE([Practice Screen]) -->|Edit button - top right| SETTINGS(Mantra Settings Screen)
 
-**Plan & Billing Section:**
-- Current plan display (e.g., "Free Plan" or "Premium Plan")
-- "Plan Selection" / "Compare Plans" / "Upgrade to Premium" button
-- "Manage Subscription" button (if Premium)
+    SETTINGS -->|Modify fields, tap Save| PRACTICE_RETURN([→ Practice Screen])
+    SETTINGS -->|Back| PRACTICE_BACK([→ Practice Screen])
 
-**Data Section:**
-- "Backup to Drive/iCloud" button (premium feature, saves to user's Google Drive or iCloud, disabled if offline)
-- "Restore from Drive/iCloud" button (premium feature)
-- "Delete All Data" button (with confirmation)
+    style PRACTICE fill:#300B9D,color:#fff
+    style SETTINGS fill:#EFEB1B,color:#000
+    style PRACTICE_RETURN fill:#300B9D,color:#fff
+    style PRACTICE_BACK fill:#300B9D,color:#fff
+```
 
-**Preferences Section:**
-- Language selector dropdown
-- Theme selector (Light / Dark / Auto)
-- Default notification sound selector
+#### Entry point
 
-**App Info Section:**
-- "About" button → About
-- "Privacy Policy" link
-- "Terms of Service" link
-- App version number (non-interactive text)
+- **Practice Screen** — "Edit" button (top-right, small icon + text, muted color)
+- This is the only way to reach the edit flow. There is no edit option from MyPractice directly.
 
-**Navigation:**
-- Back → Main Dashboard
-- Plan Selection / Compare Plans → Plan Comparison
-- About → About
-- Logout → Confirmation dialog → Login
+#### Mantra Settings Screen (edit mode)
 
-**Premium Feature Indicators:**
-- Backup/Restore buttons show "Premium" badge if disabled
-- Clicking disabled features → Upgrade prompt modal
+Same screen as Flow 3 (adding from library) and Flow 4 (creating), but with all fields pre-filled with the mantra's current values.
 
-**Notes:**
-- No password management needed (OAuth authentication only)
-- Data backup is stored on user's own cloud storage (Google Drive or iCloud), not app servers
+**Editable fields:**
+- Title
+- Mantra text
+- Transliteration
+- Translation
+- Tradition
+
+**Configurable settings:**
+- Target repetition count
+- Count mode: Session / Daily / Weekly
+- Practice mode: Tap to count / Listen (future) / AI listens (future)
+- Reminders: add, edit, or remove
+
+**Actions:**
+- **"Save Changes"** (bottom of screen) — saves modifications and returns to Practice Screen
+- **"Delete Mantra"** — red button at the bottom of the list, below Save Changes (see Flow 5b)
+- **Back** — returns to Practice Screen without saving
+
+#### Settings inheritance (edit mode)
+
+Same chain as Flow 3:
+
+```
+User explicit selection  →  User global defaults  →  Mantra's library recommendation
+```
+
+- If the user previously overrode a value, it shows without a label
+- If a value is still inherited, the source label is shown: `(recommended)` or `(your default)`
+- For custom-created mantras (no library source), the chain is: `User explicit selection → User global defaults`
 
 ---
 
-### 3.14 About
-**Purpose:** App information, credits, legal information
+### Flow 8: Deleting a Mantra
 
-**Elements:**
-- App logo (large)
+User removes a mantra from their practice. This action is only available from the Mantra Settings screen in edit mode.
+
+```mermaid
+graph TD
+    PRACTICE([Practice Screen]) -->|Edit button| SETTINGS(Mantra Settings Screen - edit mode)
+    SETTINGS -->|Scroll to bottom| DELETE["Delete Mantra (red)"]
+    DELETE --> CONFIRM{Are you sure?}
+    CONFIRM -->|Yes| MYPRACTICE([→ MyPractice])
+    CONFIRM -->|No| SETTINGS
+
+    style PRACTICE fill:#300B9D,color:#fff
+    style SETTINGS fill:#EFEB1B,color:#000
+    style DELETE fill:#dc2626,color:#fff
+    style MYPRACTICE fill:#7c3aed,color:#fff
+```
+
+#### Entry point
+
+- **Mantra Settings screen (edit mode)** — "Delete Mantra" button at the very bottom of the screen, styled in red to signal destructive action
+
+#### Flow
+
+1. User is in the Mantra Settings screen (edit mode), reached via "Edit" on the Practice Screen
+2. Scrolls to the bottom of the settings list
+3. Taps "Delete Mantra" (red button)
+4. Confirmation dialog: "Are you sure? This will remove the mantra and all its session history from your practice."
+5. **Yes** — mantra is deleted along with all its sessions, reminders, and progress. User is returned to MyPractice.
+6. **No** — dialog dismissed, user stays on the Mantra Settings screen
+
+#### Notes
+
+- Delete is intentionally buried at the bottom of the edit screen to prevent accidental taps
+- There is no undo — deletion is permanent
+- Deletion cascade: mantra, all associated sessions, all reminders
+- Aggregate stats (total reps, total sessions) in Progress are **not** reduced — they represent lifetime totals
+
+---
+
+### Flow 9: Settings
+
+App configuration. Reached via the gear icon on the top-right of the MyPractice screen (only visible there).
+
+```mermaid
+graph TD
+    MYPRACTICE([MyPractice Screen]) -->|Gear icon - top right| SETTINGS(Settings Screen)
+
+    SETTINGS --> FEEDBACK([→ Flow 8: Feedback])
+    SETTINGS -->|Back| MYPRACTICE_BACK([→ MyPractice])
+
+    style MYPRACTICE fill:#7c3aed,color:#fff
+    style SETTINGS fill:#475569,color:#fff
+    style FEEDBACK fill:#e11d48,color:#fff
+    style MYPRACTICE_BACK fill:#7c3aed,color:#fff
+```
+
+#### Entry point
+
+- **MyPractice screen** — small gear icon, top-right corner. Not visible on other screens.
+
+#### Sections
+
+**Account**
+- Current status: "Offline mode"
+- Note: "Sign in to sync your data across devices (coming soon)"
+- Sign In button (stub — full auth is Phase 2.0)
+- Future sign-in reasons: (1) data sync / backup across devices, (2) paid AI mantra creation service (may be offloaded to a web service instead)
+
+**Language**
+- UI language selector (same control as the welcome screen)
+- Affects UI text and mantra translations
+- Note at top: same as welcome screen — "You will always be able to change this selection later in Settings" is fulfilled here
+
+**Appearance**
+- Theme: Dark / Light / System
+- Font size: Small / Medium / Large (persisted but not yet applied — planned for implementation with at least 3 size options)
+
+**Practice Defaults**
+- Default repetitions: 27 / 54 / 108 / 216
+- Default cycle: Session / Daily / Weekly
+- Default practice mode: Tap to count / Listen (future) / AI listens (future)
+- Haptic feedback: toggle
+- Limit tap rate: toggle ("Prevents double-counts, 1s minimum")
+
+These defaults feed the settings inheritance chain (see Flow 3). Shown as `(your default)` on the Mantra Settings screen when not explicitly overridden.
+
+**Notifications**
+- Enable notifications: master toggle
+
+**About**
 - App name
-- Version number
-- Tagline/description
-- Credits (developer, designer, contributors)
-- Contact/support email
-- Website link (if applicable)
-- GitHub repository link (if open source)
-- "Rate the App" button (links to app store)
-- Legal section:
-  - Privacy Policy link
-  - Terms of Service link
-  - Open Source Licenses link
+- Version
+- Philosophy quote: *"Abhyasa Vairagyabhyam Tan-Nirodhah"* — by practice and non-attachment the mind is still (Yoga Sutras 1.12)
 
-**Navigation:**
-- Back → Settings
+**Feedback** (bottom of screen)
+- Button → opens Flow 8 (User Feedback)
+
+#### Behavior
+
+- All changes are saved immediately — no "Save" button needed
+- Back navigates to MyPractice
 
 ---
 
-## Feature Flags & Configuration
 
-The following features have configurable availability (for different plans/tiers):
+### Flow 10: User Feedback
 
-| Feature | Config Key | Default | Offline Support |
-|---------|------------|---------|-----------------|
-| Cloud Backup (Drive/iCloud) | `features.cloudBackup` | TBD | No |
-| Cloud Restore (Drive/iCloud) | `features.cloudRestore` | TBD | No |
-| Translations | `features.translations` | TBD | No |
-| Voice Recording | `features.voiceRecording` | Always Available | Yes |
-| Text-to-Speech Generation | `features.textToSpeech` | TBD | No |
-| Advanced Goals | `features.advancedGoals` | TBD | Partial |
-| Multi-device Sync | `features.multiDeviceSync` | TBD | No |
+Accessible from the Settings screen. User selects a feedback category and sends an email.
 
-**Note:** Feature-to-plan mapping will be determined later. UI should gracefully handle disabled features with upgrade prompts or hiding elements.
+```mermaid
+graph TD
+    SETTINGS([Settings Screen]) -->|Feedback button - bottom| FEEDBACK(Feedback Screen)
 
----
+    FEEDBACK -->|Select category| CATEGORY{Category}
+    CATEGORY -->|Bug Report<br/>Feature Request<br/>Mantra Info Request<br/>General Feedback| EMAIL[Email Compose] --> SETTINGS
 
-## Offline/Online Behavior
+    style SETTINGS fill:#475569,color:#fff
+    style FEEDBACK fill:#e11d48,color:#fff
+```
 
-### Always Available Offline
-- View mantra list
-- Create/edit mantras
-- Delete mantras
-- Voice recording for mantras
-- Voice playback (if mantra has recorded voice)
-- Local goal reminders (platform-dependent)
-- Theme/language preferences
+#### Entry point
 
-### Requires Online Connection
-- Initial registration/login (OAuth)
-- Cloud backup to Drive/iCloud (if enabled)
-- Cloud restore from Drive/iCloud (if enabled)
-- Text-to-speech generation (if enabled)
-- Translations (if enabled)
-- Plan changes
-- Subscription management
+- **Settings screen** — "Feedback" button at the bottom
 
-### Graceful Degradation
-- Show offline indicator icon when disconnected
-- Disable online-only features with appropriate messaging
-- Queue sync operations when offline (sync when connection restored)
-- Cache user data for offline access
+#### Feedback Screen
+
+User selects one of four categories:
+
+1. **Bug Report** — something is broken
+2. **Feature Request** — suggest a new feature or improvement
+3. **Mantra Info Request** — request a correction or addition to library mantra content
+4. **General Feedback** — anything else
+
+After selecting a category, the device's email compose opens with:
+- **To:** pre-filled app support email address
+- **Subject:** pre-filled with the selected category (e.g., "[MyMantra] Bug Report")
+- **Body:** pre-filled with app version, platform, and OS for context. User writes their message above.
+
+No PII collected automatically — just technical context to help triage.
+
+#### Future enhancement
+
+Wire incoming feedback emails to GitHub issues automatically (email-to-issue pipeline). Backend implementation deferred.
 
 ---
 
-## Design Principles
+## Screen Navigation Map
 
-### Practice, No Attachment
-- Focus on the practice of mantras, not on managing notifications or tracking metrics
-- Goals are set from the View/Play Mantra screen only, keeping focus on individual practice
-- No goal-setting from the Main Dashboard to avoid attachment to notifications
-- Encourages mindful engagement with each mantra rather than notification management
+Every screen in the app and how they connect.
 
-### Mobile-First
-- Optimized for portrait mobile view (320px - 428px width)
-- Touch-friendly tap targets (minimum 44x44px)
-- Thumb-zone consideration for primary actions
-- One-handed navigation where possible
+```mermaid
+graph TD
+    %% First launch only
+    WELCOME(Welcome Screen) -->|Sign In| SIGNIN(Sign In - stub)
+    WELCOME -->|Continue Offline| ONBOARD(What to Expect)
+    SIGNIN --> ONBOARD
+    ONBOARD -->|"From library"| LIBRARY
+    ONBOARD -->|"Create your own"| MANTRA_SETTINGS
 
-### Minimalist & Calming
-- Clean, distraction-free interface
-- Spiritual/meditative aesthetic
-- Lotus flower motif in branding
-- Soft, calming color palette (blues, purples, earth tones)
-- Ample white space
-- Smooth, gentle animations
+    %% Main 3-tab navigation
+    MYPRACTICE(MyPractice Screen) <-->|Tab| LIBRARY(Library Screen)
+    MYPRACTICE <-->|Tab| PROGRESS(Progress Screen)
+    LIBRARY <-->|Tab| PROGRESS
 
-### Accessibility
-- WCAG AA compliant contrast ratios
-- Readable fonts (16px+ for body text)
-- Screen reader support (semantic HTML, ARIA labels)
-- Keyboard navigation support (for web version)
-- Focus indicators
-- Alternative text for images/icons
+    %% MyPractice actions
+    MYPRACTICE -->|Gear icon| SETTINGS(Settings Screen)
+    MYPRACTICE -->|Tap mantra - no ongoing| PRACTICE(Practice Screen)
+    MYPRACTICE -->|Tap mantra - ongoing| RESUME_PROMPT{Resume or New?}
+    RESUME_PROMPT --> PRACTICE
 
-### Performance
-- Fast load times (< 2s initial load)
-- Smooth 60fps animations
-- Efficient offline storage (localStorage/IndexedDB)
-- Progressive enhancement
-- Lazy loading for large lists
+    %% Practice actions
+    PRACTICE -->|Done / Auto-complete| MYPRACTICE
+    PRACTICE -->|Back| MYPRACTICE
+    PRACTICE -->|Edit| MANTRA_SETTINGS(Mantra Settings Screen)
 
+    %% Mantra Settings actions
+    MANTRA_SETTINGS -->|"Add to MyPractice"| MYPRACTICE
+    MANTRA_SETTINGS -->|"Save Changes"| PRACTICE
+    MANTRA_SETTINGS -->|"Delete Mantra" + confirm| MYPRACTICE
+    MANTRA_SETTINGS -->|Back - from edit| PRACTICE
+    MANTRA_SETTINGS -->|Back - from library add| LIBRARY
+
+    %% Library actions
+    LIBRARY -->|Tap mantra card| MANTRA_SETTINGS
+    LIBRARY -->|FAB +| MANTRA_SETTINGS
+
+    %% Settings actions
+    SETTINGS -->|Back| MYPRACTICE
+    SETTINGS -->|Feedback| FEEDBACK(Feedback Screen)
+    FEEDBACK -->|Select category| EMAIL([Email Compose])
+    FEEDBACK -->|Back| SETTINGS
+
+    %% Celebration overlay
+    PRACTICE -->|Achievements unlocked| CELEBRATE(Celebration Overlay)
+    CELEBRATE --> MYPRACTICE
+
+    style WELCOME fill:#9333ea,color:#fff
+    style ONBOARD fill:#9333ea,color:#fff
+    style MYPRACTICE fill:#7c3aed,color:#fff
+    style PRACTICE fill:#300B9D,color:#fff
+    style LIBRARY fill:#0d9488,color:#fff
+    style MANTRA_SETTINGS fill:#EFEB1B,color:#000
+    style SETTINGS fill:#475569,color:#fff
+    style PROGRESS fill:#059669,color:#fff
+    style FEEDBACK fill:#e11d48,color:#fff
+    style CELEBRATE fill:#f59e0b,color:#000
+```
 ---
 
-## Navigation Patterns Summary
+## 2. Screens Details
 
-### Primary Navigation
-**Bottom Navigation Bar** (recommended) or **Hamburger Menu:**
-1. Home icon → Main Dashboard
-2. Settings icon → Settings
+### List of Screens
 
-**Note:** Goals navigation removed from primary navigation to follow "practice, no attachment" principle
+|id|screen-name    |function                    |navigation/action-buttons     |
+|--|---------------|----------------------------|------------------------------|
+|1 |Welcome        |philosophy intro             |sign-in / continue-offline    |
+|1a|Sign In        |third-party/email sign in   |sign-in                       |
+|1b|Expectations   |engage the user with app    |library / create              |
+|2 |Library        |browse and select mantras from the built-in collection |add-mantra / create /<br/>progress / MyPractice|
+|2b|Create Mantra  |define a personal mantra (text, transliteration, translation, history, benefits, tradition, tags) |[fields] / save / discard|
+|3 |Practice Plan  |configure how to practice a mantra (target reps, cycle, mode, reminders) |[settings] / save /<br/>cancel / delete|
+|3b|Delete Mantra  |confirm mantra deletion (overlay) |delete / cancel     |
+|4 |MyPractice     |list of mantras to practice |practice / library / progress / settings|
+|5 |Progress       |show metrics and badges     |library / MyPractice          |
+|6 |User Settings  |set user settings           |save / discard                |
+|6b|User Feedback  |user sends feedback         |send / cancel                 |
+|7 |Practice       |the main practice screen    |click / edit / done / back    |
+|7b|Celebration    |celebrate achievement unlock|                              |
 
-### Secondary Navigation
-- **Floating Action Button (FAB):** "+ Add Mantra" (accessible from Main Dashboard)
-- **Header Icons:** Profile (top-right on Main Dashboard)
-- **Back Buttons:** Consistent top-left positioning on all sub-screens
-- **Set Goals Button:** Available only from View/Play Mantra screen
+YAML files are used to describe the UI emlements of every screen
+The idea is to document the expected type, shape, location etc. of most UI,
+so we get Product, Software and test - all aligned on what to expect and excecute.
+**Note** This is not a full capture of any detail of the widget apearance
+         nor to define the exact behavior of each widget.
 
-### Modal/Overlay Patterns
-- **Confirmation dialogs:** Delete, logout, discard changes, plan changes
-- **Upgrade prompts:** When free users attempt premium features
-- **Permission requests:** Notification permissions (can appear on Login or View/Play Mantra screens)
-- **Success messages:** Toast/snackbar for saves, deletions
-- **Error messages:** Inline validation errors, network errors
+### 2.1 Welcome
+First screen on app launch. Logo, philosophy quote, language selector, and two entry paths: Sign In or Continue Offline.
+→ [screens/welcome.yaml](screens/welcome.yaml)
 
----
+### 2.1a Sign In
+Third-party and email authentication. Currently a stub — full implementation in Phase 2.0.
+→ [screens/sign_in.yaml](screens/sign_in.yaml)
 
-## Next Steps
-1. Create UI mockups in Figma based on this flow
-2. Define visual design system (colors, typography, spacing, components)
-3. Build interactive prototypes in Figma
-4. Gather feedback and iterate
-5. Begin technical implementation
+### 2.1b Expectations
+Introduces the app's purpose and capabilities. Ends with a choice: start from the library or create your own mantra.
+→ [screens/expectations.yaml](screens/expectations.yaml)
+
+### 2.2 Library
+Browse the built-in mantra collection. Search, filter by category, tap a card to configure and add. FAB to create a custom mantra.
+→ [screens/library.yaml](screens/library.yaml)
+
+### 2.2b Create Mantra
+Free-form entry of a personal mantra: original text, transliteration, translation, history, benefits, tradition, tags.
+→ [screens/create_mantra.yaml](screens/create_mantra.yaml)
+
+### 2.3 Practice Plan
+Configure how to practice a mantra: target reps, cycle, mode, reminders. Shared screen for library-add, post-create, and edit contexts.
+→ [screens/practice_plan.yaml](screens/practice_plan.yaml)
+
+### 2.3b Delete Mantra
+Confirmation overlay triggered from Practice Plan. Warns that deletion is permanent and cascades to sessions, reminders, and progress.
+→ [screens/delete_mantra.yaml](screens/delete_mantra.yaml)
+
+### 2.4 MyPractice
+The app's main hub. Shows all mantras the user is practicing, with dynamic badges for idle, ongoing, and streak states.
+→ [screens/mypractice.yaml](screens/mypractice.yaml)
+
+### 2.5 Progress
+Aggregate practice stats and achievement gallery. Display only — intentionally understated, aligned with non-attachment philosophy.
+→ [screens/progress.yaml](screens/progress.yaml)
+
+### 2.6 User Settings
+App-wide configuration: account, language, appearance, practice defaults, notifications. All changes saved immediately.
+→ [screens/user_settings.yaml](screens/user_settings.yaml)
+
+### 2.6b User Feedback
+Pick a category (bug, feature request, mantra info, general), then compose an email with pre-filled context.
+→ [screens/user_feedback.yaml](screens/user_feedback.yaml)
+
+### 2.7 Practice
+The immersive practice screen. Large tap circle, counter, Done/Back/Edit. No timer. No distractions.
+→ [screens/practice.yaml](screens/practice.yaml)
+
+### 2.7b Celebration
+Achievement unlock overlay. Shown after session completion when new achievements are earned.
+→ [screens/celebration.yaml](screens/celebration.yaml)
+
+
+## 3. Change Log
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 0.1 | 2025-11 | Initial draft — auth, plans, voice playback flows |
+| 0.2 | 2026-03-16 | Complete rewrite — 9 flows defined from product discussions |

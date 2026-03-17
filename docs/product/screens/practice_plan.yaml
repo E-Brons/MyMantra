@@ -1,0 +1,95 @@
+screen: Practice Plan
+id: "3"
+type: full-screen
+nav: back-arrow
+
+context:
+  # This screen serves three contexts with minor variations
+  add-from-library:
+    entry: Library (2) → tap mantra card
+    mantra-fields: read-only (pre-filled from library)
+    primary-action-label: "Add to MyPractice"
+    primary-action: save → navigate → MyPractice (4)
+    back-action: navigate-back → Library (2)
+  post-create:
+    entry: Create Mantra (2b) → save
+    mantra-fields: read-only (pre-filled from just-created mantra)
+    primary-action-label: "Add to MyPractice"
+    primary-action: save → navigate → MyPractice (4)
+    back-action: navigate-back → Library (2)
+  edit:
+    entry: Practice (7) → edit button
+    mantra-fields: read-only
+    primary-action-label: "Save Changes"
+    primary-action: save → navigate-back → Practice (7)
+    back-action: navigate-back → Practice (7)
+    extra-action: delete-mantra
+
+elements:
+  - id: mantra-details
+    type: section
+    position: top
+    label: "Mantra"
+    style: read-only
+    elements:
+      - id: original-text
+        type: text
+        label: "Original text"
+      - id: transliteration
+        type: text
+        label: "Transliteration"
+      - id: translation
+        type: text
+        label: "Translation"
+
+  - id: settings-section
+    type: section
+    position: center
+    label: "Practice Settings"
+    style: editable
+    elements:
+      - id: target-reps
+        type: number-picker
+        label: "Target repetitions"
+        options: [27, 54, 108, 216]
+        inheritance: "user-selection → user-defaults → library-recommendation"
+        source-label: "(recommended) | (your default) | none"
+
+      - id: cycle
+        type: chip-group
+        label: "Count mode"
+        items: ["Session", "Daily", "Weekly"]
+        inheritance: "user-selection → user-defaults → library-recommendation"
+        source-label: "(recommended) | (your default) | none"
+
+      - id: practice-mode
+        type: chip-group
+        label: "Practice mode"
+        items:
+          - label: "Tap to count"
+            status: available
+          - label: "Listen"
+            status: future
+          - label: "AI listens"
+            status: future
+        inheritance: "user-selection → user-defaults → library-recommendation"
+
+      - id: reminders
+        type: reminder-list
+        label: "Reminders"
+        note: "entirely optional"
+        action: add-reminder → time picker + days-of-week
+
+  - id: primary-action
+    type: button
+    position: bottom
+    label: "(context-dependent — see context section)"
+    style: primary
+
+  - id: delete-button
+    type: button
+    position: bottom
+    label: "Delete Mantra"
+    style: destructive
+    action: open → Delete Mantra (3b)
+    visible: "edit context only"

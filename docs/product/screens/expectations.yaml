@@ -1,0 +1,37 @@
+screen: Expectations
+id: "1b"
+type: full-screen
+nav: none
+
+elements:
+  - id: intro-text
+    type: text
+    position: top
+    content: |
+      Developing the habit of Practicing Mantra, one step at a time.
+
+      This app was made to help you improve your life through practicing
+      the ancient traditions of Mantras.
+
+      You will be able to:
+      - Practice traditional Mantras
+      - Get reminders on when to practice
+      - Count your practice at your own pace, or listen to the mantra on your way to work
+      - Create your personal mantras, goals and habits
+      - Get motivated, empowered, healthier and happier
+    style: body
+
+  - id: library-button
+    type: button
+    position: bottom
+    label: "Start with a mantra from our library"
+    action: navigate → Library (2)
+    note: "recommended — library opens with Popular tag pre-selected"
+    style: primary
+
+  - id: create-button
+    type: button
+    position: bottom
+    label: "Create your own"
+    action: navigate → Create Mantra (2b)
+    style: secondary

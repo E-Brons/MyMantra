@@ -1,0 +1,72 @@
+screen: Create Mantra
+id: "2b"
+type: full-screen
+nav: back-arrow
+
+elements:
+  - id: title
+    type: text
+    position: top
+    content: "Create Mantra"
+    style: heading
+
+  - id: original-text
+    type: text-input
+    position: form
+    label: "Original text"
+    required: true
+    note: "in the original script (Devanagari, Tibetan, Hebrew, etc.)"
+
+  - id: transliteration
+    type: text-input
+    position: form
+    label: "Transliteration"
+    required: false
+    note: "Latin characters, pronunciation guide"
+
+  - id: translation
+    type: text-input
+    position: form
+    label: "Translation"
+    required: false
+    note: "in the user's UI language"
+
+  - id: history
+    type: text-input
+    position: form
+    label: "History"
+    required: false
+    multiline: true
+
+  - id: benefits
+    type: text-input
+    position: form
+    label: "Benefits"
+    required: false
+    multiline: true
+
+  - id: tradition
+    type: text-input
+    position: form
+    label: "Tradition"
+    required: false
+
+  - id: tags
+    type: chip-input
+    position: form
+    label: "Tags"
+    required: false
+
+  - id: save-button
+    type: button
+    position: bottom
+    label: "Save"
+    action: save → navigate → Practice Plan (3)
+    style: primary
+
+  - id: discard-button
+    type: button
+    position: bottom
+    label: "Discard"
+    action: navigate-back → Library (2)
+    style: secondary

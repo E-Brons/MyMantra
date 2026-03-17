@@ -37,6 +37,7 @@ Create a temporary plan file at `/tmp/plans/<YYYY_MM_DD>-<feature-name>.md`.
 The plan must cover:
 - **Branch name**: `feat/YYYY_MM_DD-<short-description>`
 - **Scope**: what screens, models, providers, services are affected
+- **Sub-agent delegation**: identify which steps can be parallelised or are well-isolated enough to delegate to a sub-agent (e.g. code exploration, doc drafting, test generation). For each such step, note the agent type (`Explore`, `Task`, or specialist) and the inputs/outputs expected.
 - **Commit sequence**: list each planned commit with its `feat:` / `test:` / `docs:` prefix
 - **Test plan**: which unit tests, widget tests, and integration tests will be added (in separate commits)
 - **Documentation updates**: which docs need updating after implementation

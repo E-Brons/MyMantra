@@ -1,0 +1,60 @@
+screen: Progress
+id: "5"
+type: full-screen
+nav: bottom-tabs
+
+elements:
+  - id: stats-summary
+    type: section
+    position: top
+    label: "Your Practice"
+    elements:
+      - id: current-streak
+        type: stat
+        label: "Current streak"
+        unit: days
+      - id: longest-streak
+        type: stat
+        label: "Longest streak"
+        unit: days
+      - id: total-sessions
+        type: stat
+        label: "Total sessions"
+      - id: total-reps
+        type: stat
+        label: "Total repetitions"
+        format: "compact (1.2K, 50K, 1M)"
+      - id: member-since
+        type: stat
+        label: "Member since"
+        format: date
+
+  - id: achievement-gallery
+    type: grid
+    position: center
+    columns: 2
+    interactive: false
+    note: "display only — tapping does nothing"
+    item-type: achievement-card
+    visibility:
+      unlocked: "full color, icon, title, description, rarity badge"
+      locked-teaser: "greyed out, lock icon, title visible — next in chain after unlocked"
+      hidden: "not rendered — further down the chain"
+    rarity-tiers:
+      - Common
+      - Uncommon
+      - Rare
+      - Super Rare
+      - Epic
+      - Heroic
+      - Exotic        # animated gradient text from here up
+      - Mythic
+      - Legendary
+      - Divine         # rainbow animation
+    categories:
+      streak: [1, 3, 7, 14, 30, 60, 90, 180, 365, 1095]
+      repetitions: [1K, 5K, 10K, 50K, 100K, 250K, 500K, 1M]
+      sessions: [10, 100, 250, 500, 1K, 2K, 10K, 50K, 100K]
+      time-of-day: [Early Bird (4-7 AM), Night Owl (after 10 PM)]
+      platform: [Android, iOS, macOS, Linux, Web]
+      special: [Creator (first custom mantra)]

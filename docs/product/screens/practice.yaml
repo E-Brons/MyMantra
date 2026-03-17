@@ -1,0 +1,43 @@
+screen: Practice
+id: "7"
+type: full-screen
+nav: none
+note: "no timer — timing is counter to the app philosophy of non-attachment"
+
+elements:
+  - id: back-button
+    type: button
+    position: top-left
+    label: "Back"
+    icon: back-arrow
+    style: "small, muted"
+    action: suspend-session → navigate → MyPractice (4)
+
+  - id: edit-button
+    type: button
+    position: top-right
+    label: "Edit"
+    icon: edit
+    style: "small, muted"
+    action: navigate → Practice Plan (3)
+
+  - id: tap-circle
+    type: interactive-circle
+    position: center
+    description: "Large circle — counter display + progress indicator"
+    action: increment-count
+    tap-rate-limit: "1s minimum (when limit-tap-rate setting is on)"
+    states:
+      counting: "shows current count / target, progress ring fills"
+      auto-complete: "triggers when count reaches target → same as Done"
+
+  - id: done-button
+    type: button
+    position: bottom
+    label: "Done"
+    style: primary
+    action: |
+      complete-session → check-achievements →
+        achievements unlocked → Celebration (7b) → MyPractice (4)
+        no achievements → MyPractice (4)
+    note: "marks session complete regardless of reaching target"

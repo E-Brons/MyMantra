@@ -1,0 +1,42 @@
+screen: Welcome
+id: "1"
+type: full-screen
+nav: none
+
+elements:
+  - id: logo
+    type: image
+    position: top-center
+    description: "App logo with calligraphy styling"
+
+  - id: philosophy-quote
+    type: text
+    position: below-logo
+    content: "Abhyasa Vairagyabhyam Tan-Nirodhah"
+    subtitle: "By practice and non-attachment the mind is still — Yoga Sutras 1.12"
+    style: italic
+
+  - id: language-selector
+    type: icon-button
+    position: top-right
+    action: open-language-picker
+    default: "system-language (mobile) | English (other)"
+
+  - id: sign-in-button
+    type: button
+    position: bottom
+    label: "Sign In"
+    action: navigate → Sign In (1a)
+    note: "stub — full auth Phase 2.0"
+
+  - id: continue-offline-button
+    type: button
+    position: bottom
+    label: "Continue Offline"
+    action: navigate → Expectations (1b)
+
+  - id: settings-note
+    type: text
+    position: bottom
+    content: "You will always be able to change this selection later in Settings"
+    style: caption
