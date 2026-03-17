@@ -58,11 +58,21 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/mantras/:id/plan',
-      builder: (_, state) => PracticePlanScreen(mantraId: state.pathParameters['id']!),
+      builder: (_, state) {
+        final modeStr = state.uri.queryParameters['mode'] ?? 'addFromLibrary';
+        final mode = PracticePlanMode.values.firstWhere(
+          (m) => m.name == modeStr,
+          orElse: () => PracticePlanMode.addFromLibrary,
+        );
+        return PracticePlanScreen(
+            mantraId: state.pathParameters['id']!, mode: mode);
+      },
     ),
     GoRoute(
       path: '/mantras/:id/plan/edit',
-      builder: (_, state) => PracticePlanScreen(mantraId: state.pathParameters['id']!, editMode: true),
+      builder: (_, state) => PracticePlanScreen(
+          mantraId: state.pathParameters['id']!,
+          mode: PracticePlanMode.edit),
     ),
     GoRoute(
       path: '/mantras/:id/session',
