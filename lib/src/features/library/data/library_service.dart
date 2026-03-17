@@ -50,8 +50,11 @@ class MantraLibraryService {
     return _mantras!;
   }
 
-  /// Tag name → emoji map (sourced from [kTagEmojis]).
-  Map<String, String> get tagEmojis => kTagEmojis;
+  /// Tag name → emoji map.
+  ///
+  /// The current UI uses icons from `assets/data/icons.yml` via [LibraryMantra.tagIconMap].
+  /// This remains as a convenience hook for any future emoji-based tag UI.
+  Map<String, String> get tagEmojis => const <String, String>{};
 
   /// Full-text + metadata search. All filters are optional.
   List<LibraryMantra> search({
