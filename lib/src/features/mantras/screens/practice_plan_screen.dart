@@ -4,8 +4,32 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/models/mantra.dart';
 import '../../../core/providers/app_provider.dart';
+import '../../library/data/built_in_mantras.dart';
 
 enum PracticePlanMode { addFromLibrary, postCreate, edit }
+
+// Unified display data for a mantra, from either the user collection or the built-in library.
+class _MantraView {
+  final String id;
+  final String title;
+  final String text;
+  final String? transliteration;
+  final String? translation;
+  final int defaultReps;
+  final RepetitionCycle defaultCycle;
+  final BuiltInMantra? librarySource;
+
+  const _MantraView({
+    required this.id,
+    required this.title,
+    required this.text,
+    this.transliteration,
+    this.translation,
+    required this.defaultReps,
+    required this.defaultCycle,
+    this.librarySource,
+  });
+}
 
 /// Practice Plan (screen 3) — three contexts: addFromLibrary, postCreate, edit.
 class PracticePlanScreen extends ConsumerStatefulWidget {
@@ -28,11 +52,42 @@ class _PracticePlanScreenState extends ConsumerState<PracticePlanScreen> {
   bool _userPickedReps = false;
   bool _userPickedCycle = false;
 
+  _MantraView? _resolveMantra() {
+    final notifier = ref.read(appProvider.notifier);
+    final userMantra = notifier.getMantra(widget.mantraId);
+    if (userMantra != null) {
+      return _MantraView(
+        id: userMantra.id,
+        title: userMantra.title,
+        text: userMantra.text,
+        transliteration: userMantra.transliteration,
+        translation: userMantra.translation,
+        defaultReps: userMantra.targetRepetitions,
+        defaultCycle: userMantra.targetCycle,
+      );
+    }
+    // Fall back to built-in library
+    try {
+      final lib = kBuiltInMantras.firstWhere((m) => m.id == widget.mantraId);
+      return _MantraView(
+        id: lib.id,
+        title: lib.title,
+        text: lib.primaryText,
+        transliteration: lib.transliteration,
+        translation: lib.englishTranslation,
+        defaultReps: lib.targetRepetitions,
+        defaultCycle: RepetitionCycle.session,
+        librarySource: lib,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final notifier = ref.read(appProvider.notifier);
-    final mantra = notifier.getMantra(widget.mantraId);
-    if (mantra == null) {
+    final mantraView = _resolveMantra();
+    if (mantraView == null) {
       return Scaffold(
         body: Center(
           child: Text('Mantra not found.',
@@ -42,8 +97,8 @@ class _PracticePlanScreenState extends ConsumerState<PracticePlanScreen> {
     }
 
     final settings = ref.read(appProvider).settings;
-    final reps = _selectedReps ?? mantra.targetRepetitions;
-    final cycle = _selectedCycle ?? mantra.targetCycle;
+    final reps = _selectedReps ?? mantraView.defaultReps;
+    final cycle = _selectedCycle ?? mantraView.defaultCycle;
 
     return Scaffold(
       backgroundColor: AppColors.bgBase,
@@ -74,21 +129,21 @@ class _PracticePlanScreenState extends ConsumerState<PracticePlanScreen> {
           _Card(children: [
             _ReadOnlyField(
               label: 'Original text',
-              value: mantra.text.split('\n').first,
+              value: mantraView.text.split('\n').first,
               fontFamily: 'NotoSansDevanagari',
             ),
-            if (mantra.transliteration != null) ...[
+            if (mantraView.transliteration != null) ...[
               _FieldDivider(),
               _ReadOnlyField(
                 label: 'Transliteration',
-                value: mantra.transliteration!,
+                value: mantraView.transliteration!,
               ),
             ],
-            if (mantra.translation != null) ...[
+            if (mantraView.translation != null) ...[
               _FieldDivider(),
               _ReadOnlyField(
                 label: 'Translation',
-                value: mantra.translation!,
+                value: mantraView.translation!,
               ),
             ],
           ]),
@@ -356,25 +411,44 @@ class _PracticePlanScreenState extends ConsumerState<PracticePlanScreen> {
 
   void _handlePrimaryAction(int reps, RepetitionCycle cycle) {
     final notifier = ref.read(appProvider.notifier);
-    final mantra = notifier.getMantra(widget.mantraId);
-    if (mantra == null) return;
+    final mantraView = _resolveMantra();
+    if (mantraView == null) return;
 
-    // Save settings changes
-    if (reps != mantra.targetRepetitions || cycle != mantra.targetCycle) {
-      notifier.updateMantra(
-        widget.mantraId,
-        title: mantra.title,
-        text: mantra.text,
-        transliteration: mantra.transliteration,
-        translation: mantra.translation,
+    if (widget.mode == PracticePlanMode.addFromLibrary) {
+      // Create the mantra in user's collection with chosen settings
+      notifier.createMantra(
+        title: mantraView.title,
+        text: mantraView.text,
+        transliteration: mantraView.transliteration,
+        translation: mantraView.translation,
         targetRepetitions: reps,
         targetCycle: cycle,
-        tradition: mantra.tradition,
+        tradition: mantraView.librarySource?.tradition,
+      );
+      context.go('/mypractice');
+      return;
+    }
+
+    // postCreate or edit: update existing mantra's practice settings
+    final userMantra = notifier.getMantra(widget.mantraId);
+    if (userMantra != null &&
+        (reps != userMantra.targetRepetitions ||
+            cycle != userMantra.targetCycle)) {
+      notifier.updateMantra(
+        widget.mantraId,
+        title: userMantra.title,
+        text: userMantra.text,
+        transliteration: userMantra.transliteration,
+        translation: userMantra.translation,
+        targetRepetitions: reps,
+        targetCycle: cycle,
+        tradition: userMantra.tradition,
       );
     }
 
     switch (widget.mode) {
       case PracticePlanMode.addFromLibrary:
+        break; // handled above
       case PracticePlanMode.postCreate:
         context.go('/mypractice');
       case PracticePlanMode.edit:
