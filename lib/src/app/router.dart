@@ -76,7 +76,10 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/mantras/:id/session',
-      builder: (_, state) => SessionScreen(id: state.pathParameters['id']!),
+      builder: (_, state) => SessionScreen(
+        id: state.pathParameters['id']!,
+        resume: state.uri.queryParameters['resume'] == 'true',
+      ),
     ),
   ],
 );

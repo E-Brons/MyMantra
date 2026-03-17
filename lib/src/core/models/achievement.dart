@@ -3,7 +3,7 @@ import '../services/icon_registry.dart';
 
 enum AchievementRarity { common, uncommon, rare, superRare, epic, heroic, exotic, mythic, legendary, divine }
 
-enum AchievementMetric { sessions, streak, totalReps, hour, platform }
+enum AchievementMetric { sessions, streak, totalReps, hour, platform, customMantra }
 
 class Achievement {
   final String id;
@@ -316,7 +316,7 @@ const List<Achievement> kAchievements = [
   Achievement(
     id: 'ACH-SPL-CREATE', title: 'Creator',
     description: 'Create your own mantra.',
-    iconKey: 'Creator', metric: AchievementMetric.sessions, value: 0,
+    iconKey: 'Creator', metric: AchievementMetric.customMantra, value: 1,
     rarity: AchievementRarity.uncommon,
   ),
 ];

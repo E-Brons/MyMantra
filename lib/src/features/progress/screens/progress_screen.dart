@@ -155,10 +155,10 @@ class ProgressScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
             sliver: SliverGrid.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.0,
+                crossAxisCount: 3,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 0.85,
               ),
               itemCount: displayedAchievements.length,
               itemBuilder: (_, i) {
@@ -269,7 +269,7 @@ class _AchievementCard extends StatelessWidget {
         : AppColors.textMuted;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: unlocked
             ? achievementColor.withAlpha(0x24)
@@ -284,10 +284,10 @@ class _AchievementCard extends StatelessWidget {
         children: [
           Icon(
             unlocked ? achievement.icon : lockedIcon,
-            size: 28,
+            size: 22,
             color: achievementColor,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             achievement.title,
             style: TextStyle(

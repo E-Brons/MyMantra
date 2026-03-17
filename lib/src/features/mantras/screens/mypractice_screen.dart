@@ -23,12 +23,15 @@ class _MyPracticeScreenState extends ConsumerState<MyPracticeScreen> {
       showDialog<void>(
         context: context,
         builder: (ctx) => _ResumeDialog(
+          repsCompleted: suspended.repsCompleted,
+          targetReps: mantra.targetRepetitions,
           onResume: () {
             ctx.pop();
-            context.push('/mantras/${mantra.id}/session');
+            context.push('/mantras/${mantra.id}/session?resume=true');
           },
           onNewSession: () {
             ctx.pop();
+            notifier.discardSuspendedSession(mantra.id);
             context.push('/mantras/${mantra.id}/session');
           },
         ),
@@ -166,28 +169,42 @@ class _MyPracticeScreenState extends ConsumerState<MyPracticeScreen> {
 // ── Resume dialog ─────────────────────────────────────────────────────────────
 
 class _ResumeDialog extends StatelessWidget {
+  final int repsCompleted;
+  final int targetReps;
   final VoidCallback onResume;
   final VoidCallback onNewSession;
-  const _ResumeDialog({required this.onResume, required this.onNewSession});
+  const _ResumeDialog({
+    required this.repsCompleted,
+    required this.targetReps,
+    required this.onResume,
+    required this.onNewSession,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Continue where you left off?',
+      title: Text('Session in progress',
           style: TextStyle(color: AppColors.textPrimary)),
       content: Text(
-        'You have a session in progress for this mantra.',
+        '$repsCompleted of $targetReps repetitions completed.',
         style: TextStyle(color: AppColors.textSecondary),
       ),
       backgroundColor: AppColors.bgSurface,
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: onNewSession,
-          child: Text('New Session', style: TextStyle(color: AppColors.textMuted)),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.textSecondary,
+            side: BorderSide(color: AppColors.borderSubtle),
+          ),
+          child: const Text('New Session'),
         ),
-        FilledButton(
+        OutlinedButton(
           onPressed: onResume,
-          style: FilledButton.styleFrom(backgroundColor: AppColors.violet600),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.violet400,
+            side: BorderSide(color: AppColors.violet500),
+          ),
           child: const Text('Resume'),
         ),
       ],

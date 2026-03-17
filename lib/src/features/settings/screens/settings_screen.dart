@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -179,17 +180,21 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               _Divider(),
-              _SettingRow(
-                icon: Icons.vibration,
-                label: 'Haptic feedback',
-                child: Switch(
-                  value: settings.vibrationEnabled,
-                  onChanged: (v) =>
-                      notifier.updateSettings(settings.copyWith(vibrationEnabled: v)),
-                  activeTrackColor: AppColors.violet500,
+              if (!kIsWeb &&
+                  (defaultTargetPlatform == TargetPlatform.iOS ||
+                      defaultTargetPlatform == TargetPlatform.android)) ...[
+                _SettingRow(
+                  icon: Icons.vibration,
+                  label: 'Haptic feedback',
+                  child: Switch(
+                    value: settings.vibrationEnabled,
+                    onChanged: (v) =>
+                        notifier.updateSettings(settings.copyWith(vibrationEnabled: v)),
+                    activeTrackColor: AppColors.violet500,
+                  ),
                 ),
-              ),
-              _Divider(),
+                _Divider(),
+              ],
               _SettingRow(
                 icon: Icons.speed,
                 label: 'Limit tap rate',
@@ -227,7 +232,7 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               const _InfoRow(label: 'App', value: 'MyMantra'),
               _Divider(),
-              const _InfoRow(label: 'Version', value: '1.0.0'),
+              const _InfoRow(label: 'Version', value: '0.9.0-dev'),
               _Divider(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -252,42 +257,6 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Stats summary
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0x148B5CF6), Color(0x0A1E1B4B)],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.borderSubtle),
-            ),
-            child: Column(
-              children: [
-                Text('Your Practice', style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary,
-                )),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _MiniStat('${state.mantras.length}', 'Mantras'),
-                    _MiniStat('${state.progress.totalSessions}', 'Sessions'),
-                    _MiniStat('${state.progress.currentStreak}', 'Streak'),
-                    _MiniStat(
-                      '${state.progress.unlockedAchievements.length}/$kAchievementCount',
-                      'Badges',
-                    ),
-                  ],
-                ),
-              ],
-            ),
           ),
 
           const SizedBox(height: 16),
@@ -506,23 +475,3 @@ class _Divider extends StatelessWidget {
     return const Divider(height: 1, indent: 46, color: Color(0x1A8B5CF6));
   }
 }
-
-class _MiniStat extends StatelessWidget {
-  final String value;
-  final String label;
-  const _MiniStat(this.value, this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(value,
-            style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.violet400)),
-        Text(label,
-            style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
-      ],
-    );
-  }
-}
-
