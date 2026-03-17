@@ -7,10 +7,9 @@ class AppScaffold extends StatelessWidget {
   const AppScaffold({super.key, required this.child});
 
   static int _locationToIndex(String location) {
-    if (location.startsWith('/library')) return 1;
+    if (location.startsWith('/mypractice')) return 1;
     if (location.startsWith('/progress')) return 2;
-    if (location.startsWith('/settings')) return 3;
-    return 0;
+    return 0; // /library
   }
 
   @override
@@ -21,22 +20,20 @@ class AppScaffold extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(border: Border(top: BorderSide(color: AppColors.borderSubtle)),),
+        decoration: BoxDecoration(border: Border(top: BorderSide(color: AppColors.borderSubtle))),
         child: BottomNavigationBar(
           currentIndex: currentIndex,
           onTap: (index) {
             switch (index) {
-              case 0: context.go('/');
-              case 1: context.go('/library');
+              case 0: context.go('/library');
+              case 1: context.go('/mypractice');
               case 2: context.go('/progress');
-              case 3: context.go('/settings');
             }
           },
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(icon: Icon(Icons.menu_book_outlined), activeIcon: Icon(Icons.menu_book), label: 'Library'),
+            BottomNavigationBarItem(icon: Icon(Icons.self_improvement_outlined), activeIcon: Icon(Icons.self_improvement), label: 'MyPractice'),
             BottomNavigationBarItem(icon: Icon(Icons.bar_chart_outlined), activeIcon: Icon(Icons.bar_chart), label: 'Progress'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'Settings'),
           ],
         ),
       ),
