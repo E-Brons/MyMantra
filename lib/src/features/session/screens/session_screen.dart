@@ -41,8 +41,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   // For daily/weekly cycles this factors in reps already done earlier today/this week.
   int get _remaining {
     if (_sessionCycle == RepetitionCycle.session) return _sessionTarget;
-    if (_alreadyDone >= _sessionTarget)
+    if (_alreadyDone >= _sessionTarget) {
       return _sessionTarget; // goal met → free bonus set
+    }
     return _sessionTarget - _alreadyDone;
   }
 
@@ -52,8 +53,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
     final period =
         _sessionCycle == RepetitionCycle.daily ? 'today' : 'this week';
     if (_alreadyDone >= _sessionTarget) return 'goal met · free practice';
-    if (_alreadyDone > 0)
+    if (_alreadyDone > 0) {
       return '${_sessionTarget - _alreadyDone} more $period';
+    }
     return 'of $_sessionTarget $period';
   }
 
