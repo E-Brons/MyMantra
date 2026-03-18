@@ -9,7 +9,7 @@ IconData? tagIcon(String tag) =>
 /// A mantra entry from the curated library (assets/data/mantra_library.json).
 ///
 /// Distinct from [BuiltInMantra] — this model is JSON-serialisable and carries
-/// the richer set of fields needed by the full library (abstract, translations,
+/// the richer set of fields needed by the full library (background, benefits, translations,
 /// audio, etc.).
 class LibraryMantra {
   final String id;
@@ -26,8 +26,11 @@ class LibraryMantra {
   /// How to pronounce the original in romanised English.
   final String transliteration;
 
-  /// 4–5 paragraph history-and-meaning essay.
-  final String abstract;
+  /// Origin, tradition, and literal meaning of the mantra.
+  final String background;
+
+  /// Spiritual or psychological benefits of practising the mantra.
+  final String benefits;
 
   /// Plain tag names; pair with [tagIcon] for display.
   final List<String> tags;
@@ -47,9 +50,6 @@ class LibraryMantra {
   /// Optional recommended cycle for the repetition count.
   final RepetitionCycle? recommendedCycle;
 
-  /// BCP-47 language codes supported for this mantra.
-  final List<String> supportedLanguages;
-
   /// Language-code → translated text (en, zh, es always present where possible).
   final Map<String, String> translations;
 
@@ -62,14 +62,14 @@ class LibraryMantra {
     required this.english,
     required this.original,
     required this.transliteration,
-    required this.abstract,
+    required this.background,
+    required this.benefits,
     required this.tags,
     required this.tradition,
     required this.category,
     required this.difficulty,
     this.recommendedRepetitions,
     this.recommendedCycle,
-    required this.supportedLanguages,
     required this.translations,
     this.audioUrl,
   });
@@ -80,19 +80,19 @@ class LibraryMantra {
         english: json['english'] as String,
         original: json['original'] as String,
         transliteration: json['transliteration'] as String,
-        abstract: json['abstract'] as String,
+        background: json['background'] as String,
+        benefits: json['benefits'] as String,
         tags: List<String>.from(json['tags'] as List),
         tradition: json['tradition'] as String,
         category: json['category'] as String,
         difficulty: json['difficulty'] as String,
-        recommendedRepetitions: json['recommendedRepetitions'] as int?,
+        recommendedRepetitions: (json['recommendedRepetitions'] ?? json['targetRepetitions']) as int?,
         recommendedCycle: json['recommendedCycle'] != null
             ? RepetitionCycle.values.firstWhere(
                 (e) => e.name == json['recommendedCycle'],
                 orElse: () => RepetitionCycle.session,
               )
             : null,
-        supportedLanguages: List<String>.from(json['supportedLanguages'] as List),
         translations: Map<String, String>.from(json['translations'] as Map),
         audioUrl: json['audioUrl'] as String?,
       );
@@ -103,14 +103,14 @@ class LibraryMantra {
         'english': english,
         'original': original,
         'transliteration': transliteration,
-        'abstract': abstract,
+        'background': background,
+        'benefits': benefits,
         'tags': tags,
         'tradition': tradition,
         'category': category,
         'difficulty': difficulty,
         'recommendedRepetitions': recommendedRepetitions,
         'recommendedCycle': recommendedCycle?.name,
-        'supportedLanguages': supportedLanguages,
         'translations': translations,
         'audioUrl': audioUrl,
       };

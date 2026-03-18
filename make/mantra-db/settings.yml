@@ -1,0 +1,452 @@
+python:
+  packages:
+    - yaml
+    - litellm
+    - requests
+    - tqdm
+    - ddgs
+    - trafilatura
+    - matplotlib
+
+ollama:
+  host: http://localhost
+  port: 11434
+
+cache_dir: tmp/web_cache
+
+# stage 1 - search the web
+search_web:
+  engine: DuckDuckGo
+  output: tmp/mantra_urls.txt
+  locales:
+    - locale: "us-en"
+      search:
+        - "mantra"
+        - "list of mantras"
+        - "practice mantra"
+        - "spiritual mantras"
+        - "enhancement mantras"
+        - "growth mantras"
+        - "modern mantras"
+    - locale: "uk-en"
+      search:
+        - "mantra"
+        - "meditation mantras"
+    - locale: "au-en"
+      search:
+        - "mantra"
+        - "mindfulness mantras"
+    - locale: "ca-en"
+      search:
+        - "mantra"
+        - "daily mantras"
+    - locale: "sg-en"
+      search:
+        - "mantra"
+    - locale: "ie-en"
+      search:
+        - "mantra"
+    - locale: "za-en"
+      search:
+        - "mantra"
+    - locale: "ng-en"
+      search:
+        - "mantra"
+    - locale: "in-hi"
+      search:
+        - "मंत्र"
+        - "vedantic mantras"
+        - "hindu mantras"
+        - "sanskrit mantras"
+        - "bhakti mantras"
+    - locale: "in-ta"
+      search:
+        - "மந்திரம்"
+        - "tamil mantras"
+    - locale: "in-te"
+      search:
+        - "మంత్రం"
+    - locale: "in-kn"
+      search:
+        - "ಮಂತ್ರ"
+    - locale: "in-gu"
+      search:
+        - "મંત્ર"
+    - locale: "in-bn"
+      search:
+        - "মন্ত্র"
+    - locale: "il-he"
+      search:
+        - "מנטרה"
+        - "jewish mantras"
+        - "hebrew prayers"
+    - locale: "ae-ar"
+      search:
+        - "مانترا"
+        - "أذكار"
+    - locale: "eg-ar"
+      search:
+        - "مانترا"
+        - "islamic dhikr"
+    - locale: "xa-ar"
+      search:
+        - "مانترا"
+    - locale: "cn-zh"
+      search:
+        - "真言"
+        - "佛教咒语"
+    - locale: "hk-zh"
+      search:
+        - "真言"
+    - locale: "tw-zh"
+      search:
+        - "真言"
+    - locale: "jp-ja"
+      search:
+        - "マントラ"
+        - "真言宗"
+    - locale: "kr-ko"
+      search:
+        - "만트라"
+    - locale: "de-de"
+      search:
+        - "Mantra"
+        - "Mantras zum Meditieren"
+    - locale: "at-de"
+      search:
+        - "Mantra"
+    - locale: "ch-de"
+      search:
+        - "Mantra"
+    - locale: "fr-fr"
+      search:
+        - "mantra"
+        - "mantras de méditation"
+    - locale: "es-es"
+      search:
+        - "mantra"
+        - "mantras espirituales"
+    - locale: "es-ca"
+      search:
+        - "mantra"
+    - locale: "co-es"
+      search:
+        - "mantra"
+    - locale: "mx-es"
+      search:
+        - "mantra"
+    - locale: "pe-es"
+      search:
+        - "mantra"
+    - locale: "ar-es"
+      search:
+        - "mantra"
+    - locale: "it-it"
+      search:
+        - "mantra"
+    - locale: "nl-nl"
+      search:
+        - "mantra"
+    - locale: "be-nl"
+      search:
+        - "mantra"
+    - locale: "br-pt"
+      search:
+        - "mantra"
+        - "mantras para meditar"
+    - locale: "ao-pt"
+      search:
+        - "mantra"
+    - locale: "ru-ru"
+      search:
+        - "мантра"
+        - "мантры для медитации"
+    - locale: "tr-tr"
+      search:
+        - "mantra"
+        - "sufi zikir"
+    - locale: "th-th"
+      search:
+        - "มนตรา"
+        - "buddhist mantras"
+    - locale: "id-id"
+      search:
+        - "mantra"
+    - locale: "my-ms"
+      search:
+        - "mantra"
+    - locale: "ph-tl"
+      search:
+        - "mantra"
+    - locale: "vn-vi"
+      search:
+        - "mantra"
+    - locale: "bd-bn"
+      search:
+        - "মন্ত্র"
+    - locale: "pk-ur"
+      search:
+        - "منتر"
+    - locale: "ir-fa"
+      search:
+        - "مانترا"
+    - locale: "gr-el"
+      search:
+        - "μάντρα"
+    - locale: "cz-cs"
+      search:
+        - "mantra"
+    - locale: "dk-da"
+      search:
+        - "mantra"
+    - locale: "fi-fi"
+      search:
+        - "mantra"
+    - locale: "no-nb"
+      search:
+        - "mantra"
+    - locale: "se-sv"
+      search:
+        - "mantra"
+    - locale: "cd-fr"
+      search:
+        - "mantra"
+    - locale: "ca-fr"
+      search:
+        - "mantra"
+  delay: 2.0 # seconds between requests (polite crawl)
+  results_per_locale: 10 # DDG returns ~10 results per page
+
+# stage 2 - extract_mantra
+extract_mantra:
+  llm_engines: [gemma3:12b]
+  llm_options:
+    temperature: 0
+    num_ctx: 24576
+    timeout: 240 # 3 min
+  input: tmp/mantra_urls.txt
+  output: tmp/mantra_index.json
+  delay: 1.0
+  max_page_chars: 240000 # max chars to keep from a page (before chunking)
+  chunk_chars: 12000 # chars per chunk sent to LLM (~3-4k tokens)
+  chunk_overlap: 600 # overlap between chunks to avoid splitting mantras
+
+# stage 3 - translate_n_dedup
+translate_n_dedup:
+  aliases: phrase_aliases.json
+  input: tmp/mantra_index.json
+  output: tmp/mantra_translations.json
+  system: >
+    You are a proffesional linguistic scholar,
+    mastering {source language} and {target language} languages and traditions.
+
+    Return your response in exactly this format:
+    Answer: <answer>
+    Grounding: <explain any nuances you might have had and why you selected this specific interpertation>
+
+  # step 1 - translate to English (align)
+  english:
+    task: >
+      Provide true-to-the-source English translation of the mantra phrase.
+      Prefer the meaning of the words, not the mere sound of it (do not transliterate),
+      except for unique-tradition untranslatable terms (e.g. Om, God, etc).
+    llm_engine: translategemma:12b # step 1: pre-dedup *quick* translate-to-English
+    llm_options:
+      temperature: 0
+      num_ctx: 2048
+      timeout: 60
+
+  # step 2: filter non-mantras
+  filter:
+    task: >
+      Identify which ONE category fits the best for the given english phrase.
+      Answer if the phrase is a Mantra
+      select from the following:
+        |           CATEGORY         | IS_MANTRA |
+        |              ---           |    ---    |
+        |OVER_20_WORDS_SENTANCE      | false     |
+        |LONG_DESCRIPTION            | false     |
+        |THE_WORD_MANTRA             | false     |
+        |ENCICLOPEDIC_DEFINTION      | false     |
+        |DESCRIPTION_OF_MANTRAS_LIST | false     |
+        |EXPLANATION_ABOUT_A_MANTRA  | false     |
+        |NOT_MANTRA                  | false     |
+        |MANTRA                      | true      |
+       Write the category in your Grounding section.
+       Your Answer shall ONLY be: true or false.
+    llm_engine: qwen2.5:3b-instruct # qwen3.5:9b # step 2: *quick* categoriser for filtering
+    llm_options:
+      temperature: 0
+      num_ctx: 2048
+      timeout: 60
+
+  # step 3: deduplicate
+  # step 4: transliteration
+  transliteration:
+    task: >
+      Provide the most accurate romanisation with ISO 15919 (or the relevant standard)
+      diacritics of the source (e.g. "Oṃ maṇi padme hūṃ")
+    llm_engine: translategemma:12b # step 3: transliteration into roman letters
+    llm_options:
+      temperature: 0
+      num_ctx: 2048
+      timeout: 60
+
+  # step 5: translate to multi-languages
+  translations:
+    llm_engine: translategemma:12b # step 4: full multi-language translation
+    llm_options: # faithful translation, slightly adjusted to meet language
+      temperature: 0.1
+      num_ctx: 4096
+      timeout: 60
+    task: >
+      Provide true-to-the-source {target language} translation of the mantra phrase.
+      Prefer the meaning of the words, not the mere sound of it (do not transliterate),
+      except for unique-tradition untranslatable terms (e.g. 'Om', 'God', 'Shiva' etc).
+    languages:
+      ar: Arabic
+      bn: Bengali
+      de: German
+      en-us: English
+      en-gb: English (UK)
+      es: Spanish
+      fr-fr: French
+      he: Hebrew
+      hi: Hindi
+      id: Indonesian
+      it: Italian
+      ja: Japanese
+      ko: Korean
+      nl: Dutch
+      pl: Polish
+      pt-br: Portuguese
+      ru: Russian
+      sv: Swedish
+      th: Thai
+      tr: Turkish
+      uk: Ukrainian
+      vi: Vietnamese
+      zh-cn: Chinese Simplified
+
+# stage 4 - enrich_mantras
+enrich_mantras:
+  input: tmp/mantra_translations.json
+  output: tmp/enriched_mantras.json
+  http_timeout: 10
+  llm_timeout: 600 # 10 min - just to make sure nothing is stuck forever
+  cloud_concurrency: 5 # max parallel requests for cloud models (claude/)
+  ollama_concurrency: 3 # max parallel requests for local Ollama models (per-model batch)
+
+  # step 0 - context filter
+  context_filter:
+    llm_filter: qwen2.5:3b-instruct
+    system: >
+      You are a sociology scholar of world mantra traditions.
+      Given a <text>, you are asked to identify
+      whether it is relevant to understanding, practicing, or learning about
+      the given <mantra phrase>, its tradition, meaning, history, or benefits
+      Your answer is ONE word in lowwer case: true or false
+    chunk_mode: paragraph
+    llm_temperature: 0.1
+    min_chunk_len: 200
+    max_chunk_len: 2000
+
+  # step 1 - student assignments
+  assignments:
+    system: >
+      You are a sociology student in the course 'Worldwide Mantra Traditions'
+      Given <source material> about a <mantra phrase>, complete the <assignment> below.
+      Ground your answer in the provided sources. Do NOT fabricate
+      historical claims, attributions, or benefits not supported by the sources.
+
+      Return your response in exactly this format:
+        Answer: <your answer to the assignment>
+        Grounding: <in up to 200 charachters reason your answer>
+
+    background:
+      llm_students: [claude/sonnet]
+      task: >
+        Provide a {min_answer_len} to {max_answer_len} charachters about
+        the origin, tradition, and literal meaning - of the mantra.
+        Ground your Answer with soures within the provided text
+        Your Anaswer shall draw the reader's intrest in the tradition of practicing the mantra
+      llm_temperature: 0.1
+      min_answer_len: 100
+      max_answer_len: 200
+
+    benefits:
+      llm_students: [claude/sonnet]
+      task: >
+        Provide a {min_answer_len} to {max_answer_len} charachters about
+        the spiritual or psychological traits and benefits are associated
+        with practicing this mantra. Ground your answer on traditional or researched knowledge.
+        Your Anaswer shall draw the reader's intrest in the tradition of practicing the mantra.
+      llm_temperature: 0.2
+      min_answer_len: 150
+      max_answer_len: 300
+
+    tags:
+      llm_students: [gemma3:4b, claude/haiku]
+      task: >
+        Provide at {min_tags} to {max_tags} lowercase tags for this mantra, separated by commas.
+        Tags should be specific: tradition name, deity/figure, practice type, effect.
+        Avoid too-generic tags like just "meditation" or "spiritual".
+        Example: hindu, shiva, devotion, liberation, peace, vedic,
+        tantric, tibetan, zen, sufi, devotional, affirmation, psalm, dhikr,
+        healing, focus, divine, empower, philosophy
+      llm_temperature: 0
+      min_tags: 4
+      max_tags: 12
+
+    tradition:
+      llm_students: [gemma3:4b, claude/haiku]
+      task: >
+        Identify which ONE tradition this mantra belongs to.
+        Return exactly one of: Hindu, Buddhist, Islamic, Christian, Sikh, Jain,
+        Jewish, Taoist, Universal, Modern, Other.
+        Answer is ONLY the single word.
+      llm_temperature: 0
+
+    difficulty:
+      llm_students: [gemma3:4b, claude/haiku]
+      task: >
+        Rate the difficulty of practicing this mantra.
+        Consider linguistic complexity, pronunciation, and traditional practice depth.
+        Return exactly one of: beginner, intermediate, advanced.
+        Answer is ONLY the single word.
+      llm_temperature: 0
+
+    targetRepetitions:
+      llm_students: [gemma3:4b, claude/haiku]
+      task: >
+        How many times should this mantra traditionally be repeated in one session?
+        Return exactly one number from: 1, 3, 7, 21, 54, 108.
+        Choose based on the specific tradition and mantra type.
+        Answer is ONLY an integer number.
+      llm_temperature: 0
+
+  # step 2 - grade and select best (only invoked when >1 student per assignment)
+  grader_options:
+    llm_grader: claude/sonnet
+    llm_temperature: 0
+
+    system: >
+      You are a sociology professor of the course 'Worldwide Mantra Traditions'
+      Given <assignment> about a <mantra phrase> grade the <student answer>.
+      Return your response in exactly this format:
+        Answer: <an integer in [0, 100]>
+        Grounding: <up to 100 charachters reasoning the grade>
+    weights:
+      benefits: 35
+      background: 25
+      tags: 20
+      tradition: 10
+      difficulty: 5
+      targetRepetitions: 5
+
+  # step 3 - merge & statistics
+
+# stage 5 - deploy mantras to the final DataBase
+deploy:
+  input: tmp/enriched_mantras.json
+  output: assets/data/mantras.json

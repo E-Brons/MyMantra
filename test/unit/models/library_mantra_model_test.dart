@@ -9,14 +9,14 @@ LibraryMantra _base({int? recommendedRepetitions, RepetitionCycle? recommendedCy
       english: 'Praise to the Jewel in the Lotus',
       original: 'ॐ मणिपद्मे हूँ',
       transliteration: 'oṃ maṇipadme hūṃ',
-      abstract: 'A Tibetan Buddhist mantra.',
+      background: 'A Tibetan Buddhist mantra.',
+      benefits: 'Promotes compassion and inner peace.',
       tags: const ['buddhist', 'tibetan'],
       tradition: 'Tibetan Buddhism',
       category: 'mantra',
       difficulty: 'beginner',
       recommendedRepetitions: recommendedRepetitions,
       recommendedCycle: recommendedCycle,
-      supportedLanguages: const ['en', 'sa'],
       translations: const {'en': 'Praise to the Jewel in the Lotus'},
     );
 
