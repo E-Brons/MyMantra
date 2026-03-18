@@ -35,13 +35,13 @@ from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import litellm
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ollama, ollama_base, ROOT as _ROOT, llm_kwargs, parse_fenced_json
 from log import get_logger, Timer
 from web_cache import fetch_html, extract_text as html_to_text, page_title
+from llm_router import completion as llm_completion
 
 _log = get_logger("extract_mantras")
 
@@ -67,7 +67,7 @@ def call_llm(model: str, messages: list) -> tuple[str, float]:
     _log.debug("LLM call  model=%s  messages=%d  user_len=%d",
                model, len(messages), len(messages[-1].get("content", "")))
     t0 = time.perf_counter()
-    response = litellm.completion(
+    response = llm_completion(
         model=model,
         api_base=OLLAMA_BASE,
         messages=messages,

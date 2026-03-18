@@ -44,8 +44,13 @@ def ollama_base() -> str:
 
 
 def ollama(model: str) -> str:
-    """Prefix a bare model name with 'ollama/' for litellm."""
-    return model if model.startswith("ollama/") else f"ollama/{model}"
+    """Prefix a bare model name with 'ollama/' for litellm.
+
+    Models already prefixed (ollama/, claude/, etc.) are returned as-is.
+    """
+    if "/" in model:
+        return model
+    return f"ollama/{model}"
 
 
 # Parameters passed directly to litellm.completion vs Ollama-specific options

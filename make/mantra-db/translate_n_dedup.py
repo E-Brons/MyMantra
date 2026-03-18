@@ -21,16 +21,14 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
-import litellm
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ollama
 from log import get_logger, Timer
+from llm_router import acompletion
 
 _log = get_logger("translate_n_dedup")
-
-litellm.set_verbose = False
 
 _ROOT = Path(__file__).parent.parent.parent
 _dcfg = cfg()["translate_n_dedup"]
@@ -124,7 +122,7 @@ async def _call_llm(model: str, system: str, user: str, timeout: int, **kwargs) 
     """Single LLM call. Returns parsed answer (grounding stripped)."""
     _log.debug("LLM call  model=%s  user_len=%d", model, len(user))
     _log.debug("LLM input:\n%s", user[:2000])
-    response = await litellm.acompletion(
+    response = await acompletion(
         model=model,
         messages=[
             {"role": "system", "content": system},
