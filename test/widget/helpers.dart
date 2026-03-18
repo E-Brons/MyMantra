@@ -1,13 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mymantra/src/app/app.dart';
 import 'package:mymantra/src/app/router.dart';
+import 'package:mymantra/src/core/providers/app_provider.dart';
 import 'package:mymantra/src/core/services/icon_registry.dart';
 import 'package:mymantra/src/core/services/theme_registry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Boots the full app with empty storage (seed data only) and returns to home.
-/// Call this at the start of every widget test.
+/// Boots the full app with empty storage and navigates to /mypractice,
+/// bypassing the welcome screen. Call this at the start of every widget test.
 Future<void> pumpApp(WidgetTester tester) async {
   SharedPreferences.setMockInitialValues({});
   await Future.wait([
@@ -16,27 +18,35 @@ Future<void> pumpApp(WidgetTester tester) async {
   ]);
   await tester.pumpWidget(const ProviderScope(child: MyMantraApp()));
   await tester.pumpAndSettle();
-  // appRouter is a module-level singleton — reset it to home between tests.
-  appRouter.go('/');
+  // Bypass welcome screen — navigate directly to the main shell.
+  appRouter.go('/mypractice');
   await tester.pumpAndSettle();
 }
 
-/// Pumps the app, taps the first seed mantra, starts a session, and
-/// stops at the target sheet (no target selected yet).
-/// Use this for tests that exercise the target sheet itself.
-Future<void> pumpSessionRaw(WidgetTester tester) async {
+/// Injects a test mantra into the provider and returns its id.
+String seedMantra(
+  WidgetTester tester, {
+  String title = 'Om Mani Padme Hum',
+  String text = 'ༀ མ་ཎི་པདྨེ་ཧཱུྃ',
+  int targetRepetitions = 108,
+}) {
+  final container = ProviderScope.containerOf(
+    tester.element(find.byType(MaterialApp)),
+  );
+  final mantra = container.read(appProvider.notifier).createMantra(
+        title: title,
+        text: text,
+        targetRepetitions: targetRepetitions,
+      );
+  return mantra.id;
+}
+
+/// Pumps the app, seeds a test mantra, and navigates to its SessionScreen.
+/// Returns the mantra id so tests can query the provider directly.
+Future<String> pumpSession(WidgetTester tester) async {
   await pumpApp(tester);
-  await tester.tap(find.text('Om Mani Padme Hum'));
+  final id = seedMantra(tester);
+  appRouter.go('/mantras/$id/session');
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Start Session'));
-  await tester.pumpAndSettle();
-}
-
-/// Pumps the app, taps the first seed mantra, starts a session, and
-/// selects "Mantra's target" on the target sheet.
-/// Leaves the tester on the SessionScreen with a target already selected.
-Future<void> pumpSession(WidgetTester tester) async {
-  await pumpSessionRaw(tester);
-  await tester.tap(find.text("Mantra's target"));
-  await tester.pumpAndSettle();
+  return id;
 }

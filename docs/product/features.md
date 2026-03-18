@@ -57,12 +57,12 @@
 | FR-3.1 | Full-screen tap-to-count session | P0 | ✅ | |
 | FR-3.2 | Haptic feedback on tap | P0 | ✅ | |
 | FR-3.3 | Progress bar | P0 | ✅ | |
-| FR-3.4 | Session timer (active time only) | P0 | ✅ | Paused time excluded |
+| FR-3.4 | Session timer (active time only) | P0 | ✅ | Timer runs internally for analytics; not displayed in UI (per practice.yaml: `no timer`) |
 | FR-3.5 | Auto-complete at target | P0 | ✅ | |
 | FR-3.6 | Manual complete button | P0 | ✅ | |
-| FR-3.7 | Pause / resume | P0 | ✅ | |
+| FR-3.7 | Pause / resume | P0 | ❌ | Removed from spec (practice.yaml); replaced by suspend-on-back model |
 | FR-3.8 | Reset counter (with confirmation) | P0 | ✅ | |
-| FR-3.9 | Cancel session (with confirmation if count > 0) | P0 | ✅ | Dialog only on visible Cancel button |
+| FR-3.9 | Back = suspend session | P0 | ✅ | Back button suspends session (repsCompleted = count); no confirm dialog; session resumable from MyPractice |
 | FR-3.10 | Screen wake lock | P0 | 📋 | Prevents sleep during session |
 | FR-3.11 | Back-button cancel (Android hardware back) | P0 | ✅ | Fixed: `PopScope` wraps `SessionScreen` |
 | FR-3.12 | Session target selection sheet | P0 | ✅ | Choose user default / mantra target / custom before session starts; daily/weekly accumulated reps shown as remaining |
@@ -97,6 +97,32 @@
 | FR-NAV-2 | Back navigation: Android hardware back button | P0 | ✅ | Fixed: `PopScope` on SessionScreen + CreateMantraScreen |
 | FR-NAV-3 | macOS ESC key closes modal / navigates back | P0 | 📋 | Not implemented |
 | FR-NAV-4 | Unsaved-changes guard on CreateMantraScreen | P1 | 📋 | "Discard changes?" dialog |
+| FR-NAV-5 | 3-tab bottom nav (Library / MyPractice / Progress) | P0 | ✅ | Settings via gear icon on MyPractice; ShellRoute |
+| FR-NAV-6 | First-launch onboarding routing | P0 | ✅ | `LaunchNotifier` + `hasLaunched` flag; gates initial route to Welcome screen |
+
+### Onboarding
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-ONB-1 | Welcome screen | P0 | ✅ | Logo, philosophy quote, Sign In / Continue Offline CTAs |
+| FR-ONB-2 | Sign In screen (stub) | P1 | ✅ | 3 OAuth buttons (Google, Apple, Email) — all stubs for Phase 2.0 |
+| FR-ONB-3 | Expectations screen | P0 | ✅ | Intro text, Start from Library / Create your own CTAs |
+
+### Practice Plan
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-PP-1 | Practice Plan screen — three contexts | P0 | ✅ | addFromLibrary / postCreate / edit; mantra details read-only, settings editable |
+| FR-PP-2 | Settings inheritance chain | P1 | ✅ | Displays `(your default)` label when value matches global settings default |
+| FR-PP-3 | Delete Mantra overlay | P0 | ✅ | Shown from Practice Plan edit context; cascades sessions + reminders |
+| FR-PP-4 | Library card → Practice Plan flow | P0 | ✅ | Tap card → addFromLibrary context → configure → Add to MyPractice |
+| FR-PP-5 | Create Mantra → Practice Plan flow | P0 | ✅ | After save → postCreate context → configure → Add to MyPractice |
+
+### User Feedback
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| FR-FB-1 | User Feedback screen | P1 | ✅ | 4 categories; tap copies mailto: link to clipboard |
 
 ---
 
@@ -180,8 +206,8 @@ All analytics are **opt-in only**, disclosed upfront, collect no PII, and defaul
 | FR-9.2 | Achievement gallery screen | P1 | ✅ | |
 | FR-9.3 | Achievement unlock notification | P1 | ✅ | |
 | FR-9.4 | Point system with streak multiplier | P2 | 📋 | |
-| FR-9.5 | Progressive achievement visibility | P1 | 🚧 | Chain heads always shown (locked); successors hidden until predecessor unlocked; `never` items hidden until earned |
-| FR-9.6 | 10-tier rarity system with animated Divine | P1 | 🚧 | Common→Uncommon→Rare→Super Rare→Epic→Heroic→Exotic→Mythic→Legendary→Divine (rainbow) |
+| FR-9.5 | Progressive achievement visibility | P1 | ✅ | Chain heads always shown (locked); successors hidden until predecessor unlocked; `never` items hidden until earned |
+| FR-9.6 | 10-tier rarity system with animated Divine | P1 | ✅ | Common→Uncommon→Rare→Super Rare→Epic→Heroic→Exotic→Mythic→Legendary→Divine (rainbow) |
 | FR-10.1 | Shareable achievement images | P2 | 📋 | 1080×1920, no PII |
 | FR-10.2 | Milestone celebrations (confetti/haptics) | P2 | 📋 | 30-day, 10K reps, 100 sessions |
 
@@ -271,6 +297,7 @@ integration framework.
 | 0.7 | 2026-03-07 | Engineering | Step 5 complete: FR-5.6 ✅ FR-5.7 🚧 — Default cycle dropdown + Limit tap rate toggle in Settings Practice section; 3 widget tests; enforcement pending (step 6) |
 | 0.8 | 2026-03-07 | Engineering | Step 6 complete: FR-3.13 ✅ FR-5.7 ✅ — tap rate limiter enforced in SessionScreen; _lastTapTime guard; 2 widget tests |
 | 0.9 | 2026-03-16 | Engineering | FR-9.1 expanded to 34 achievements; FR-9.5 progressive visibility 🚧; FR-9.6 10-tier rarity 🚧 |
+| 1.0 | 2026-03-17 | Engineering | App workflow implementation: FR-3.7 removed (pause replaced by suspend model); FR-3.9 updated to suspend; FR-9.5+9.6 ✅; FR-NAV-5/6 ✅ onboarding; FR-ONB-1/2/3 ✅; FR-PP-1–5 ✅ Practice Plan; FR-FB-1 ✅ Feedback |
 
 # 🐛 BUG: Emoji Rendering on iOS
 | ID | Bug | Priority | Status | Notes |

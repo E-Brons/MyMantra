@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mymantra/src/app/app.dart';
 import 'package:mymantra/src/app/router.dart';
+import 'package:mymantra/src/core/providers/app_provider.dart';
 import 'package:mymantra/src/core/services/icon_registry.dart';
 import 'package:mymantra/src/core/services/theme_registry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,132 +23,126 @@ void main() {
     await prefs.clear();
   });
 
-  Future<void> launchApp(WidgetTester tester) async {
+  /// Boots the app, navigates to /mypractice, and seeds 'Om Mani Padme Hum'.
+  /// Returns the seeded mantra's id for tests that need it.
+  Future<String> launchApp(WidgetTester tester) async {
     await Future.wait([
       IconRegistry.instance.init(),
       ThemeRegistry.instance.init(),
     ]);
     await tester.pumpWidget(const ProviderScope(child: MyMantraApp()));
     await tester.pumpAndSettle();
-    appRouter.go('/');
+    appRouter.go('/mypractice');
     await tester.pumpAndSettle();
+    // Seed the test mantra directly via Riverpod — no UI form required.
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MaterialApp)),
+    );
+    final mantra = container.read(appProvider.notifier).createMantra(
+      title: 'Om Mani Padme Hum',
+      text: 'ༀ མ་ཎི་པདྨེ་ཧཱུྃ',
+      targetRepetitions: 108,
+    );
+    await tester.pumpAndSettle();
+    return mantra.id;
   }
 
   // ── TC-I-1: Full session flow ──────────────────────────────────────────────
 
   testWidgets(
-      'full flow: home → detail → start session → Done → celebration → back to detail',
+      'full flow: mypractice → session → Done → celebration → back to mypractice',
       (tester) async {
     await launchApp(tester);
 
-    // Home shows seed mantras
+    // MyPractice shows the seeded mantra.
     expect(find.text('Om Mani Padme Hum'), findsOneWidget);
 
-    // Navigate to MantraDetail
+    // Tap the mantra card — goes directly to SessionScreen.
     await tester.tap(find.text('Om Mani Padme Hum'));
-    await tester.pumpAndSettle();
-    expect(find.text('Start Session'), findsOneWidget);
-
-    // Start session
-    await tester.tap(find.text('Start Session'));
-    await tester.pumpAndSettle();
-
-    // Dismiss target sheet by selecting the default
-    expect(find.text('Set your target'), findsOneWidget);
-    await tester.tap(find.text('Your default'));
     await tester.pumpAndSettle();
     expect(find.text('0'), findsOneWidget);
 
-    // Tap Done immediately (0 reps, partial)
+    // Tap Done → celebration overlay.
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
     expect(find.text('Session Complete'), findsOneWidget);
 
-    // Continue back to MantraDetail
-    await tester.tap(find.text('Continue'));
+    // Tap overlay to dismiss → navigates back to /mypractice.
+    await tester.tap(find.text('Session Complete'));
     await tester.pumpAndSettle();
-    expect(find.text('Start Session'), findsOneWidget);
+    expect(find.text('Om Mani Padme Hum'), findsOneWidget);
   });
 
-  // ── TC-I-2: Session with tap → Discard ────────────────────────────────────
+  // ── TC-I-2: Session back arrow suspends when reps > 0 ─────────────────────
 
-  testWidgets('session: tap once → X → Discard exits cleanly to MantraDetail',
+  testWidgets('session: tap once → back arrow → session is suspended',
       (tester) async {
     await launchApp(tester);
 
     await tester.tap(find.text('Om Mani Padme Hum'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Start Session'));
-    await tester.pumpAndSettle();
 
-    // Dismiss target sheet
-    await tester.tap(find.text('Your default'));
-    await tester.pumpAndSettle();
-
-    // Tap once
+    // Tap the rep counter once.
     await tester.tap(find.text('0'));
     await tester.pumpAndSettle();
     expect(find.text('1'), findsOneWidget);
 
-    // Exit via X button
-    await tester.tap(find.byIcon(Icons.close));
-    await tester.pump();
-    expect(find.text('Exit Session?'), findsOneWidget);
-
-    // Discard
-    await tester.tap(find.text('Discard & Exit'));
+    // Exit via back arrow → suspends and returns to MyPractice.
+    await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
     await tester.pumpAndSettle();
-    expect(find.text('Start Session'), findsOneWidget);
+    expect(find.text('Om Mani Padme Hum'), findsOneWidget);
+
+    // Tapping the mantra again shows the "Session in progress" resume dialog.
+    await tester.tap(find.text('Om Mani Padme Hum'));
+    await tester.pump();
+    expect(find.text('Session in progress'), findsOneWidget);
   });
 
-  // ── TC-I-3: Session with tap → Save as partial ────────────────────────────
+  // ── TC-I-3: Session records partial reps when Done is tapped ───────────────
 
-  testWidgets('session: tap once → X → Save records a partial session',
+  testWidgets('session: tap once → Done → records a partial session',
       (tester) async {
-    await launchApp(tester);
+    final mantraId = await launchApp(tester);
 
     await tester.tap(find.text('Om Mani Padme Hum'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Start Session'));
-    await tester.pumpAndSettle();
 
-    // Dismiss target sheet
-    await tester.tap(find.text('Your default'));
-    await tester.pumpAndSettle();
-
+    // Tap the rep counter once.
     await tester.tap(find.text('0'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.close));
-    await tester.pump();
-
-    // Save & Exit → celebration overlay (partial session still triggers it)
-    await tester.tap(find.text('Save & Exit'));
+    // Tap Done → celebration overlay.
+    await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
     expect(find.text('Session Complete'), findsOneWidget);
 
-    await tester.tap(find.text('Continue'));
+    // Dismiss celebration overlay → back to MyPractice.
+    await tester.tap(find.text('Session Complete'));
     await tester.pumpAndSettle();
 
-    // Recent sessions section on MantraDetail now shows the partial entry
+    // Navigate to MantraDetail to verify the partial session was recorded.
+    appRouter.go('/mantras/$mantraId');
+    await tester.pumpAndSettle();
     expect(find.text('1/108 reps'), findsOneWidget);
   });
 
-  // ── TC-I-4: MantraDetail back arrow returns to home ────────────────────────
+  // ── TC-I-4: MantraDetail back arrow returns to previous screen ─────────────
 
   testWidgets(
-      'MantraDetail back arrow navigates back to HomeScreen (BUG-001 regression)',
+      'MantraDetail back arrow navigates back to MyPractice (BUG-001 regression)',
       (tester) async {
-    await launchApp(tester);
+    final mantraId = await launchApp(tester);
 
-    await tester.tap(find.text('Om Mani Padme Hum'));
+    // Push MantraDetail onto the navigation stack from MyPractice.
+    appRouter.push('/mantras/$mantraId');
     await tester.pumpAndSettle();
     expect(find.text('Start Session'), findsOneWidget);
 
+    // Tap back arrow → pops back to MyPractice.
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
-    expect(find.text('MyMantra'), findsOneWidget);
+    expect(find.text('Om Mani Padme Hum'), findsOneWidget);
     expect(find.text('Start Session'), findsNothing);
   });
 
@@ -156,11 +151,11 @@ void main() {
   testWidgets('progress screen uses Material Icon widgets', (tester) async {
     await launchApp(tester);
 
-    // Navigate to the Progress screen.
+    // Navigate to the Progress screen via bottom nav.
     await tester.tap(find.byIcon(Icons.bar_chart_outlined));
     await tester.pumpAndSettle();
 
-    // Stat cards now use Material Icon widgets resolved from icons.yml.
+    // Stat cards use Material Icon widgets resolved from icons.yml.
     expect(find.byIcon(Icons.whatshot), findsOneWidget);
 
     // Locked achievements use lock_outline icon.

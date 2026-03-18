@@ -44,7 +44,19 @@ Use the bug ID in the description if one exists (e.g. `fix/2026_03_14-bug-004-re
 Write a test that reproduces the bug exactly. The test **must fail** before the fix is applied.
 
 - Place the test in the appropriate suite: `test/unit/`, `test/widget/`, or `integration_test/`.
-- Run `make test` (or `make test-integration TARGET=macos`) to confirm the test fails (CI goes **red**).
+- Run the **local-ci skill** in **RED context**:
+  - `flutter analyze` → must pass (zero issues).
+  - The **new** test → must FAIL. If it passes, the test does not reproduce the
+    bug — rethink it.
+  - All **other** existing tests → must still pass.
+
+```bash
+# Confirm RED state
+make test        # analyze + unit + widget — only the new test should fail
+# or, for an integration-level test:
+make test-integration TARGET=macos
+```
+
 - Commit the failing test alone — do not include any fix code:
 
 ```
@@ -59,8 +71,14 @@ This commit is the proof that the test genuinely catches the regression.
 
 Implement the minimal change that makes the failing test pass without breaking any existing tests.
 
-- Run `make test` — all tests must pass.
-- Run `make test-integration TARGET=macos` if the fix touches app flow.
+- Run the **local-ci skill** in **GREEN context** — all phases must pass:
+
+```bash
+make test
+# If the fix touches app flow:
+make test-integration TARGET=macos
+```
+
 - Commit the fix separately from the test:
 
 ```
@@ -79,7 +97,20 @@ If the bug was user-visible or caused a regression, add or update a bug report u
 
 ---
 
-## 6. Open the Pull Request
+## 6. Final Local CI Before Push
+
+Run the full local-ci skill (all phases green required):
+
+```bash
+make test && make test-integration TARGET=macos
+```
+
+If the bug was visible on iOS, also run Phase 5 of local-ci (iOS simulator +
+screenshots) to confirm the fix renders correctly on device.
+
+---
+
+## 7. Open the Pull Request
 
 Push the branch and open a PR targeting `main`:
 ```

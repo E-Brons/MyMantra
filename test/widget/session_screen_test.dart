@@ -1,49 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mymantra/src/core/providers/app_provider.dart';
 import 'helpers.dart';
 
 void main() {
-  group('SessionScreen — target sheet', () {
-    testWidgets('target sheet is shown before a target is selected', (tester) async {
-      await pumpSessionRaw(tester);
-      expect(find.text('Set your target'), findsOneWidget);
-      expect(find.text('Your default'), findsOneWidget);
-      expect(find.text("Mantra's target"), findsOneWidget);
-      expect(find.text('Custom\u2026'), findsOneWidget);
-    });
-
-    testWidgets('selecting Your default dismisses sheet and starts session', (tester) async {
-      await pumpSessionRaw(tester);
-      await tester.tap(find.text('Your default'));
-      await tester.pumpAndSettle();
-      expect(find.text('Set your target'), findsNothing);
-      expect(find.text('0'), findsOneWidget);
-    });
-
-    testWidgets("selecting Mantra's target dismisses sheet and starts session", (tester) async {
-      await pumpSessionRaw(tester);
-      await tester.tap(find.text("Mantra's target"));
-      await tester.pumpAndSettle();
-      expect(find.text('Set your target'), findsNothing);
-      expect(find.text('0'), findsOneWidget);
-    });
-
-    testWidgets('Cancel exits to mantra detail screen', (tester) async {
-      await pumpSessionRaw(tester);
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(find.text('Start Session'), findsOneWidget);
-    });
-
-    testWidgets('Custom\u2026 opens the custom target dialog', (tester) async {
-      await pumpSessionRaw(tester);
-      await tester.tap(find.text('Custom\u2026'));
-      await tester.pumpAndSettle();
-      expect(find.text('Custom target'), findsOneWidget);
-      expect(find.text('Confirm'), findsOneWidget);
-    });
-  });
-
   group('SessionScreen', () {
     testWidgets('shows mantra title and counter starting at 0', (tester) async {
       await pumpSession(tester);
@@ -58,49 +19,46 @@ void main() {
       expect(find.text('1'), findsOneWidget);
     });
 
-    testWidgets('X button with count = 0 exits without showing exit sheet', (tester) async {
-      await pumpSession(tester);
-      await tester.tap(find.byIcon(Icons.close));
+    testWidgets('back button with count = 0 exits without suspending',
+        (tester) async {
+      final id = await pumpSession(tester);
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
       await tester.pumpAndSettle();
-      expect(find.text('Exit Session?'), findsNothing);
-      expect(find.text('Start Session'), findsOneWidget);
+
+      // Navigated away from session screen
+      expect(find.text('0'), findsNothing);
+
+      // No suspended session created
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      );
+      final hasSuspended = container
+          .read(appProvider)
+          .sessions
+          .any((s) => s.mantraId == id && !s.completed);
+      expect(hasSuspended, isFalse);
     });
 
-    testWidgets('X button with count > 0 shows exit confirmation sheet', (tester) async {
-      await pumpSession(tester);
-      await tester.tap(find.text('0'));
+    testWidgets('back button with count > 0 suspends the session',
+        (tester) async {
+      final id = await pumpSession(tester);
+      await tester.tap(find.text('0')); // count → 1
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pump();
-      expect(find.text('Exit Session?'), findsOneWidget);
-      expect(find.text('Save & Exit'), findsOneWidget);
-      expect(find.text('Discard & Exit'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
+      await tester.pumpAndSettle();
+
+      // A suspended (incomplete) session now exists in the provider
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      );
+      final hasSuspended = container
+          .read(appProvider)
+          .sessions
+          .any((s) => s.mantraId == id && !s.completed);
+      expect(hasSuspended, isTrue);
     });
 
-    testWidgets('Discard & Exit returns to MantraDetailScreen', (tester) async {
-      await pumpSession(tester);
-      await tester.tap(find.text('0'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pump();
-      await tester.tap(find.text('Discard & Exit'));
-      await tester.pumpAndSettle();
-      expect(find.text('Start Session'), findsOneWidget);
-    });
-
-    testWidgets('Continue Session hides exit sheet and keeps counter', (tester) async {
-      await pumpSession(tester);
-      await tester.tap(find.text('0'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pump();
-      await tester.tap(find.text('Continue Session'));
-      await tester.pump();
-      expect(find.text('Exit Session?'), findsNothing);
-      expect(find.text('1'), findsOneWidget);
-    });
-
-    testWidgets('Done button with 0 reps triggers celebration overlay', (tester) async {
+    testWidgets('Done button triggers celebration overlay', (tester) async {
       await pumpSession(tester);
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
@@ -109,9 +67,10 @@ void main() {
   });
 
   group('SessionScreen — tap rate limiter', () {
-    testWidgets('two rapid taps only count once when limitClickRate is on', (tester) async {
+    testWidgets('two rapid taps only count once when limitClickRate is on',
+        (tester) async {
       await pumpSession(tester);
-      // Tap twice in immediate succession — second tap should be dropped.
+      // Second tap within 1 s should be dropped.
       await tester.tap(find.text('0'));
       await tester.pump();
       await tester.tap(find.text('1'));
@@ -119,14 +78,14 @@ void main() {
       expect(find.text('1'), findsOneWidget);
     });
 
-    testWidgets('tap after 1 s is accepted when limitClickRate is on', (tester) async {
+    testWidgets('tap after 1 s is accepted when limitClickRate is on',
+        (tester) async {
       await pumpSession(tester);
       await tester.tap(find.text('0'));
       await tester.pump();
-      // tester.pump(Duration) advances Flutter's fake clock but NOT
-      // DateTime.now(). Use runAsync to let real time pass so the
-      // 1-second guard in _handleTap expires.
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 1100)));
+      // runAsync lets real time pass so the 1 s guard expires.
+      await tester
+          .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 1100)));
       await tester.pump();
       await tester.tap(find.text('1'));
       await tester.pump();

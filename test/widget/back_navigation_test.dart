@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mymantra/src/app/router.dart';
+import 'package:mymantra/src/core/providers/app_provider.dart';
 import 'helpers.dart';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // BUG-001 regression: MantraDetail back arrow was a no-op on macOS when
-// context.pop() had no history (fixed: canPop() guard + context.go('/') fallback).
+// context.pop() had no history (fixed: canPop() guard + context.go('/library')
+// fallback).
 //
 // BUG-002 regression: Android hardware back in SessionScreen bypassed the
-// "Exit session?" dialog (fixed: PopScope wraps SessionScreen).
+// session suspend logic (fixed: PopScope wraps SessionScreen).
 //
 // NOTE: Android *hardware* back is platform-specific and can only be regression-
-// tested on a real Android device or emulator.  The tests below cover the same
+// tested on a real Android device or emulator. The tests below cover the same
 // code paths through the Flutter test framework's handlePopRoute() call, which
 // exercises PopScope.onPopInvokedWithResult identically on all platforms.
 // ──────────────────────────────────────────────────────────────────────────────
@@ -19,62 +23,82 @@ void main() {
   group('Back navigation regressions', () {
     // BUG-001 ─────────────────────────────────────────────────────────────────
 
-    testWidgets(
-        'MantraDetail back arrow navigates home (BUG-001)',
+    testWidgets('MantraDetail back arrow navigates back (BUG-001)',
         (tester) async {
       await pumpApp(tester);
-      await tester.tap(find.text('Om Mani Padme Hum'));
+      final id = seedMantra(tester);
+      // Push so that canPop() == true and context.pop() is used.
+      appRouter.push('/mantras/$id');
       await tester.pumpAndSettle();
       expect(find.text('Start Session'), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.arrow_back));
       await tester.pumpAndSettle();
 
-      expect(find.text('MyMantra'), findsOneWidget);
+      // MantraDetail is gone
       expect(find.text('Start Session'), findsNothing);
     });
 
     // BUG-002 ─────────────────────────────────────────────────────────────────
 
     testWidgets(
-        'session X button with count > 0 shows exit sheet, not bare pop (BUG-002 UI path)',
+        'session back button with count > 0 suspends session (BUG-002 UI path)',
         (tester) async {
-      await pumpSession(tester);
-      await tester.tap(find.text('0'));
+      final id = await pumpSession(tester);
+      await tester.tap(find.text('0')); // count → 1
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
+      await tester.pumpAndSettle();
 
-      expect(find.text('Exit Session?'), findsOneWidget);
-      expect(find.text('Start Session'), findsNothing); // not popped
+      // Suspended session exists — not a bare pop
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      );
+      final hasSuspended = container
+          .read(appProvider)
+          .sessions
+          .any((s) => s.mantraId == id && !s.completed);
+      expect(hasSuspended, isTrue);
     });
 
     testWidgets(
-        'platform back event with count > 0 shows exit sheet via PopScope (BUG-002 PopScope path)',
+        'platform back event with count > 0 suspends via PopScope (BUG-002 PopScope path)',
         (tester) async {
-      await pumpSession(tester);
-      await tester.tap(find.text('0'));
+      final id = await pumpSession(tester);
+      await tester.tap(find.text('0')); // count → 1
       await tester.pumpAndSettle();
 
-      // handlePopRoute() is the same event that Android hardware back fires.
-      // PopScope(canPop: false) intercepts it and calls _handleExit().
+      // handlePopRoute() is the same event Android hardware back fires.
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
-      expect(find.text('Exit Session?'), findsOneWidget);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      );
+      final hasSuspended = container
+          .read(appProvider)
+          .sessions
+          .any((s) => s.mantraId == id && !s.completed);
+      expect(hasSuspended, isTrue);
     });
 
     testWidgets(
-        'platform back event with count = 0 pops session without exit sheet',
+        'platform back event with count = 0 exits without suspending',
         (tester) async {
-      await pumpSession(tester);
-      // count is still 0 — back should exit immediately
+      final id = await pumpSession(tester);
+      // count is still 0 — back should exit immediately without a session record
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
-      expect(find.text('Exit Session?'), findsNothing);
-      expect(find.text('Start Session'), findsOneWidget);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      );
+      final hasSuspended = container
+          .read(appProvider)
+          .sessions
+          .any((s) => s.mantraId == id && !s.completed);
+      expect(hasSuspended, isFalse);
     });
   });
 }

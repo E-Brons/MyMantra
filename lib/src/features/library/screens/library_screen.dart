@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
-import '../../../core/providers/app_provider.dart';
 import '../data/built_in_mantras.dart';
+
+// Categories per library.yaml spec
+const _kLibraryCategories = [
+  (id: 'all',               label: 'All'),
+  (id: 'popular',           label: 'Popular'),
+  (id: 'Yogic Philosophy',  label: 'Yogic Philosophy'),
+  (id: 'Buddhist',          label: 'Buddhist'),
+  (id: 'Hebrew',            label: 'Hebrew'),
+  (id: 'Christian',         label: 'Christian'),
+  (id: 'Secular',           label: 'Secular'),
+];
 
 class LibraryScreen extends ConsumerStatefulWidget {
   const LibraryScreen({super.key});
@@ -16,17 +26,22 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   String _selectedCategory = 'all';
   String _query = '';
 
+  bool _matches(BuiltInMantra m) {
+    final matchesCategory = switch (_selectedCategory) {
+      'all'     => true,
+      'popular' => m.isSignature,
+      _         => m.category == _selectedCategory,
+    };
+    final matchesQuery = _query.isEmpty ||
+        m.title.toLowerCase().contains(_query.toLowerCase()) ||
+        m.shortTitle.toLowerCase().contains(_query.toLowerCase()) ||
+        m.tradition.toLowerCase().contains(_query.toLowerCase());
+    return matchesCategory && matchesQuery;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filtered = kBuiltInMantras.where((m) {
-      final matchesCategory =
-          _selectedCategory == 'all' || m.category == _selectedCategory;
-      final matchesQuery = _query.isEmpty ||
-          m.title.toLowerCase().contains(_query.toLowerCase()) ||
-          m.shortTitle.toLowerCase().contains(_query.toLowerCase()) ||
-          m.tradition.toLowerCase().contains(_query.toLowerCase());
-      return matchesCategory && matchesQuery;
-    }).toList();
+    final filtered = kBuiltInMantras.where(_matches).toList();
 
     return Scaffold(
       body: CustomScrollView(
@@ -41,19 +56,43 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Mantra Library',
-                    style: TextStyle(
-                      fontFamily: 'Cinzel',
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Sacred texts across traditions',
-                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mantra Library',
+                            style: TextStyle(
+                              fontFamily: 'Cinzel',
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'Sacred texts across traditions',
+                            style: TextStyle(
+                                fontSize: 13, color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                      // FAB — top-right create button
+                      GestureDetector(
+                        onTap: () => context.push('/mantras/new'),
+                        child: Container(
+                          width: 40, height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.violet600,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.add, color: Colors.white, size: 22),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 14),
                   // Search
@@ -65,14 +104,17 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     ),
                     child: TextField(
                       onChanged: (v) => setState(() => _query = v),
-                      style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                      style:
+                          TextStyle(color: AppColors.textPrimary, fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Search library...',
-                        prefixIcon: Icon(Icons.search, size: 18, color: AppColors.textMuted),
+                        hintText: 'Search by title, tradition...',
+                        prefixIcon: Icon(Icons.search,
+                            size: 18, color: AppColors.textMuted),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),
@@ -81,34 +123,34 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: kCategories.map((cat) {
+                      children: _kLibraryCategories.map((cat) {
                         final selected = _selectedCategory == cat.id;
                         return GestureDetector(
-                          onTap: () => setState(() => _selectedCategory = cat.id),
+                          onTap: () =>
+                              setState(() => _selectedCategory = cat.id),
                           child: Container(
                             margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: selected ? AppColors.violet600 : const Color(0x0A8B5CF6),
+                              color: selected
+                                  ? AppColors.violet600
+                                  : const Color(0x0A8B5CF6),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: selected ? AppColors.violet600 : AppColors.border,
+                                color: selected
+                                    ? AppColors.violet600
+                                    : AppColors.border,
                               ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(cat.icon, size: 14,
-                                    color: selected ? Colors.white : AppColors.textSecondary),
-                                const SizedBox(width: 6),
-                                Text(
-                                  cat.label,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: selected ? Colors.white : AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              cat.label,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: selected
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
+                              ),
                             ),
                           ),
                         );
@@ -135,141 +177,125 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   }
 }
 
-class _LibraryCard extends ConsumerWidget {
+class _LibraryCard extends StatelessWidget {
   final BuiltInMantra mantra;
   const _LibraryCard({required this.mantra});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: mantra.isSignature
-              ? [const Color(0x267C3AED), const Color(0x402E1065)]
-              : [const Color(0x147C3AED), const Color(0x331E1B4B)],
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/mantras/${mantra.id}/plan?mode=addFromLibrary'),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: mantra.isSignature
+                ? [const Color(0x267C3AED), const Color(0x402E1065)]
+                : [const Color(0x147C3AED), const Color(0x331E1B4B)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: mantra.isSignature
+                ? const Color(0x667C3AED)
+                : const Color(0x337C3AED),
+          ),
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: mantra.isSignature
-              ? const Color(0x667C3AED)
-              : const Color(0x337C3AED),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (mantra.isSignature)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 6),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0x338B5CF6),
-                          borderRadius: BorderRadius.circular(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (mantra.isSignature)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0x338B5CF6),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text('Signature',
+                              style: TextStyle(
+                                  fontSize: 11, color: AppColors.violet300)),
                         ),
-                        child: Text('★ Signature',
-                            style: TextStyle(fontSize: 11, color: AppColors.violet300)),
+                      Text(
+                        mantra.shortTitle,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary),
                       ),
-                    Text(
-                      mantra.shortTitle,
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      mantra.source,
-                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                  ],
+                      const SizedBox(height: 2),
+                      Text(
+                        mantra.source,
+                        style: TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0x1A8B5CF6),
-                  borderRadius: BorderRadius.circular(20),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1A8B5CF6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    mantra.difficulty,
+                    style: TextStyle(fontSize: 11, color: AppColors.violet400),
+                  ),
                 ),
-                child: Text(
-                  mantra.difficulty,
-                  style: TextStyle(fontSize: 11, color: AppColors.violet400),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            mantra.primaryText.split('\n').first,
-            style: TextStyle(
-              fontFamily: 'NotoSansDevanagari',
-              fontSize: 18,
-              color: AppColors.textPrimary,
-              height: 1.4,
+              ],
             ),
-          ),
-          if (mantra.englishTranslation != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 10),
             Text(
-              mantra.englishTranslation!,
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 6,
-                  children: mantra.tags.take(3).map((tag) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0x0A8B5CF6),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text('#$tag', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                  )).toList(),
-                ),
+              mantra.primaryText.split('\n').first,
+              style: TextStyle(
+                fontFamily: 'NotoSansDevanagari',
+                fontSize: 18,
+                color: AppColors.textPrimary,
+                height: 1.4,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(appProvider.notifier).createMantra(
-                    title: mantra.shortTitle,
-                    text: mantra.primaryText,
-                    transliteration: mantra.transliteration,
-                    translation: mantra.englishTranslation,
-                    targetRepetitions: mantra.targetRepetitions,
-                    tradition: mantra.tradition,
-                  );
-                  context.go('/');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${mantra.shortTitle} added to your practice'),
-                      backgroundColor: AppColors.bgSurface,
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.violet600,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Add', style: TextStyle(fontSize: 13, color: Colors.white)),
+            ),
+            if (mantra.englishTranslation != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                mantra.englishTranslation!,
+                style:
+                    TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
-          ),
-        ],
+            if (mantra.tags.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                children: mantra.tags.take(3).map((tag) => Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0x0A8B5CF6),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text('#$tag',
+                      style: TextStyle(
+                          fontSize: 11, color: AppColors.textMuted)),
+                )).toList(),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 }
+
+

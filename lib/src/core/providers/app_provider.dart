@@ -8,37 +8,6 @@ import '../models/achievement.dart';
 import '../services/storage_service.dart';
 import '../utils/date_utils.dart';
 
-// ─── Seed mantras (shown on first launch) ────────────────────────────────────
-
-final _seedMantras = [
-  Mantra(
-    id: 'seed-1',
-    title: 'Om Mani Padme Hum',
-    text: 'ॐ मणिपद्मे हूँ',
-    transliteration: 'oṃ maṇipadme hūṃ',
-    translation: 'Praise to the Jewel in the Lotus',
-    targetRepetitions: 108,
-    isCustom: false,
-    tradition: 'Tibetan Buddhism',
-    reminders: const [],
-    createdAt: DateTime(2026, 1, 1),
-    updatedAt: DateTime(2026, 1, 1),
-  ),
-  Mantra(
-    id: 'seed-2',
-    title: 'Abhyāsa-Vairāgya (Yoga Sutra I.12)',
-    text: 'अभ्यासवैराग्याभ्यां तन्निरोधः॥',
-    transliteration: 'abhyāsa-vairāgya-ābhyāṃ tat-nirodhaḥ',
-    translation: 'Through steady practice and dispassion, the mind is stilled.',
-    targetRepetitions: 108,
-    isCustom: false,
-    tradition: 'Classical Yoga',
-    reminders: const [],
-    createdAt: DateTime(2026, 1, 1),
-    updatedAt: DateTime(2026, 1, 1),
-  ),
-];
-
 // ─── App State ────────────────────────────────────────────────────────────────
 
 class AppState {
@@ -69,7 +38,7 @@ class AppState {
   }
 
   static AppState initial() => AppState(
-    mantras: _seedMantras,
+    mantras: const [],
     sessions: const [],
     progress: Progress.empty(),
     settings: Settings.defaults(),
@@ -93,7 +62,7 @@ class AppNotifier extends Notifier<AppState> {
         mantras: (data['mantras'] as List?)
                 ?.map((m) => Mantra.fromJson(m as Map<String, dynamic>))
                 .toList() ??
-            _seedMantras,
+            const [],
         sessions: (data['sessions'] as List?)
                 ?.map((s) => Session.fromJson(s as Map<String, dynamic>))
                 .toList() ??
@@ -147,6 +116,20 @@ class AppNotifier extends Notifier<AppState> {
       updatedAt: now,
     );
     state = state.copyWith(mantras: [mantra, ...state.mantras]);
+
+    // Unlock Creator badge on first custom mantra
+    final alreadyUnlocked = state.progress.unlockedAchievements.map((a) => a.id).toSet();
+    if (!alreadyUnlocked.contains('ACH-SPL-CREATE')) {
+      state = state.copyWith(
+        progress: state.progress.copyWith(
+          unlockedAchievements: [
+            ...state.progress.unlockedAchievements,
+            UnlockedAchievement(id: 'ACH-SPL-CREATE', unlockedAt: DateTime.now()),
+          ],
+        ),
+      );
+    }
+
     _persist();
     return mantra;
   }
@@ -292,7 +275,14 @@ class AppNotifier extends Notifier<AppState> {
     );
 
     state = state.copyWith(
-      sessions: [session, ...state.sessions],
+      sessions: [
+        session,
+        // Drop any suspended (in-progress) session for this mantra — it is
+        // superseded by the session we just recorded.
+        ...state.sessions.where(
+          (s) => !(s.mantraId == mantraId && !s.completed),
+        ),
+      ],
       progress: state.progress.copyWith(
         currentStreak: newStreak,
         longestStreak: newLongest,
@@ -326,8 +316,64 @@ class AppNotifier extends Notifier<AppState> {
     return filtered.take(limit).toList();
   }
 
+  /// Returns the suspended (ongoing) session for [mantraId], if any.
+  Session? suspendedSessionFor(String mantraId) {
+    try {
+      return state.sessions.firstWhere(
+        (s) => s.mantraId == mantraId && !s.completed,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Discards the suspended session for [mantraId], if any (used when starting a new session).
+  void discardSuspendedSession(String mantraId) {
+    state = state.copyWith(
+      sessions: state.sessions
+          .where((s) => !(s.mantraId == mantraId && !s.completed))
+          .toList(),
+    );
+    _persist();
+  }
+
+  /// Creates or replaces the suspended session for [mantraId].
+  ///
+  /// Calling this removes any existing suspended session for the same mantra
+  /// and inserts the new one at the front of the list.
+  void suspendSession({
+    required String mantraId,
+    required String mantraTitle,
+    required int repsCompleted,
+    required int targetReps,
+    RepetitionCycle targetCycle = RepetitionCycle.session,
+    required int duration,
+    required DateTime startTime,
+  }) {
+    // Drop any prior suspended session for this mantra.
+    final filtered = state.sessions
+        .where((s) => !(s.mantraId == mantraId && !s.completed))
+        .toList();
+
+    final session = Session(
+      id: generateId(),
+      mantraId: mantraId,
+      mantraTitle: mantraTitle,
+      repsCompleted: repsCompleted,
+      targetReps: targetReps,
+      targetCycle: targetCycle,
+      duration: duration,
+      startTime: startTime,
+      completed: false,
+    );
+
+    state = state.copyWith(sessions: [session, ...filtered]);
+    _persist();
+  }
+
   /// Sum of repsCompleted for [mantraId] within the current day (daily cycle)
   /// or ISO week starting Monday (weekly cycle).
+  /// Only counts completed sessions; suspended sessions are excluded.
   /// Returns 0 for [RepetitionCycle.session] — sessions are always independent.
   int getAccumulatedReps(String mantraId, RepetitionCycle cycle) {
     if (cycle == RepetitionCycle.session) return 0;
@@ -336,7 +382,7 @@ class AppNotifier extends Notifier<AppState> {
     final today = DateTime(now.year, now.month, now.day);
 
     return state.sessions
-        .where((s) => s.mantraId == mantraId)
+        .where((s) => s.mantraId == mantraId && s.completed)
         .where((s) {
           final day = DateTime(s.startTime.year, s.startTime.month, s.startTime.day);
           if (cycle == RepetitionCycle.daily) {
@@ -378,6 +424,8 @@ List<UnlockedAchievement> _checkNewAchievements({
         unlock = ach.before == true ? hour < ach.value : hour >= ach.value;
       case AchievementMetric.platform:
         unlock = _matchesPlatform(ach.platformId);
+      case AchievementMetric.customMantra:
+        break; // handled in createMantra, not via completeSession
     }
     if (unlock) {
       result.add(UnlockedAchievement(id: ach.id, unlockedAt: DateTime.now()));

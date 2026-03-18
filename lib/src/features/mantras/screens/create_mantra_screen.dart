@@ -20,8 +20,6 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
   final _translCtrl = TextEditingController();
   final _translationCtrl = TextEditingController();
   final _traditionCtrl = TextEditingController();
-  int _targetReps = 108;
-  RepetitionCycle _targetCycle = RepetitionCycle.session;
 
   bool get _isEditing => widget.editId != null;
 
@@ -36,8 +34,6 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         _translCtrl.text = mantra.transliteration ?? '';
         _translationCtrl.text = mantra.translation ?? '';
         _traditionCtrl.text = mantra.tradition ?? '';
-        _targetReps = mantra.targetRepetitions;
-        _targetCycle = mantra.targetCycle;
       }
     }
   }
@@ -56,28 +52,30 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
     if (!_formKey.currentState!.validate()) return;
     final notifier = ref.read(appProvider.notifier);
     if (_isEditing) {
+      final existing = notifier.getMantra(widget.editId!);
       notifier.updateMantra(
         widget.editId!,
         title: _titleCtrl.text.trim(),
         text: _textCtrl.text.trim(),
         transliteration: _translCtrl.text.trim().isEmpty ? null : _translCtrl.text.trim(),
         translation: _translationCtrl.text.trim().isEmpty ? null : _translationCtrl.text.trim(),
-        targetRepetitions: _targetReps,
-        targetCycle: _targetCycle,
+        targetRepetitions: existing?.targetRepetitions ?? 108,
+        targetCycle: existing?.targetCycle ?? RepetitionCycle.session,
         tradition: _traditionCtrl.text.trim().isEmpty ? null : _traditionCtrl.text.trim(),
       );
       context.pop();
     } else {
+      final settings = ref.read(appProvider).settings;
       final mantra = notifier.createMantra(
         title: _titleCtrl.text.trim(),
         text: _textCtrl.text.trim(),
         transliteration: _translCtrl.text.trim().isEmpty ? null : _translCtrl.text.trim(),
         translation: _translationCtrl.text.trim().isEmpty ? null : _translationCtrl.text.trim(),
-        targetRepetitions: _targetReps,
-        targetCycle: _targetCycle,
+        targetRepetitions: settings.defaultRepetitions,
+        targetCycle: settings.defaultRepetitionCycle,
         tradition: _traditionCtrl.text.trim().isEmpty ? null : _traditionCtrl.text.trim(),
       );
-      context.go('/mantras/${mantra.id}');
+      context.push('/mantras/${mantra.id}/plan?mode=postCreate');
     }
   }
 
@@ -88,7 +86,9 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
         title: Text(_isEditing ? 'Edit Mantra' : 'New Mantra'),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+          onPressed: () => _isEditing
+              ? (context.canPop() ? context.pop() : context.go('/'))
+              : context.go('/library'),
         ),
         actions: [
           TextButton(
@@ -152,77 +152,6 @@ class _CreateMantraScreenState extends ConsumerState<CreateMantraScreen> {
               controller: _traditionCtrl,
               style: TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(hintText: 'e.g. Shaivism, Tibetan Buddhism'),
-            ),
-
-            const SizedBox(height: 28),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const _FieldLabel('Target repetitions'),
-                Text(
-                  '$_targetReps',
-                  style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.violet400,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [27, 54, 108, 216].map((n) {
-                final selected = _targetReps == n;
-                return GestureDetector(
-                  onTap: () => setState(() => _targetReps = n),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: selected ? AppColors.violet600 : const Color(0x0A8B5CF6),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: selected ? AppColors.violet600 : AppColors.border,
-                      ),
-                    ),
-                    child: Text(
-                      '$n',
-                      style: TextStyle(
-                        color: selected ? Colors.white : AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 20),
-            const _FieldLabel('Count cycle'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: RepetitionCycle.values.map((cycle) {
-                final selected = _targetCycle == cycle;
-                return GestureDetector(
-                  onTap: () => setState(() => _targetCycle = cycle),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: selected ? AppColors.violet600 : const Color(0x0A8B5CF6),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: selected ? AppColors.violet600 : AppColors.border,
-                      ),
-                    ),
-                    child: Text(
-                      cycle.label,
-                      style: TextStyle(
-                        color: selected ? Colors.white : AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
             ),
 
             const SizedBox(height: 36),

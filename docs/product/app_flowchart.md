@@ -1,7 +1,7 @@
 # MyMantra — Application Flows
 
-**Version:** 0.2
-**Date:** 2026-03-16
+**Version:** 0.3
+**Date:** 2026-03-17
 **Status:** Active
 
 ---
@@ -43,7 +43,7 @@ graph TD
     style SIGNIN fill:#8525cc,color:#fff
     style ONBOARD fill:#7010c8,color:#fff
     style LIBRARY fill:#0d9488,color:#fff
-    style CREATE fill:#EFEB1B,color:#000
+    style CREATE fill:#f0a500,color:#000
 ```
 
 #### Screen 1: Welcome
@@ -59,7 +59,9 @@ graph TD
 - Note at bottom: "You will always be able to change this selection later in Settings"
 
 #### Screen 1a: Sign in
-- Currently a stub, as sign-in is futuristic phase
+- Currently a stub, as sign-in is a future phase
+- Three stub buttons: Continue with Google, Continue with Apple, Sign in with Email
+- All buttons show a "Coming soon" message and proceed to the Expectations screen
 
 #### Screen 1b: What to Expect
 
@@ -90,7 +92,7 @@ Followed by a choice:
 #### Screen 3b: Create Mantra
 
 - Standard Create Mantra screen (see Flow 4)
-- User fills in their mantra and saves → lands on MyPractice
+- User fills in their mantra and saves → proceeds to Practice Plan → lands on MyPractice
 
 #### Language model
 
@@ -121,7 +123,7 @@ graph TD
 
     PRACTICE -->|Done button| COMPLETE[Session Complete]
     PRACTICE -->|Back button| SUSPEND[Session Suspended]
-    PRACTICE -->|Edit button| EDIT(Mantra Settings Screen)
+    PRACTICE -->|Edit button| PLAN(Practice Plan Screen)
 
     COMPLETE --> ACHIEVE{Achievements unlocked?}
     ACHIEVE -->|Yes| OVERLAY(Celebration Overlay)
@@ -130,11 +132,11 @@ graph TD
     AUTOCOMPLETE --> ACHIEVE
 
     SUSPEND --> MYPRACTICE_BACK([→ MyPractice])
-    EDIT -->|Save / Back| PRACTICE
+    PLAN -->|Save Changes / Back| PRACTICE
 
     style MYPRACTICE fill:#7c3aed,color:#fff
     style PRACTICE fill:#300B9D,color:#fff
-    style EDIT fill:#EFEB1B,color:#000
+    style PLAN fill:#EFEB1B,color:#000
     style OVERLAY fill:#f59e0b,color:#000
     style MYPRACTICE_END fill:#7c3aed,color:#fff
     style MYPRACTICE_BACK fill:#7c3aed,color:#fff
@@ -168,7 +170,7 @@ Practice mode is a **per-mantra setting**, configured when the mantra is added t
 - **Done** — session marked complete regardless of whether the target rep count was reached. Progress is saved, streaks updated, achievement checks run. Celebration overlay shown if new achievements are unlocked.
 - **Back** — session suspended at the current rep count. The session remains open and resumable. User returns to MyPractice.
 - **Auto-complete** — when reps reach the target, behaves the same as Done.
-- **Edit** — opens the Mantra Settings screen. Returns to Practice Screen when done editing.
+- **Edit** — opens the Practice Plan screen (edit mode). Returns to Practice Screen when done.
 
 #### Session model
 
@@ -176,13 +178,13 @@ Practice mode is a **per-mantra setting**, configured when the mantra is added t
 - Multiple mantras can have open sessions simultaneously — no inter-relations
 - Every session is either ongoing or complete — there is no discard
 
-#### Reaching Mantra Settings screen
+#### Reaching the Practice Plan screen
 
-The Mantra Settings screen is **not** part of the normal practice flow. It is reached only via:
+The Practice Plan screen is **not** part of the normal practice flow. It is reached only via:
 
-- **A.** Adding a mantra from the library (Flow 3)
-- **B.** Creating a new mantra (Flow 4)
-- **C.** Tapping "Edit" from within a practice session
+- **A.** Adding a mantra from the library (Flow 3) — Library card tap → Practice Plan (add-from-library mode)
+- **B.** Creating a new mantra (Flow 4) — Create Mantra form → Save → Practice Plan (post-create mode)
+- **C.** Tapping "Edit" from within a practice session — Practice Plan (edit mode)
 
 ---
 
@@ -196,27 +198,29 @@ graph TD
     ONBOARD([What to Expect Screen]) -->|"Start from library"| LIBRARY
 
     LIBRARY -->|Search / filter / browse| LIBRARY
-    LIBRARY -->|Tap mantra card| SETTINGS(Mantra Settings Screen)
+    LIBRARY -->|Tap mantra card| PLAN(Practice Plan Screen)
 
-    SETTINGS -->|Scroll, configure, tap Add| MYPRACTICE_END([→ MyPractice])
-    SETTINGS -->|Back| LIBRARY
+    PLAN -->|Configure settings, tap Add to MyPractice| MYPRACTICE_END([→ MyPractice])
+    PLAN -->|Back| LIBRARY
 
     style MYPRACTICE fill:#7c3aed,color:#fff
     style ONBOARD fill:#7010c8,color:#fff
     style LIBRARY fill:#0d9488,color:#fff
-    style SETTINGS fill:#EFEB1B,color:#000
+    style PLAN fill:#EFEB1B,color:#000
     style MYPRACTICE_END fill:#7c3aed,color:#fff
 ```
 
 #### Library Screen
 
 - Search bar: filter by title, short title, or tradition
-- Category chips (horizontal scroll): All, Popular, Yogic Philosophy, Buddhist, etc.
+- Category chips (horizontal scroll): e.g. All, Popular, Yogic Philosophy, Buddhist, etc.
 - Mantra cards showing: signature badge, short title, source, difficulty, primary text, translation, tags
 
-#### Mantra Settings Screen
+#### Practice Plan Screen
 
-Reached after tapping a mantra card in the Library. This is the **same screen** used when editing an existing mantra (via "Edit" in a practice session), with minor variations depending on context.
+Reached after tapping a mantra card in the Library. This is the **same screen** used when editing an existing mantra (via "Edit" in a practice session), with context-dependent variations.
+
+> **Note on screen terminology:** "Practice Plan" is a full screen in the library-add and post-create contexts, and also in the edit context (pushed over the Practice screen). The distinction between "screen" and "overlay" in this document is intentionally approximate — see individual screen YAMLs for precise layout type.
 
 **Read-only details** (from the library entry):
 - Original text (in original script)
@@ -260,17 +264,22 @@ User creates a custom mantra from scratch and adds it to their practice.
 
 ```mermaid
 graph TD
-    LIBRARY([Library Screen]) -->|FAB + top-right| SETTINGS(Mantra Settings Screen)
-    ONBOARD([What to Expect Screen]) -->|"Create your own"| SETTINGS
+    LIBRARY([Library Screen]) -->|FAB top-right| CREATE(Create Mantra Screen)
+    ONBOARD([What to Expect Screen]) -->|"Create your own"| CREATE
 
-    SETTINGS -->|Fill in details, configure, tap Add| MYPRACTICE([→ MyPractice])
-    SETTINGS -->|Back| LIBRARY_BACK([→ Library])
+    CREATE -->|Fill in mantra content, tap Save| PLAN(Practice Plan Screen)
+    CREATE -->|Discard| LIBRARY_BACK([→ Library])
+
+    PLAN -->|Configure settings, tap Add to MyPractice| MYPRACTICE([→ MyPractice])
+    PLAN -->|Back| LIBRARY_BACK2([→ Library])
 
     style LIBRARY fill:#0d9488,color:#fff
     style ONBOARD fill:#7010c8,color:#fff
-    style SETTINGS fill:#EFEB1B,color:#000
+    style CREATE fill:#f0a500,color:#000
+    style PLAN fill:#EFEB1B,color:#000
     style MYPRACTICE fill:#7c3aed,color:#fff
     style LIBRARY_BACK fill:#0d9488,color:#fff
+    style LIBRARY_BACK2 fill:#0d9488,color:#fff
 ```
 
 #### Entry points
@@ -280,9 +289,9 @@ graph TD
 
 Note: MyPractice has no FAB. All mantra addition (from library or custom) starts from the Library tab.
 
-#### Mantra Settings Screen (create mode)
+#### Create Mantra Screen (2b)
 
-Same screen as Flow 3 (adding from library) and Flow 5 (editing), but with all fields empty.
+This screen handles **content entry only**. The user fills in the mantra's textual fields, then taps Save to proceed to the Practice Plan screen to configure practice settings.
 
 **User-entered fields:**
 - Title (required)
@@ -291,17 +300,15 @@ Same screen as Flow 3 (adding from library) and Flow 5 (editing), but with all f
 - Translation (optional)
 - Tradition (optional)
 
-**Configurable settings** (same as Flow 3):
-- Target repetition count
-- Count mode: Session / Daily / Weekly
-- Practice mode: Tap to count / Listen (future) / AI listens (future)
-- Reminders (optional)
-
 **Actions:**
-- **"Add to MyPractice"** (bottom of screen) — saves the mantra and navigates to MyPractice
-- **Back** — returns to Library
+- **"Save"** — saves the mantra draft and navigates to the Practice Plan screen (post-create mode)
+- **"Discard"** — discards without saving and returns to Library
 
-#### Settings inheritance (create mode)
+#### Practice Plan Screen (post-create mode)
+
+Same screen as Flow 3 (adding from library), but the mantra fields are pre-filled from the just-created mantra (and there are no library recommendations to inherit).
+
+#### Settings inheritance (post-create mode)
 
 Since there is no library recommendation for a custom mantra, the inheritance chain is shorter:
 
@@ -428,17 +435,17 @@ Common, Uncommon, Rare, Super Rare, Epic, Heroic, Exotic, Mythic, Legendary, Div
 
 ### Flow 7: Editing a Mantra
 
-User modifies an existing mantra's details or settings from within a practice session.
+User modifies an existing mantra's settings from within a practice session.
 
 ```mermaid
 graph TD
-    PRACTICE([Practice Screen]) -->|Edit button - top right| SETTINGS(Mantra Settings Screen)
+    PRACTICE([Practice Screen]) -->|Edit button - top right| PLAN(Practice Plan Screen - edit mode)
 
-    SETTINGS -->|Modify fields, tap Save| PRACTICE_RETURN([→ Practice Screen])
-    SETTINGS -->|Back| PRACTICE_BACK([→ Practice Screen])
+    PLAN -->|Modify settings, tap Save Changes| PRACTICE_RETURN([→ Practice Screen])
+    PLAN -->|Back| PRACTICE_BACK([→ Practice Screen])
 
     style PRACTICE fill:#300B9D,color:#fff
-    style SETTINGS fill:#EFEB1B,color:#000
+    style PLAN fill:#EFEB1B,color:#000
     style PRACTICE_RETURN fill:#300B9D,color:#fff
     style PRACTICE_BACK fill:#300B9D,color:#fff
 ```
@@ -448,16 +455,9 @@ graph TD
 - **Practice Screen** — "Edit" button (top-right, small icon + text, muted color)
 - This is the only way to reach the edit flow. There is no edit option from MyPractice directly.
 
-#### Mantra Settings Screen (edit mode)
+#### Practice Plan Screen (edit mode)
 
-Same screen as Flow 3 (adding from library) and Flow 4 (creating), but with all fields pre-filled with the mantra's current values.
-
-**Editable fields:**
-- Title
-- Mantra text
-- Transliteration
-- Translation
-- Tradition
+Same screen as Flow 3 (adding from library) and Flow 4 (post-create), but with all settings pre-filled with the mantra's current values. Mantra textual fields (original text, transliteration, translation) are displayed read-only.
 
 **Configurable settings:**
 - Target repetition count
@@ -467,7 +467,7 @@ Same screen as Flow 3 (adding from library) and Flow 4 (creating), but with all 
 
 **Actions:**
 - **"Save Changes"** (bottom of screen) — saves modifications and returns to Practice Screen
-- **"Delete Mantra"** — red button at the bottom of the list, below Save Changes (see Flow 5b)
+- **"Delete Mantra"** — red button at the bottom of the list, below Save Changes (see Flow 8)
 - **Back** — returns to Practice Screen without saving
 
 #### Settings inheritance (edit mode)
@@ -486,34 +486,34 @@ User explicit selection  →  User global defaults  →  Mantra's library recomm
 
 ### Flow 8: Deleting a Mantra
 
-User removes a mantra from their practice. This action is only available from the Mantra Settings screen in edit mode.
+User removes a mantra from their practice. This action is only available from the Practice Plan screen in edit mode.
 
 ```mermaid
 graph TD
-    PRACTICE([Practice Screen]) -->|Edit button| SETTINGS(Mantra Settings Screen - edit mode)
-    SETTINGS -->|Scroll to bottom| DELETE["Delete Mantra (red)"]
+    PRACTICE([Practice Screen]) -->|Edit button| PLAN(Practice Plan Screen - edit mode)
+    PLAN -->|Scroll to bottom| DELETE["Delete Mantra (red)"]
     DELETE --> CONFIRM{Are you sure?}
     CONFIRM -->|Yes| MYPRACTICE([→ MyPractice])
-    CONFIRM -->|No| SETTINGS
+    CONFIRM -->|No| PLAN
 
     style PRACTICE fill:#300B9D,color:#fff
-    style SETTINGS fill:#EFEB1B,color:#000
+    style PLAN fill:#EFEB1B,color:#000
     style DELETE fill:#dc2626,color:#fff
     style MYPRACTICE fill:#7c3aed,color:#fff
 ```
 
 #### Entry point
 
-- **Mantra Settings screen (edit mode)** — "Delete Mantra" button at the very bottom of the screen, styled in red to signal destructive action
+- **Practice Plan screen (edit mode)** — "Delete Mantra" button at the very bottom of the screen, styled in red to signal destructive action
 
 #### Flow
 
-1. User is in the Mantra Settings screen (edit mode), reached via "Edit" on the Practice Screen
+1. User is in the Practice Plan screen (edit mode), reached via "Edit" on the Practice Screen
 2. Scrolls to the bottom of the settings list
 3. Taps "Delete Mantra" (red button)
 4. Confirmation dialog: "Are you sure? This will remove the mantra and all its session history from your practice."
 5. **Yes** — mantra is deleted along with all its sessions, reminders, and progress. User is returned to MyPractice.
-6. **No** — dialog dismissed, user stays on the Mantra Settings screen
+6. **No** — dialog dismissed, user stays on the Practice Plan screen
 
 #### Notes
 
@@ -532,7 +532,7 @@ App configuration. Reached via the gear icon on the top-right of the MyPractice 
 graph TD
     MYPRACTICE([MyPractice Screen]) -->|Gear icon - top right| SETTINGS(Settings Screen)
 
-    SETTINGS --> FEEDBACK([→ Flow 8: Feedback])
+    SETTINGS --> FEEDBACK([→ Flow 10: Feedback])
     SETTINGS -->|Back| MYPRACTICE_BACK([→ MyPractice])
 
     style MYPRACTICE fill:#7c3aed,color:#fff
@@ -569,7 +569,7 @@ graph TD
 - Haptic feedback: toggle
 - Limit tap rate: toggle ("Prevents double-counts, 1s minimum")
 
-These defaults feed the settings inheritance chain (see Flow 3). Shown as `(your default)` on the Mantra Settings screen when not explicitly overridden.
+These defaults feed the settings inheritance chain (see Flow 3). Shown as `(your default)` on the Practice Plan screen when not explicitly overridden.
 
 **Notifications**
 - Enable notifications: master toggle
@@ -580,7 +580,7 @@ These defaults feed the settings inheritance chain (see Flow 3). Shown as `(your
 - Philosophy quote: *"Abhyasa Vairagyabhyam Tan-Nirodhah"* — by practice and non-attachment the mind is still (Yoga Sutras 1.12)
 
 **Feedback** (bottom of screen)
-- Button → opens Flow 8 (User Feedback)
+- Button → opens Flow 10 (User Feedback)
 
 #### Behavior
 
@@ -642,7 +642,7 @@ graph TD
     WELCOME -->|Continue Offline| ONBOARD(What to Expect)
     SIGNIN --> ONBOARD
     ONBOARD -->|"From library"| LIBRARY
-    ONBOARD -->|"Create your own"| MANTRA_SETTINGS
+    ONBOARD -->|"Create your own"| CREATE_MANTRA
 
     %% Main 3-tab navigation
     MYPRACTICE(MyPractice Screen) <-->|Tab| LIBRARY(Library Screen)
@@ -657,19 +657,24 @@ graph TD
 
     %% Practice actions
     PRACTICE -->|Done / Auto-complete| MYPRACTICE
-    PRACTICE -->|Back| MYPRACTICE
-    PRACTICE -->|Edit| MANTRA_SETTINGS(Mantra Settings Screen)
+    PRACTICE -->|Back - suspend| MYPRACTICE
+    PRACTICE -->|Edit| PRACTICE_PLAN(Practice Plan Screen)
 
-    %% Mantra Settings actions
-    MANTRA_SETTINGS -->|"Add to MyPractice"| MYPRACTICE
-    MANTRA_SETTINGS -->|"Save Changes"| PRACTICE
-    MANTRA_SETTINGS -->|"Delete Mantra" + confirm| MYPRACTICE
-    MANTRA_SETTINGS -->|Back - from edit| PRACTICE
-    MANTRA_SETTINGS -->|Back - from library add| LIBRARY
+    %% Practice Plan actions (context-aware)
+    PRACTICE_PLAN -->|"Add to MyPractice" - add-from-library| MYPRACTICE
+    PRACTICE_PLAN -->|"Add to MyPractice" - post-create| MYPRACTICE
+    PRACTICE_PLAN -->|"Save Changes" - edit| PRACTICE
+    PRACTICE_PLAN -->|"Delete Mantra" + confirm| MYPRACTICE
+    PRACTICE_PLAN -->|Back - from edit| PRACTICE
+    PRACTICE_PLAN -->|Back - from library-add or post-create| LIBRARY
 
     %% Library actions
-    LIBRARY -->|Tap mantra card| MANTRA_SETTINGS
-    LIBRARY -->|FAB +| MANTRA_SETTINGS
+    LIBRARY -->|Tap mantra card| PRACTICE_PLAN
+    LIBRARY -->|FAB +| CREATE_MANTRA(Create Mantra Screen)
+
+    %% Create Mantra → Practice Plan
+    CREATE_MANTRA -->|Save| PRACTICE_PLAN
+    CREATE_MANTRA -->|Discard| LIBRARY
 
     %% Settings actions
     SETTINGS -->|Back| MYPRACTICE
@@ -686,7 +691,8 @@ graph TD
     style MYPRACTICE fill:#7c3aed,color:#fff
     style PRACTICE fill:#300B9D,color:#fff
     style LIBRARY fill:#0d9488,color:#fff
-    style MANTRA_SETTINGS fill:#EFEB1B,color:#000
+    style CREATE_MANTRA fill:#f0a500,color:#000
+    style PRACTICE_PLAN fill:#EFEB1B,color:#000
     style SETTINGS fill:#475569,color:#fff
     style PROGRESS fill:#059669,color:#fff
     style FEEDBACK fill:#e11d48,color:#fff
@@ -698,26 +704,28 @@ graph TD
 
 ### List of Screens
 
+> **Screen vs. overlay terminology:** Some entries below are full screens (own route, full-screen layout) while others are overlays (rendered on top of the current screen). The individual screen YAML files are the authoritative source for layout type. This table does not distinguish them precisely, by design.
+
 |id|screen-name    |function                    |navigation/action-buttons     |
 |--|---------------|----------------------------|------------------------------|
 |1 |Welcome        |philosophy intro             |sign-in / continue-offline    |
-|1a|Sign In        |third-party/email sign in   |sign-in                       |
+|1a|Sign In        |third-party/email sign in   |sign-in (stub)                |
 |1b|Expectations   |engage the user with app    |library / create              |
 |2 |Library        |browse and select mantras from the built-in collection |add-mantra / create /<br/>progress / MyPractice|
-|2b|Create Mantra  |define a personal mantra (text, transliteration, translation, history, benefits, tradition, tags) |[fields] / save / discard|
-|3 |Practice Plan  |configure how to practice a mantra (target reps, cycle, mode, reminders) |[settings] / save /<br/>cancel / delete|
+|2b|Create Mantra  |enter mantra content (text, transliteration, translation, tradition) |[fields] / save / discard|
+|3 |Practice Plan  |configure how to practice a mantra (target reps, cycle, mode, reminders); context-aware: add-from-library / post-create / edit |[settings] / save /<br/>cancel / delete|
 |3b|Delete Mantra  |confirm mantra deletion (overlay) |delete / cancel     |
 |4 |MyPractice     |list of mantras to practice |practice / library / progress / settings|
 |5 |Progress       |show metrics and badges     |library / MyPractice          |
 |6 |User Settings  |set user settings           |save / discard                |
 |6b|User Feedback  |user sends feedback         |send / cancel                 |
-|7 |Practice       |the main practice screen    |click / edit / done / back    |
-|7b|Celebration    |celebrate achievement unlock|                              |
+|7 |Practice       |the main practice screen    |tap-circle / edit / done / back|
+|7b|Celebration    |celebrate achievement unlock|tap-anywhere / auto-dismiss   |
 
-YAML files are used to describe the UI emlements of every screen
+YAML files are used to describe the UI elements of every screen.
 The idea is to document the expected type, shape, location etc. of most UI,
-so we get Product, Software and test - all aligned on what to expect and excecute.
-**Note** This is not a full capture of any detail of the widget apearance
+so we get Product, Software and test - all aligned on what to expect and execute.
+**Note** This is not a full capture of any detail of the widget appearance
          nor to define the exact behavior of each widget.
 
 ### 2.1 Welcome
@@ -737,11 +745,11 @@ Browse the built-in mantra collection. Search, filter by category, tap a card to
 → [screens/library.yaml](screens/library.yaml)
 
 ### 2.2b Create Mantra
-Free-form entry of a personal mantra: original text, transliteration, translation, history, benefits, tradition, tags.
+Content entry for a personal mantra: original text, transliteration, translation, tradition. On Save, proceeds to the Practice Plan screen (post-create mode) to configure settings.
 → [screens/create_mantra.yaml](screens/create_mantra.yaml)
 
 ### 2.3 Practice Plan
-Configure how to practice a mantra: target reps, cycle, mode, reminders. Shared screen for library-add, post-create, and edit contexts.
+Configure how to practice a mantra: target reps, cycle, mode, reminders. Context-aware: used for library-add, post-create, and edit scenarios. Includes the Delete Mantra action (edit context only).
 → [screens/practice_plan.yaml](screens/practice_plan.yaml)
 
 ### 2.3b Delete Mantra
@@ -769,7 +777,7 @@ The immersive practice screen. Large tap circle, counter, Done/Back/Edit. No tim
 → [screens/practice.yaml](screens/practice.yaml)
 
 ### 2.7b Celebration
-Achievement unlock overlay. Shown after session completion when new achievements are earned.
+Achievement unlock overlay. Shown after session completion when new achievements are earned. Tap-anywhere or auto-dismisses after a few seconds.
 → [screens/celebration.yaml](screens/celebration.yaml)
 
 
@@ -779,3 +787,4 @@ Achievement unlock overlay. Shown after session completion when new achievements
 |---------|------|---------|
 | 0.1 | 2025-11 | Initial draft — auth, plans, voice playback flows |
 | 0.2 | 2026-03-16 | Complete rewrite — 9 flows defined from product discussions |
+| 0.3 | 2026-03-17 | Clarify two-screen flow: Create Mantra (2b) → Practice Plan (3); rename "Mantra Settings Screen" throughout to "Practice Plan Screen" / "Create Mantra Screen"; add "e.g." to library category list; add screen-vs-overlay terminology note; update screen navigation map; fix Flow 9 Feedback reference (Flow 10, not 8) |
