@@ -54,7 +54,6 @@ def check_ollama(models: list[str]) -> bool:
 
     ok = True
     for model in models:
-        # ollama list lines look like: "qwen2.5:14b   abc123   1.2 GB   ..."
         if model in available:
             _log.info("  [OK]      ollama: %s", model)
         else:
@@ -63,19 +62,57 @@ def check_ollama(models: list[str]) -> bool:
     return ok
 
 
+def check_claude(models: list[str]) -> bool:
+    import shutil
+    claude_bin = shutil.which("claude")
+    if not claude_bin:
+        _log.warning("  [MISSING] claude CLI — not found in PATH")
+        return False
+
+    # Get available model names from CLI
+    try:
+        result = subprocess.run(
+            [claude_bin, "--list-models"], capture_output=True, text=True, check=True
+        )
+        available = result.stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        available = ""
+
+    ok = True
+    for model in models:
+        short = model.split("/", 1)[1]
+        if available and short in available:
+            _log.info("  [OK]      claude: %s", short)
+        elif available:
+            _log.warning("  [MISSING] claude: %s — not in claude --list-models", short)
+            ok = False
+        else:
+            _log.info("  [?]       claude: %s (could not verify)", short)
+    return ok
+
+
 def main() -> None:
     c = cfg()
     packages = c.get("python", {}).get("packages", [])
     models = all_models()
+    claude_models = [m for m in models if m.startswith("claude/")]
+    ollama_models = [m for m in models if not m.startswith("claude/")]
 
     _log.info("── Python packages ──────────────────────────────────")
     pip_ok = check_pip(packages)
 
-    _log.info("── Ollama models ────────────────────────────────────")
-    ollama_ok = check_ollama(models)
+    ollama_ok = True
+    if ollama_models:
+        _log.info("── Ollama models ────────────────────────────────────")
+        ollama_ok = check_ollama(ollama_models)
+
+    claude_ok = True
+    if claude_models:
+        _log.info("── Claude CLI models ────────────────────────────────")
+        claude_ok = check_claude(claude_models)
 
     _log.info("─────────────────────────────────────────────────────")
-    if pip_ok and ollama_ok:
+    if pip_ok and ollama_ok and claude_ok:
         _log.info("All prerequisites satisfied.")
     else:
         _log.warning("Some prerequisites are missing (see above).")
