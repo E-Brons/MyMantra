@@ -364,7 +364,7 @@ enrich_mantras:
         Grounding: <in up to 200 charachters reason your answer>
 
     background:
-      llm_students: [claude/sonnet, claude/haiku]
+      llm_students: [claude/sonnet]
       task: >
         Provide a {min_answer_len} to {max_answer_len} charachters about
         the origin, tradition, and literal meaning - of the mantra.
@@ -375,7 +375,7 @@ enrich_mantras:
       max_answer_len: 200
 
     benefits:
-      llm_students: [claude/sonnet, claude/haiku]
+      llm_students: [claude/sonnet]
       task: >
         Provide a {min_answer_len} to {max_answer_len} charachters about
         the spiritual or psychological traits and benefits are associated
@@ -386,7 +386,7 @@ enrich_mantras:
       max_answer_len: 300
 
     tags:
-      llm_students: [gemma3:4b, phi3:3.8b, claude/haiku]
+      llm_students: [gemma3:4b, claude/haiku]
       task: >
         Provide at {min_tags} to {max_tags} lowercase tags for this mantra, separated by commas.
         Tags should be specific: tradition name, deity/figure, practice type, effect.
@@ -399,7 +399,7 @@ enrich_mantras:
       max_tags: 12
 
     tradition:
-      llm_students: [gemma3:4b, phi3:3.8b, claude/haiku]
+      llm_students: [gemma3:4b, claude/haiku]
       task: >
         Identify which ONE tradition this mantra belongs to.
         Return exactly one of: Hindu, Buddhist, Islamic, Christian, Sikh, Jain,
@@ -408,7 +408,7 @@ enrich_mantras:
       llm_temperature: 0
 
     difficulty:
-      llm_students: [gemma3:4b, phi3:3.8b, claude/haiku]
+      llm_students: [gemma3:4b, claude/haiku]
       task: >
         Rate the difficulty of practicing this mantra.
         Consider linguistic complexity, pronunciation, and traditional practice depth.
@@ -417,7 +417,7 @@ enrich_mantras:
       llm_temperature: 0
 
     targetRepetitions:
-      llm_students: [gemma3:4b, phi3:3.8b, claude/haiku]
+      llm_students: [gemma3:4b, claude/haiku]
       task: >
         How many times should this mantra traditionally be repeated in one session?
         Return exactly one number from: 1, 3, 7, 21, 54, 108.

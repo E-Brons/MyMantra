@@ -105,7 +105,7 @@ _SEP = "#" * 79
 
 
 class PipelineStatus:
-    """Multi-bar tqdm dashboard: one bar per assignment + a workers summary bar."""
+    """Per-model tqdm dashboard: one bar per (field, role, model)."""
 
     _ABBREV = {
         "background": "bg",
@@ -117,72 +117,70 @@ class PipelineStatus:
     }
 
     def __init__(self):
-        self._bars: dict[str, tqdm] = {}
-        self._worker_bar: Optional[tqdm] = None
-        self._active: dict[str, int] = {"claude": 0, "ollama": 0}
-        self._concurrency: dict[str, int] = {
-            "claude": _CLOUD_CONCURRENCY,
-            "ollama": _OLLAMA_CONCURRENCY,
-        }
-        self._total_done = 0
-        self._total_all = 0
+        # keyed by (field, "student", model) or (field, "grade", grader_model)
+        self._bars: dict[tuple, tqdm] = {}
 
-    def set_totals(self, totals: dict[str, int]):
-        self._total_all = sum(totals.values())
-        # Worker summary bar (position 0 = bottom)
-        self._worker_bar = tqdm(
-            total=self._total_all,
-            desc="  Total",
-            unit="call",
-            position=0,
-            leave=True,
-        )
-        # One bar per assignment (stacked above)
-        for i, (name, total) in enumerate(totals.items(), start=1):
-            short = self._ABBREV.get(name, name[:6])
-            bar = tqdm(
-                total=total,
-                desc=f"    {short:>6}",
-                unit="call",
-                position=i,
-                leave=True,
-                bar_format="{desc} {bar} {n_fmt}/{total_fmt}",
-            )
-            self._bars[name] = bar
-        self._refresh_workers()
+    def set_totals(
+        self,
+        assignments: dict[str, dict],
+        n_mantras: int,
+        students_fn,
+        grader_model: str,
+    ):
+        """Create bars for every (field, role, model) combination."""
+        pos = 0
+        for field_name in assignments:
+            abbrev = self._ABBREV.get(field_name, field_name[:6])
+            models = students_fn(field_name)
+            # Student bars
+            for model in models:
+                short = _model_short(model)
+                key = (field_name, "student", model)
+                self._bars[key] = tqdm(
+                    total=n_mantras,
+                    desc=f"{abbrev} - student: {short}",
+                    unit="call",
+                    position=pos,
+                    leave=True,
+                    bar_format="{desc:>25} {bar} {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+                )
+                pos += 1
+            # Grading bar (only for multi-student assignments)
+            if len(models) > 1:
+                short = _model_short(grader_model)
+                gkey = (field_name, "grade", grader_model)
+                self._bars[gkey] = tqdm(
+                    total=n_mantras * len(models),
+                    desc=f"{abbrev} - grading: {short}",
+                    unit="call",
+                    position=pos,
+                    leave=True,
+                    bar_format="{desc:>25} {bar} {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+                )
+                pos += 1
 
-    def complete(self, assignment: str):
-        bar = self._bars.get(assignment)
+    def complete_student(self, field: str, model: str):
+        bar = self._bars.get((field, "student", model))
         if bar:
             bar.update(1)
-        self._total_done += 1
-        if self._worker_bar:
-            self._worker_bar.update(1)
+
+    def complete_grade(self, field: str):
+        """Advance the grading bar for this field (any grader model)."""
+        for key, bar in self._bars.items():
+            if key[0] == field and key[1] == "grade":
+                bar.update(1)
+                return
 
     def worker_start(self, model: str):
-        key = "claude" if is_claude_model(model) else "ollama"
-        self._active[key] += 1
-        self._refresh_workers()
+        pass  # activity visible via bar progress
 
     def worker_end(self, model: str):
-        key = "claude" if is_claude_model(model) else "ollama"
-        self._active[key] = max(0, self._active[key] - 1)
-        self._refresh_workers()
-
-    def _refresh_workers(self):
-        if not self._worker_bar:
-            return
-        parts = []
-        for key in ("claude", "ollama"):
-            if self._concurrency[key] > 0:
-                parts.append(f"{key}:{self._active[key]}/{self._concurrency[key]}")
-        self._worker_bar.set_postfix_str(" ".join(parts))
+        pass
 
     def close(self):
         for bar in self._bars.values():
             bar.close()
-        if self._worker_bar:
-            self._worker_bar.close()
+        self._bars.clear()
 
 
 def _banner(title: str, body_lines: list) -> None:
@@ -646,13 +644,7 @@ async def run_students(
 
     # ── Compute per-assignment totals for dashboard ───────────────────────────
 
-    totals: dict[str, int] = {}
-    for field_name in ASSIGNMENTS:
-        models = students_for(field_name)
-        n_student = len(mantras) * len(models)
-        n_grader = len(mantras) * len(models) if len(models) > 1 else 0
-        totals[field_name] = n_student + n_grader
-    status.set_totals(totals)
+    status.set_totals(ASSIGNMENTS, len(mantras), students_for, MODEL_GRADER)
 
     # ── Enqueue student tasks ────────────────────────────────────────────────
 
@@ -667,11 +659,15 @@ async def run_students(
                         continue
                     key = (phrase, field_name, model)
                     if key in answers:
-                        # Already done — but may still need grading
+                        # Already done — count student completion
                         entry = answers[key]
+                        status.complete_student(field_name, model)
                         if "score" not in entry:
+                            # Needs grading — enqueue it
                             _maybe_enqueue_grading(phrase, field_name, model)
-                        status.complete(field_name)
+                        elif len(students_for(field_name)) > 1:
+                            # Grading already done — count that too
+                            status.complete_grade(field_name)
                         continue
                     task_item = ("student", model, mantra, field_name, field_cfg)
                     q.put_nowait(task_item)
@@ -772,7 +768,7 @@ async def run_students(
 
                 answers[key] = {"answer": answer, "speed_s": round(speed, 2)}
                 save_fn()
-                status.complete(field_name)
+                status.complete_student(field_name, model)
                 _maybe_enqueue_grading(phrase, field_name, model)
                 await _adjust(-1)
 
@@ -813,7 +809,7 @@ async def run_students(
                     finally:
                         status.worker_end(MODEL_GRADER)
                 save_fn()
-                status.complete(field_name)
+                status.complete_grade(field_name)
                 await _adjust(-1)
 
     # ── Warmup models, enqueue work, launch workers ──────────────────────────
