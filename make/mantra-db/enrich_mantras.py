@@ -1015,25 +1015,24 @@ def pick_winners(
     answers: dict[_AnswerKey, dict],
 ) -> dict[str, dict]:
     """Pick best-scoring model per (mantra, field). Build results dict."""
-    total_weight = sum(GRADE_WEIGHTS.values())
     results: dict[str, dict] = {}
 
     for mantra in mantras:
         phrase = mantra["phrase"]
         entry: dict = {
             "name": phrase,
-            "original": phrase,
+            "english": phrase,
+            "original": (mantra.get("original_phrases") or [""])[0],
+            "transliteration": mantra.get("transliteration", ""),
+            "translations": mantra.get("translations", {}),
             "sources": list(mantra.get("sources", [])),
         }
-        model_scores: dict[str, dict] = {
-            m: {"fields": {}, "total_speed_s": 0.0, "weighted_score": 0.0}
-            for m in STUDENT_MODELS
-        }
+        field_scores: dict[str, dict] = {}
 
         for field_name in ASSIGNMENTS:
-            weight = GRADE_WEIGHTS.get(field_name, 0)
-            best_answer, best_score, best_model = "", -1, ""
+            best_answer, best_score = "", -1
             models = students_for(field_name)
+            students: dict[str, dict] = {}
 
             for model in models:
                 key = (phrase, field_name, model)
@@ -1042,23 +1041,19 @@ def pick_winners(
                 score = a.get("score", 0)
                 speed = a.get("speed_s", 0.0)
 
-                model_scores[model]["fields"][field_name] = {
-                    "answer": answer,
+                students[_model_short(model)] = {
                     "score": score,
-                    "speed_s": speed,
+                    "speed_s": round(speed, 2),
                 }
-                model_scores[model]["total_speed_s"] += speed
-                model_scores[model]["weighted_score"] += score * weight / total_weight
 
                 if score > best_score:
                     best_score = score
                     best_answer = answer
-                    best_model = model
 
             entry[field_name] = best_answer
-            entry.setdefault("_best_models", {})[field_name] = best_model
+            field_scores[field_name] = students
 
-        entry["_scores"] = model_scores
+        entry["student_llm_scores"] = field_scores
         results[phrase] = entry
 
     return results
