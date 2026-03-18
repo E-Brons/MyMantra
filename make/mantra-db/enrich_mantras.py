@@ -27,17 +27,15 @@ import time
 from pathlib import Path
 from typing import Optional
 
-import litellm
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent))
 from settings import root_path, cfg, ollama
 from log import get_logger, Timer
 from web_cache import fetch_text, url_hash, CACHE_DIR
+from llm_router import acompletion, is_claude_model, OllamaOverloadError
 
 _log = get_logger("enrich_mantras")
-
-litellm.set_verbose = False
 
 _ROOT = Path(__file__).parent.parent.parent
 _ecfg = cfg()["enrich_mantras"]
@@ -96,6 +94,8 @@ GRADE_WEIGHTS: dict[str, int] = _grader_cfg["weights"]
 
 HTTP_TIMEOUT = int(_ecfg.get("http_timeout", 10))
 _LLM_TIMEOUT = int(_ecfg.get("llm_timeout", 600))
+_CLOUD_CONCURRENCY = int(_ecfg.get("cloud_concurrency", 5))
+_OLLAMA_CONCURRENCY = int(_ecfg.get("ollama_concurrency", 1))
 
 _SEP = "#" * 79
 
@@ -116,10 +116,13 @@ def _model_short(model: str) -> str:
 
 async def _warmup(model: str) -> None:
     """Send a trivial request to ensure the model is loaded in Ollama VRAM."""
+    if is_claude_model(model):
+        _log.info("  %s (Claude) — no warmup needed.", _model_short(model))
+        return
     short = _model_short(model)
     _log.info("  Warming up %s ...", short)
     try:
-        await litellm.acompletion(
+        await acompletion(
             model=model,
             messages=[{"role": "user", "content": "hi"}],
             max_tokens=1,
@@ -318,7 +321,7 @@ async def _filter_chunk(phrase: str, chunk: str) -> bool:
     num_ctx = estimate_num_ctx(FILTER_SYSTEM, user)
 
     async def _call():
-        response = await litellm.acompletion(
+        response = await acompletion(
             model=FILTER_MODEL,
             messages=[
                 {"role": "system", "content": FILTER_SYSTEM},
@@ -344,34 +347,43 @@ async def filter_all_contexts(
     mantras: list[dict], sources: dict[str, dict],
 ) -> dict[str, str]:
     """Run context filter for every mantra. Returns {phrase: filtered_text}."""
-    # Pre-compute all chunks so tqdm tracks per-chunk progress
-    mantra_chunks: list[tuple[str, list[str]]] = []  # (phrase, chunks)
-    total_chunks = 0
+    concurrency = _CLOUD_CONCURRENCY if is_claude_model(FILTER_MODEL) else _OLLAMA_CONCURRENCY
+    sem = asyncio.Semaphore(concurrency)
+
+    # Pre-compute all (phrase, chunk) pairs for flat parallel dispatch
+    work: list[tuple[str, str]] = []  # (phrase, chunk)
     for mantra in mantras:
         phrase = mantra["phrase"]
         source_texts = sources.get(phrase, {}).get("source_texts", [])
-        chunks: list[str] = []
         for text in source_texts:
-            chunks.extend(_chunk_text(text))
-        mantra_chunks.append((phrase, chunks))
-        total_chunks += len(chunks)
+            for chunk in _chunk_text(text):
+                work.append((phrase, chunk))
 
-    contexts: dict[str, str] = {}
-    kept_chunks = 0
+    total_chunks = len(work)
+    results: list[tuple[str, str, bool]] = []  # (phrase, chunk, kept)
+
+    async def _filter_one(phrase: str, chunk: str):
+        async with sem:
+            pbar.set_postfix_str(f"'{phrase[:30]}' ({len(chunk)} chars)")
+            kept = await _filter_chunk(phrase, chunk)
+            results.append((phrase, chunk, kept))
+            pbar.update(1)
 
     with tqdm(total=total_chunks, desc="  Context filter", unit="chunk") as pbar:
-        for phrase, chunks in mantra_chunks:
-            kept: list[str] = []
-            for chunk in chunks:
-                pbar.set_postfix_str(f"'{phrase[:30]}' ({len(chunk)} chars)")
-                if await _filter_chunk(phrase, chunk):
-                    kept.append(chunk)
-                pbar.update(1)
+        await asyncio.gather(*[_filter_one(p, c) for p, c in work])
 
-            contexts[phrase] = "\n\n".join(kept)
-            kept_chunks += len(kept)
-            _log.debug("filter '%s': %d/%d chunks kept",
-                       phrase[:30], len(kept), len(chunks))
+    # Reassemble per-mantra contexts (preserve chunk order from `work`)
+    from collections import defaultdict
+    kept_per_phrase: dict[str, list[str]] = defaultdict(list)
+    for phrase, chunk, kept in results:
+        if kept:
+            kept_per_phrase[phrase].append(chunk)
+
+    contexts: dict[str, str] = {}
+    kept_chunks = sum(len(v) for v in kept_per_phrase.values())
+    for mantra in mantras:
+        phrase = mantra["phrase"]
+        contexts[phrase] = "\n\n".join(kept_per_phrase.get(phrase, []))
 
     _log.info("  Chunks: %d total, %d kept (%.0f%% filtered out).",
               total_chunks, kept_chunks,
@@ -406,7 +418,7 @@ async def call_student(
                _model_short(model), phrase[:30], len(context), num_ctx)
 
     async def _call():
-        response = await litellm.acompletion(
+        response = await acompletion(
             model=model,
             messages=[
                 {"role": "system", "content": STUDENT_SYSTEM},
@@ -432,45 +444,208 @@ async def run_students(
     pbar: tqdm,
     save_fn,
 ) -> None:
-    """Step 1: all student calls, batched by model to avoid Ollama swapping."""
-    for model in STUDENT_MODELS:
-        short = _model_short(model)
-        await _warmup(model)
-        for mantra in mantras:
-            phrase = mantra["phrase"]
-            existing_match = sources.get(phrase, {}).get("existing_match")
-            filtered_context = contexts.get(phrase, "")
+    """Steps 1+2 as a queue-based pipeline.
 
-            for field_name, field_cfg in ASSIGNMENTS.items():
-                # Skip assignments this model is not assigned to
-                if model not in students_for(field_name):
-                    continue
+    Two queues (local GPU, cloud API) with independent worker pools.
+    Student completions immediately enqueue grading tasks into the
+    appropriate queue for the grader model.
+    """
+    local_q: asyncio.Queue = asyncio.Queue()
+    cloud_q: asyncio.Queue = asyncio.Queue()
 
+    def _queue_for(model: str) -> asyncio.Queue:
+        return cloud_q if is_claude_model(model) else local_q
+
+    grader_q = _queue_for(MODEL_GRADER)
+    cloud_grader = is_claude_model(MODEL_GRADER)
+
+    # Track inflight work so workers know when to stop
+    pending = 0
+    pending_lock = asyncio.Lock()
+    all_done = asyncio.Event()
+
+    async def _adjust(delta: int):
+        nonlocal pending
+        async with pending_lock:
+            pending += delta
+            if pending == 0:
+                all_done.set()
+
+    # ── Enqueue student tasks ────────────────────────────────────────────────
+
+    def _enqueue_students():
+        nonlocal pending
+        for model in STUDENT_MODELS:
+            q = _queue_for(model)
+            for mantra in mantras:
+                phrase = mantra["phrase"]
+                for field_name, field_cfg in ASSIGNMENTS.items():
+                    if model not in students_for(field_name):
+                        continue
+                    key = (phrase, field_name, model)
+                    if key in answers:
+                        # Already done — but may still need grading
+                        entry = answers[key]
+                        if "score" not in entry:
+                            _maybe_enqueue_grading(phrase, field_name, model)
+                        pbar.update(1)
+                        continue
+                    task_item = ("student", model, mantra, field_name, field_cfg)
+                    q.put_nowait(task_item)
+                    pending += 1
+
+    # ── Grading enqueue logic ────────────────────────────────────────────────
+
+    def _maybe_enqueue_grading(phrase: str, field_name: str, model: str):
+        """Enqueue grading for this specific student answer, if needed."""
+        nonlocal pending
+        models = students_for(field_name)
+
+        # Single student — auto-score, no grader call
+        if len(models) <= 1:
+            key = (phrase, field_name, model)
+            entry = answers.get(key)
+            if entry and "score" not in entry:
+                entry["score"] = 100 if entry["answer"] else 0
+                entry["reason"] = "single student — auto-accepted"
+                save_fn()
+            return
+
+        # Multi-student: enqueue grading for this answer
+        key = (phrase, field_name, model)
+        entry = answers.get(key)
+        if not entry or "score" in entry:
+            return
+        field_cfg = ASSIGNMENTS[field_name]
+        task = _expand_task(field_cfg)
+        filtered_context = contexts.get(phrase, "")
+        grade_item = ("grade", phrase, filtered_context, task, model, key, entry)
+        grader_q.put_nowait(grade_item)
+        pending += 1
+
+    # ── Worker coroutine ─────────────────────────────────────────────────────
+
+    async def _worker(q: asyncio.Queue, sem: asyncio.Semaphore):
+        while True:
+            try:
+                item = q.get_nowait()
+            except asyncio.QueueEmpty:
+                if all_done.is_set():
+                    return
+                await asyncio.sleep(0.05)
+                continue
+
+            if item[0] == "student":
+                _, model, mantra, field_name, field_cfg = item
+                phrase = mantra["phrase"]
                 key = (phrase, field_name, model)
-                if key in answers:
-                    pbar.update(1)
-                    continue
-
+                existing_match = sources.get(phrase, {}).get("existing_match")
+                filtered_context = contexts.get(phrase, "")
                 task = _expand_task(field_cfg)
                 temperature = float(field_cfg.get("llm_temperature", 0))
+                short = _model_short(model)
 
-                pbar.set_postfix_str(f"'{phrase[:20]}' {field_name} ({short})")
-
-                t0 = time.perf_counter()
-                try:
-                    answer = await call_student(
-                        model, phrase, filtered_context, existing_match,
-                        task, temperature,
-                    )
-                except Exception as exc:
-                    _log.warning("student %s failed '%s' %s: %s",
-                                 short, phrase[:40], field_name, exc)
-                    answer = ""
-                speed = time.perf_counter() - t0
+                async with sem:
+                    pbar.set_postfix_str(f"'{phrase[:20]}' {field_name} ({short})")
+                    t0 = time.perf_counter()
+                    try:
+                        answer = await call_student(
+                            model, phrase, filtered_context, existing_match,
+                            task, temperature,
+                        )
+                    except OllamaOverloadError as exc:
+                        _log.warning("OLLAMA OVERLOADED %s '%s' %s: %s",
+                                     short, phrase[:40], field_name, exc)
+                        answer = ""
+                    except Exception as exc:
+                        _log.warning("student %s failed '%s' %s: %s",
+                                     short, phrase[:40], field_name, exc)
+                        answer = ""
+                    speed = time.perf_counter() - t0
 
                 answers[key] = {"answer": answer, "speed_s": round(speed, 2)}
                 save_fn()
                 pbar.update(1)
+                _maybe_enqueue_grading(phrase, field_name, model)
+                await _adjust(-1)
+
+            elif item[0] == "grade":
+                _, phrase, filtered_context, task, model, key, entry = item
+                short = _model_short(model)
+
+                if not entry["answer"]:
+                    entry["score"] = 0
+                    entry["reason"] = "empty answer"
+                else:
+                    try:
+                        async with sem:
+                            pbar.set_postfix_str(f"grade '{phrase[:20]}' {key[1]} ({short})")
+                            score, reason = await grade_answer(
+                                phrase, filtered_context, task, entry["answer"],
+                            )
+                            entry["score"] = score
+                            entry["reason"] = reason
+                    except OllamaOverloadError as exc:
+                        _log.warning("OLLAMA OVERLOADED grading '%s' %s: %s",
+                                     phrase[:40], key[1], exc)
+                        entry["score"] = 0
+                        entry["reason"] = f"grading failed: {exc}"
+                    except Exception as exc:
+                        _log.warning("grading failed '%s' %s: %s",
+                                     phrase[:40], key[1], exc)
+                        entry["score"] = 0
+                        entry["reason"] = f"grading failed: {exc}"
+                save_fn()
+                pbar.update(1)
+                await _adjust(-1)
+
+    # ── Warmup models, enqueue work, launch workers ──────────────────────────
+
+    # Warmup Ollama models (Claude needs no warmup)
+    for model in STUDENT_MODELS:
+        if not is_claude_model(model):
+            await _warmup(model)
+    if not cloud_grader and not is_claude_model(MODEL_GRADER):
+        await _warmup(MODEL_GRADER)
+
+    _enqueue_students()
+
+    if pending == 0:
+        all_done.set()
+        return
+
+    _log.info("  Pipeline: %d tasks queued (local_q=%d, cloud_q=%d, concurrency: ollama=%d, cloud=%d)",
+              pending, local_q.qsize(), cloud_q.qsize(),
+              _OLLAMA_CONCURRENCY, _CLOUD_CONCURRENCY)
+
+    ollama_sem = asyncio.Semaphore(_OLLAMA_CONCURRENCY)
+    cloud_sem = asyncio.Semaphore(_CLOUD_CONCURRENCY)
+
+    workers = []
+    if not local_q.empty() or not cloud_grader:
+        for _ in range(_OLLAMA_CONCURRENCY):
+            workers.append(asyncio.create_task(_worker(local_q, ollama_sem)))
+    if not cloud_q.empty() or cloud_grader:
+        for _ in range(_CLOUD_CONCURRENCY):
+            workers.append(asyncio.create_task(_worker(cloud_q, cloud_sem)))
+
+    await all_done.wait()
+    # Give workers a moment to drain
+    await asyncio.sleep(0.1)
+    for w in workers:
+        w.cancel()
+
+
+# kept for backward compatibility with main() signature
+async def run_grader(
+    mantras: list[dict],
+    contexts: dict[str, str],
+    answers: dict[_AnswerKey, dict],
+    pbar: tqdm,
+    save_fn,
+) -> None:
+    """No-op: grading is now handled inside run_students pipeline."""
+    pass
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -493,7 +668,7 @@ async def grade_answer(
                phrase[:30], len(user_message), num_ctx)
 
     async def _call():
-        response = await litellm.acompletion(
+        response = await acompletion(
             model=MODEL_GRADER,
             messages=[
                 {"role": "system", "content": GRADER_SYSTEM},
@@ -524,15 +699,17 @@ async def run_grader(
     pbar: tqdm,
     save_fn,
 ) -> None:
-    """Step 2: grade student answers. Skip assignments with only one student."""
+    """Step 2: grade student answers. Skip assignments with only one student.
+
+    Cloud grader runs concurrently; local grader runs sequentially.
+    """
+    cloud_grader = is_claude_model(MODEL_GRADER)
+
+    # Auto-score single-student assignments first (no LLM call needed)
     for mantra in mantras:
         phrase = mantra["phrase"]
-        filtered_context = contexts.get(phrase, "")
-
         for field_name, field_cfg in ASSIGNMENTS.items():
             models = students_for(field_name)
-
-            # Single student — no grading needed, auto-score 100
             if len(models) <= 1:
                 for model in models:
                     key = (phrase, field_name, model)
@@ -542,8 +719,16 @@ async def run_grader(
                         entry["reason"] = "single student — auto-accepted"
                         save_fn()
                     pbar.update(1)
-                continue
 
+    # Collect grading work (multi-student assignments only)
+    grade_items = []
+    for mantra in mantras:
+        phrase = mantra["phrase"]
+        filtered_context = contexts.get(phrase, "")
+        for field_name, field_cfg in ASSIGNMENTS.items():
+            models = students_for(field_name)
+            if len(models) <= 1:
+                continue
             task = _expand_task(field_cfg)
             for model in models:
                 key = (phrase, field_name, model)
@@ -551,22 +736,48 @@ async def run_grader(
                 if not entry or "score" in entry:
                     pbar.update(1)
                     continue
+                grade_items.append((phrase, filtered_context, task, model, key, entry))
 
-                short = _model_short(model)
-                pbar.set_postfix_str(f"grade '{phrase[:20]}' {field_name} ({short})")
+    if not grade_items:
+        return
 
-                if not entry["answer"]:
-                    entry["score"] = 0
-                    entry["reason"] = "empty answer"
-                else:
+    if cloud_grader:
+        sem = asyncio.Semaphore(_CLOUD_CONCURRENCY)
+
+        async def _grade_task(phrase, filtered_context, task, model, key, entry):
+            short = _model_short(model)
+            if not entry["answer"]:
+                entry["score"] = 0
+                entry["reason"] = "empty answer"
+            else:
+                async with sem:
+                    pbar.set_postfix_str(f"grade '{phrase[:20]}' {key[1]} ({short})")
                     score, reason = await grade_answer(
                         phrase, filtered_context, task, entry["answer"],
                     )
                     entry["score"] = score
                     entry["reason"] = reason
+            save_fn()
+            pbar.update(1)
 
-                save_fn()
-                pbar.update(1)
+        _log.info("  Cloud grader: %d calls, concurrency=%d",
+                  len(grade_items), _CLOUD_CONCURRENCY)
+        await asyncio.gather(*[_grade_task(*item) for item in grade_items])
+    else:
+        for phrase, filtered_context, task, model, key, entry in grade_items:
+            short = _model_short(model)
+            pbar.set_postfix_str(f"grade '{phrase[:20]}' {key[1]} ({short})")
+            if not entry["answer"]:
+                entry["score"] = 0
+                entry["reason"] = "empty answer"
+            else:
+                score, reason = await grade_answer(
+                    phrase, filtered_context, task, entry["answer"],
+                )
+                entry["score"] = score
+                entry["reason"] = reason
+            save_fn()
+            pbar.update(1)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -840,21 +1051,13 @@ async def main() -> None:
         serialisable = {"|".join(k): v for k, v in answers.items()}
         answers_cache.write_text(json.dumps(serialisable, indent=2, ensure_ascii=False))
 
-    # ── Step 1: Students ─────────────────────────────────────────────────────
-    _log.info("Step 1 -- Students (%d calls, batched by model)", total_student)
+    # ── Steps 1+2: Students + Grading (queue-based pipeline) ────────────────
+    total_work = total_student + total_grader
+    _log.info("Steps 1+2 -- Students + Grading (%d student + %d grader calls)",
+              total_student, total_grader)
     t = Timer().start()
-    with tqdm(total=total_student, desc="  Students", unit="call") as pbar:
+    with tqdm(total=total_work, desc="  Pipeline", unit="call") as pbar:
         await run_students(mantras, sources, contexts, answers, pbar, _save_answers)
-    t.stop()
-    _log.info("  Done.  (%.1f s)\n", t.elapsed)
-
-    # ── Step 2: Grader ───────────────────────────────────────────────────────
-    _log.info("Step 2 -- Grading (%d calls, model: %s)",
-              total_grader, _model_short(MODEL_GRADER))
-    await _warmup(MODEL_GRADER)
-    t = Timer().start()
-    with tqdm(total=total_grader, desc="  Grading", unit="call") as pbar:
-        await run_grader(mantras, contexts, answers, pbar, _save_answers)
     t.stop()
     _log.info("  Done.  (%.1f s)\n", t.elapsed)
 
