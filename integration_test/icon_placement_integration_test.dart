@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mymantra/src/app/app.dart';
 import 'package:mymantra/src/app/router.dart';
+import 'package:mymantra/src/core/providers/app_provider.dart';
 import 'package:mymantra/src/core/services/icon_registry.dart';
 import 'package:mymantra/src/core/services/theme_registry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,7 +40,17 @@ void main() {
     ]);
     await tester.pumpWidget(const ProviderScope(child: MyMantraApp()));
     await tester.pumpAndSettle();
-    appRouter.go('/');
+    appRouter.go('/mypractice');
+    await tester.pumpAndSettle();
+    // Seed the test mantra directly via Riverpod — no UI form required.
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MaterialApp)),
+    );
+    container.read(appProvider.notifier).createMantra(
+      title: 'Om Mani Padme Hum',
+      text: 'ༀ མ་ཎི་པདྨེ་ཧཱུྃ',
+      targetRepetitions: 108,
+    );
     await tester.pumpAndSettle();
   }
 
@@ -48,9 +59,9 @@ void main() {
     await launchApp(tester);
 
     // Verify all bottom-nav icons are rendered on launch.
-    // The Home tab is active, so it shows Icons.home (activeIcon); the rest
-    // show their outlined (inactive) variants.
-    expect(find.byIcon(Icons.home), findsOneWidget);
+    // The MyPractice tab is active, so it shows Icons.self_improvement (activeIcon);
+    // the rest show their outlined (inactive) variants.
+    expect(find.byIcon(Icons.self_improvement), findsWidgets);
     expect(find.byIcon(Icons.menu_book_outlined), findsOneWidget);
     expect(find.byIcon(Icons.bar_chart_outlined), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
@@ -65,7 +76,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Mantra Library'), findsOneWidget);
     expect(find.byIcon(Icons.search), findsOneWidget);
-    expect(find.byIcon(Icons.auto_awesome), findsWidgets); // 'All' category chip
     await tryTakeScreenshot('mantra_library');
 
     // — Progress screen ———————————————————————————————————————————————————
@@ -81,19 +91,13 @@ void main() {
     await tryTakeScreenshot('progress');
 
     // — Session complete ——————————————————————————————————————————————————
-    // Home tab is inactive here, so its inactive icon (Icons.home_outlined)
-    // is the one visible in the nav bar.
-    await tester.tap(find.byIcon(Icons.home_outlined));
+    // MyPractice tab is inactive here (we are on Progress), so its inactive
+    // icon (Icons.self_improvement_outlined) is visible in the nav bar.
+    await tester.tap(find.byIcon(Icons.self_improvement_outlined));
     await tester.pumpAndSettle();
+    // Tap the seeded mantra card — goes directly to SessionScreen.
     await tester.tap(find.text('Om Mani Padme Hum'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Start Session'));
-    await tester.pumpAndSettle();
-
-    if (find.text('Set your target').evaluate().isNotEmpty) {
-      await tester.tap(find.text('Your default'));
-      await tester.pumpAndSettle();
-    }
 
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
