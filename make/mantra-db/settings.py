@@ -102,10 +102,10 @@ def all_models() -> list[str]:
     def _scan(obj) -> None:
         if isinstance(obj, dict):
             for key, val in obj.items():
-                if key in ("llm_engine", "llm_grader", "llm_combine", "llm_filter"):
+                if key in ("llm_engine", "llm_grader", "llm_combine"):
                     if isinstance(val, str):
                         _add(val)
-                elif key in ("llm_engines", "llm_students"):
+                elif key in ("llm_engines", "llm_students", "llm_filter"):
                     if isinstance(val, list):
                         for m in val:
                             if isinstance(m, str):

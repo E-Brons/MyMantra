@@ -46,7 +46,10 @@ OUTPUT = root_path("enrich_mantras", "output")
 
 # ── Config: context filter (step 0) ──────────────────────────────────────────
 _filter_cfg = _ecfg["context_filter"]
-FILTER_MODEL = ollama(_filter_cfg["llm_filter"])
+_raw_filter = _filter_cfg["llm_filter"]
+FILTER_MODELS: list[str] = [
+    ollama(m) for m in (_raw_filter if isinstance(_raw_filter, list) else [_raw_filter])
+]
 FILTER_SYSTEM = _filter_cfg["system"].strip()
 FILTER_TIMEOUT = int(_filter_cfg.get("llm_timeout", 30))
 FILTER_TEMPERATURE = float(_filter_cfg.get("llm_temperature", 0))
@@ -58,7 +61,8 @@ _assign_cfg = _ecfg["assignments"]
 STUDENT_SYSTEM = _assign_cfg["system"].strip()
 _NON_ASSIGNMENT_KEYS = {"llm_students", "system"}
 ASSIGNMENTS: dict[str, dict] = {
-    k: v for k, v in _assign_cfg.items()
+    k: v
+    for k, v in _assign_cfg.items()
     if k not in _NON_ASSIGNMENT_KEYS and isinstance(v, dict)
 }
 
@@ -98,6 +102,87 @@ _CLOUD_CONCURRENCY = int(_ecfg.get("cloud_concurrency", 5))
 _OLLAMA_CONCURRENCY = int(_ecfg.get("ollama_concurrency", 1))
 
 _SEP = "#" * 79
+
+
+class PipelineStatus:
+    """Multi-bar tqdm dashboard: one bar per assignment + a workers summary bar."""
+
+    _ABBREV = {
+        "background": "bg",
+        "benefits": "benefits",
+        "tags": "tags",
+        "tradition": "tradition",
+        "difficulty": "diff",
+        "targetRepetitions": "reps",
+    }
+
+    def __init__(self):
+        self._bars: dict[str, tqdm] = {}
+        self._worker_bar: Optional[tqdm] = None
+        self._active: dict[str, int] = {"claude": 0, "ollama": 0}
+        self._concurrency: dict[str, int] = {
+            "claude": _CLOUD_CONCURRENCY,
+            "ollama": _OLLAMA_CONCURRENCY,
+        }
+        self._total_done = 0
+        self._total_all = 0
+
+    def set_totals(self, totals: dict[str, int]):
+        self._total_all = sum(totals.values())
+        # Worker summary bar (position 0 = bottom)
+        self._worker_bar = tqdm(
+            total=self._total_all,
+            desc="  Total",
+            unit="call",
+            position=0,
+            leave=True,
+        )
+        # One bar per assignment (stacked above)
+        for i, (name, total) in enumerate(totals.items(), start=1):
+            short = self._ABBREV.get(name, name[:6])
+            bar = tqdm(
+                total=total,
+                desc=f"    {short:>6}",
+                unit="call",
+                position=i,
+                leave=True,
+                bar_format="{desc} {bar} {n_fmt}/{total_fmt}",
+            )
+            self._bars[name] = bar
+        self._refresh_workers()
+
+    def complete(self, assignment: str):
+        bar = self._bars.get(assignment)
+        if bar:
+            bar.update(1)
+        self._total_done += 1
+        if self._worker_bar:
+            self._worker_bar.update(1)
+
+    def worker_start(self, model: str):
+        key = "claude" if is_claude_model(model) else "ollama"
+        self._active[key] += 1
+        self._refresh_workers()
+
+    def worker_end(self, model: str):
+        key = "claude" if is_claude_model(model) else "ollama"
+        self._active[key] = max(0, self._active[key] - 1)
+        self._refresh_workers()
+
+    def _refresh_workers(self):
+        if not self._worker_bar:
+            return
+        parts = []
+        for key in ("claude", "ollama"):
+            if self._concurrency[key] > 0:
+                parts.append(f"{key}:{self._active[key]}/{self._concurrency[key]}")
+        self._worker_bar.set_postfix_str(" ".join(parts))
+
+    def close(self):
+        for bar in self._bars.values():
+            bar.close()
+        if self._worker_bar:
+            self._worker_bar.close()
 
 
 def _banner(title: str, body_lines: list) -> None:
@@ -144,8 +229,7 @@ async def _llm_call_with_retry(call_fn, label: str):
             return await call_fn()
         except Exception as e:
             if attempt < MAX_RETRIES:
-                _log.warning("  retry %d/%d for %s: %s",
-                             attempt, MAX_RETRIES, label, e)
+                _log.warning("  retry %d/%d for %s: %s", attempt, MAX_RETRIES, label, e)
                 await asyncio.sleep(RETRY_PAUSE)
             else:
                 raise
@@ -209,10 +293,14 @@ def _parse_answer(raw: str) -> str:
     """Extract the Answer portion from 'Answer: ... Grounding: ...' format."""
     answer_match = re.search(r"(?i)^answer:\s*", raw, re.MULTILINE)
     grounding_match = re.search(r"(?i)^grounding:\s*", raw, re.MULTILINE)
-    if answer_match and grounding_match and grounding_match.start() > answer_match.start():
-        return raw[answer_match.end():grounding_match.start()].strip()
+    if (
+        answer_match
+        and grounding_match
+        and grounding_match.start() > answer_match.start()
+    ):
+        return raw[answer_match.end() : grounding_match.start()].strip()
     if answer_match:
-        return raw[answer_match.end():].strip()
+        return raw[answer_match.end() :].strip()
     return raw.strip()
 
 
@@ -222,7 +310,8 @@ def _parse_answer(raw: str) -> str:
 
 
 def fetch_all_sources(
-    mantras: list[dict], existing_idx: dict[str, dict],
+    mantras: list[dict],
+    existing_idx: dict[str, dict],
 ) -> dict[str, dict]:
     """Fetch + extract text for every source URL per mantra.
 
@@ -235,8 +324,12 @@ def fetch_all_sources(
     all_urls = sorted(url_set)
 
     uncached = [u for u in all_urls if not (CACHE_DIR / f"{url_hash(u)}.txt").exists()]
-    _log.info("  %d unique source URLs, %d cached, %d to extract.",
-              len(all_urls), len(all_urls) - len(uncached), len(uncached))
+    _log.info(
+        "  %d unique source URLs, %d cached, %d to extract.",
+        len(all_urls),
+        len(all_urls) - len(uncached),
+        len(uncached),
+    )
 
     if uncached:
         with tqdm(uncached, desc="  Extracting text", unit="url") as pbar:
@@ -248,7 +341,8 @@ def fetch_all_sources(
     for mantra in mantras:
         phrase = mantra["phrase"]
         source_texts = [
-            text for src in mantra.get("sources", [])
+            text
+            for src in mantra.get("sources", [])
             if (text := fetch_text(src["url"]))
         ]
         result[phrase] = {
@@ -315,14 +409,14 @@ def _chunk_text(text: str) -> list[str]:
     return chunks
 
 
-async def _filter_chunk(phrase: str, chunk: str) -> bool:
-    """Ask the filter model if a chunk is relevant to the mantra phrase."""
+async def _filter_chunk(model: str, phrase: str, chunk: str) -> bool:
+    """Ask a filter model if a chunk is relevant to the mantra phrase."""
     user = f"<mantra phrase>{phrase}</mantra phrase>\n\n<text>{chunk}</text>"
     num_ctx = estimate_num_ctx(FILTER_SYSTEM, user)
 
     async def _call():
         response = await acompletion(
-            model=FILTER_MODEL,
+            model=model,
             messages=[
                 {"role": "system", "content": FILTER_SYSTEM},
                 {"role": "user", "content": user},
@@ -336,22 +430,29 @@ async def _filter_chunk(phrase: str, chunk: str) -> bool:
         return raw.lower().startswith("true")
 
     try:
-        return await _llm_call_with_retry(_call, f"filter '{phrase[:30]}' ({len(chunk)} chars)")
+        return await _llm_call_with_retry(
+            _call, f"filter '{phrase[:30]}' ({len(chunk)} chars)"
+        )
     except Exception as e:
         _log.warning("filter failed for chunk (%d chars): %s", len(chunk), e)
-        return False  # discard on failure — keeping it would cascade timeouts downstream
-
+        return (
+            False  # discard on failure — keeping it would cascade timeouts downstream
+        )
 
 
 async def filter_all_contexts(
-    mantras: list[dict], sources: dict[str, dict],
+    mantras: list[dict],
+    sources: dict[str, dict],
 ) -> dict[str, str]:
-    """Run context filter for every mantra. Returns {phrase: filtered_text}."""
-    concurrency = _CLOUD_CONCURRENCY if is_claude_model(FILTER_MODEL) else _OLLAMA_CONCURRENCY
-    sem = asyncio.Semaphore(concurrency)
+    """Run context filter for every mantra using all filter models.
 
-    # Pre-compute all (phrase, chunk) pairs for flat parallel dispatch
-    work: list[tuple[str, str]] = []  # (phrase, chunk)
+    Chunks are round-robin distributed across filter models, dispatched
+    to the appropriate queue (local/cloud) with independent concurrency.
+    """
+    from collections import defaultdict
+
+    # Pre-compute all (phrase, chunk) pairs
+    work: list[tuple[str, str]] = []
     for mantra in mantras:
         phrase = mantra["phrase"]
         source_texts = sources.get(phrase, {}).get("source_texts", [])
@@ -360,20 +461,71 @@ async def filter_all_contexts(
                 work.append((phrase, chunk))
 
     total_chunks = len(work)
-    results: list[tuple[str, str, bool]] = []  # (phrase, chunk, kept)
+    results: list[tuple[str, str, bool]] = []
+    results_lock = asyncio.Lock()
 
-    async def _filter_one(phrase: str, chunk: str):
-        async with sem:
-            pbar.set_postfix_str(f"'{phrase[:30]}' ({len(chunk)} chars)")
-            kept = await _filter_chunk(phrase, chunk)
-            results.append((phrase, chunk, kept))
+    local_q: asyncio.Queue = asyncio.Queue()
+    cloud_q: asyncio.Queue = asyncio.Queue()
+
+    # Round-robin assign chunks to filter models, enqueue to proper queue
+    for i, (phrase, chunk) in enumerate(work):
+        model = FILTER_MODELS[i % len(FILTER_MODELS)]
+        q = cloud_q if is_claude_model(model) else local_q
+        q.put_nowait((model, phrase, chunk))
+
+    pending = total_chunks
+    all_done = asyncio.Event()
+    pending_lock = asyncio.Lock()
+
+    async def _worker(q: asyncio.Queue, sem: asyncio.Semaphore):
+        nonlocal pending
+        while True:
+            try:
+                model, phrase, chunk = q.get_nowait()
+            except asyncio.QueueEmpty:
+                if all_done.is_set():
+                    return
+                await asyncio.sleep(0.05)
+                continue
+
+            async with sem:
+                kept = await _filter_chunk(model, phrase, chunk)
+
+            async with results_lock:
+                results.append((phrase, chunk, kept))
             pbar.update(1)
 
+            async with pending_lock:
+                pending -= 1
+                if pending == 0:
+                    all_done.set()
+
+    ollama_sem = asyncio.Semaphore(_OLLAMA_CONCURRENCY)
+    cloud_sem = asyncio.Semaphore(_CLOUD_CONCURRENCY)
+
+    filter_names = ", ".join(_model_short(m) for m in FILTER_MODELS)
     with tqdm(total=total_chunks, desc="  Context filter", unit="chunk") as pbar:
-        await asyncio.gather(*[_filter_one(p, c) for p, c in work])
+        workers = []
+        if not local_q.empty():
+            for _ in range(_OLLAMA_CONCURRENCY):
+                workers.append(asyncio.create_task(_worker(local_q, ollama_sem)))
+        if not cloud_q.empty():
+            for _ in range(_CLOUD_CONCURRENCY):
+                workers.append(asyncio.create_task(_worker(cloud_q, cloud_sem)))
+
+        if workers:
+            _log.info(
+                "  Filter models: [%s]  (local_q=%d, cloud_q=%d)",
+                filter_names,
+                local_q.qsize(),
+                cloud_q.qsize(),
+            )
+            await all_done.wait()
+            await asyncio.sleep(0.1)
+            for w in workers:
+                w.cancel()
 
     # Reassemble per-mantra contexts (preserve chunk order from `work`)
-    from collections import defaultdict
     kept_per_phrase: dict[str, list[str]] = defaultdict(list)
     for phrase, chunk, kept in results:
         if kept:
@@ -385,9 +537,12 @@ async def filter_all_contexts(
         phrase = mantra["phrase"]
         contexts[phrase] = "\n\n".join(kept_per_phrase.get(phrase, []))
 
-    _log.info("  Chunks: %d total, %d kept (%.0f%% filtered out).",
-              total_chunks, kept_chunks,
-              100 * (1 - kept_chunks / total_chunks) if total_chunks else 0)
+    _log.info(
+        "  Chunks: %d total, %d kept (%.0f%% filtered out).",
+        total_chunks,
+        kept_chunks,
+        100 * (1 - kept_chunks / total_chunks) if total_chunks else 0,
+    )
     return contexts
 
 
@@ -399,14 +554,19 @@ _AnswerKey = tuple[str, str, str]  # (phrase, field_name, model)
 
 
 async def call_student(
-    model: str, phrase: str, filtered_context: str,
-    existing_match: Optional[dict], task: str,
+    model: str,
+    phrase: str,
+    filtered_context: str,
+    existing_match: Optional[dict],
+    task: str,
     temperature: float,
 ) -> str:
     """Call a student model with pre-filtered context. Returns answer only."""
     header = f"<mantra phrase>{phrase}</mantra phrase>"
     if existing_match:
-        header += f"\n\nExisting entry:\n{json.dumps(existing_match, ensure_ascii=False)}"
+        header += (
+            f"\n\nExisting entry:\n{json.dumps(existing_match, ensure_ascii=False)}"
+        )
 
     context = f"{header}\n\n{filtered_context}" if filtered_context else header
     user_message = (
@@ -414,8 +574,13 @@ async def call_student(
         f"<assignment>\n{task}\n</assignment>"
     )
     num_ctx = estimate_num_ctx(STUDENT_SYSTEM, user_message)
-    _log.debug("student  model=%s  phrase='%s'  ctx=%d chars  num_ctx=%d",
-               _model_short(model), phrase[:30], len(context), num_ctx)
+    _log.debug(
+        "student  model=%s  phrase='%s'  ctx=%d chars  num_ctx=%d",
+        _model_short(model),
+        phrase[:30],
+        len(context),
+        num_ctx,
+    )
 
     async def _call():
         response = await acompletion(
@@ -429,19 +594,24 @@ async def call_student(
             extra_body={"options": {"num_ctx": num_ctx}},
         )
         raw = (response.choices[0].message.content or "").strip()
-        _log.debug("student response  model=%s  len=%d:\n%s",
-                   _model_short(model), len(raw), raw[:500])
+        _log.debug(
+            "student response  model=%s  len=%d:\n%s",
+            _model_short(model),
+            len(raw),
+            raw[:500],
+        )
         return _parse_answer(raw)
 
     return await _llm_call_with_retry(
-        _call, f"student {_model_short(model)} '{phrase[:30]}'")
+        _call, f"student {_model_short(model)} '{phrase[:30]}'"
+    )
+
 
 async def run_students(
     mantras: list[dict],
     sources: dict[str, dict],
     contexts: dict[str, str],
     answers: dict[_AnswerKey, dict],
-    pbar: tqdm,
     save_fn,
 ) -> None:
     """Steps 1+2 as a queue-based pipeline.
@@ -459,6 +629,9 @@ async def run_students(
     grader_q = _queue_for(MODEL_GRADER)
     cloud_grader = is_claude_model(MODEL_GRADER)
 
+    # Status dashboard
+    status = PipelineStatus()
+
     # Track inflight work so workers know when to stop
     pending = 0
     pending_lock = asyncio.Lock()
@@ -470,6 +643,16 @@ async def run_students(
             pending += delta
             if pending == 0:
                 all_done.set()
+
+    # ── Compute per-assignment totals for dashboard ───────────────────────────
+
+    totals: dict[str, int] = {}
+    for field_name in ASSIGNMENTS:
+        models = students_for(field_name)
+        n_student = len(mantras) * len(models)
+        n_grader = len(mantras) * len(models) if len(models) > 1 else 0
+        totals[field_name] = n_student + n_grader
+    status.set_totals(totals)
 
     # ── Enqueue student tasks ────────────────────────────────────────────────
 
@@ -488,7 +671,7 @@ async def run_students(
                         entry = answers[key]
                         if "score" not in entry:
                             _maybe_enqueue_grading(phrase, field_name, model)
-                        pbar.update(1)
+                        status.complete(field_name)
                         continue
                     task_item = ("student", model, mantra, field_name, field_cfg)
                     q.put_nowait(task_item)
@@ -519,7 +702,16 @@ async def run_students(
         field_cfg = ASSIGNMENTS[field_name]
         task = _expand_task(field_cfg)
         filtered_context = contexts.get(phrase, "")
-        grade_item = ("grade", phrase, filtered_context, task, model, key, entry)
+        grade_item = (
+            "grade",
+            phrase,
+            filtered_context,
+            task,
+            model,
+            key,
+            entry,
+            field_name,
+        )
         grader_q.put_nowait(grade_item)
         pending += 1
 
@@ -545,58 +737,83 @@ async def run_students(
                 temperature = float(field_cfg.get("llm_temperature", 0))
                 short = _model_short(model)
 
+                status.worker_start(model)
                 async with sem:
-                    pbar.set_postfix_str(f"'{phrase[:20]}' {field_name} ({short})")
                     t0 = time.perf_counter()
                     try:
                         answer = await call_student(
-                            model, phrase, filtered_context, existing_match,
-                            task, temperature,
+                            model,
+                            phrase,
+                            filtered_context,
+                            existing_match,
+                            task,
+                            temperature,
                         )
                     except OllamaOverloadError as exc:
-                        _log.warning("OLLAMA OVERLOADED %s '%s' %s: %s",
-                                     short, phrase[:40], field_name, exc)
+                        _log.warning(
+                            "OLLAMA OVERLOADED %s '%s' %s: %s",
+                            short,
+                            phrase[:40],
+                            field_name,
+                            exc,
+                        )
                         answer = ""
                     except Exception as exc:
-                        _log.warning("student %s failed '%s' %s: %s",
-                                     short, phrase[:40], field_name, exc)
+                        _log.warning(
+                            "student %s failed '%s' %s: %s",
+                            short,
+                            phrase[:40],
+                            field_name,
+                            exc,
+                        )
                         answer = ""
                     speed = time.perf_counter() - t0
+                status.worker_end(model)
 
                 answers[key] = {"answer": answer, "speed_s": round(speed, 2)}
                 save_fn()
-                pbar.update(1)
+                status.complete(field_name)
                 _maybe_enqueue_grading(phrase, field_name, model)
                 await _adjust(-1)
 
             elif item[0] == "grade":
-                _, phrase, filtered_context, task, model, key, entry = item
+                _, phrase, filtered_context, task, model, key, entry, field_name = item
                 short = _model_short(model)
 
                 if not entry["answer"]:
                     entry["score"] = 0
                     entry["reason"] = "empty answer"
                 else:
+                    status.worker_start(MODEL_GRADER)
                     try:
                         async with sem:
-                            pbar.set_postfix_str(f"grade '{phrase[:20]}' {key[1]} ({short})")
                             score, reason = await grade_answer(
-                                phrase, filtered_context, task, entry["answer"],
+                                phrase,
+                                filtered_context,
+                                task,
+                                entry["answer"],
                             )
                             entry["score"] = score
                             entry["reason"] = reason
                     except OllamaOverloadError as exc:
-                        _log.warning("OLLAMA OVERLOADED grading '%s' %s: %s",
-                                     phrase[:40], key[1], exc)
+                        _log.warning(
+                            "OLLAMA OVERLOADED grading '%s' %s: %s",
+                            phrase[:40],
+                            key[1],
+                            exc,
+                        )
                         entry["score"] = 0
                         entry["reason"] = f"grading failed: {exc}"
                     except Exception as exc:
-                        _log.warning("grading failed '%s' %s: %s",
-                                     phrase[:40], key[1], exc)
+                        _log.warning(
+                            "grading failed '%s' %s: %s", phrase[:40], key[1], exc
+                        )
                         entry["score"] = 0
                         entry["reason"] = f"grading failed: {exc}"
+                    finally:
+                        status.worker_end(MODEL_GRADER)
                 save_fn()
-                pbar.update(1)
+                status.complete(field_name)
                 await _adjust(-1)
 
     # ── Warmup models, enqueue work, launch workers ──────────────────────────
@@ -612,11 +829,17 @@ async def run_students(
 
     if pending == 0:
         all_done.set()
+        status.close()
         return
 
-    _log.info("  Pipeline: %d tasks queued (local_q=%d, cloud_q=%d, concurrency: ollama=%d, cloud=%d)",
-              pending, local_q.qsize(), cloud_q.qsize(),
-              _OLLAMA_CONCURRENCY, _CLOUD_CONCURRENCY)
+    _log.info(
+        "  Pipeline: %d tasks queued (local_q=%d, cloud_q=%d, concurrency: ollama=%d, cloud=%d)",
+        pending,
+        local_q.qsize(),
+        cloud_q.qsize(),
+        _OLLAMA_CONCURRENCY,
+        _CLOUD_CONCURRENCY,
+    )
 
     ollama_sem = asyncio.Semaphore(_OLLAMA_CONCURRENCY)
     cloud_sem = asyncio.Semaphore(_CLOUD_CONCURRENCY)
@@ -634,18 +857,7 @@ async def run_students(
     await asyncio.sleep(0.1)
     for w in workers:
         w.cancel()
-
-
-# kept for backward compatibility with main() signature
-async def run_grader(
-    mantras: list[dict],
-    contexts: dict[str, str],
-    answers: dict[_AnswerKey, dict],
-    pbar: tqdm,
-    save_fn,
-) -> None:
-    """No-op: grading is now handled inside run_students pipeline."""
-    pass
+    status.close()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -654,7 +866,10 @@ async def run_grader(
 
 
 async def grade_answer(
-    phrase: str, filtered_context: str, task: str, answer: str,
+    phrase: str,
+    filtered_context: str,
+    task: str,
+    answer: str,
 ) -> tuple[int, str]:
     """Grade a student answer. Returns (score 0-100, grounding)."""
     user_message = (
@@ -664,8 +879,12 @@ async def grade_answer(
         f"<student answer>\n{answer}\n</student answer>"
     )
     num_ctx = estimate_num_ctx(GRADER_SYSTEM, user_message)
-    _log.debug("grader  phrase='%s'  prompt=%d chars  num_ctx=%d",
-               phrase[:30], len(user_message), num_ctx)
+    _log.debug(
+        "grader  phrase='%s'  prompt=%d chars  num_ctx=%d",
+        phrase[:30],
+        len(user_message),
+        num_ctx,
+    )
 
     async def _call():
         response = await acompletion(
@@ -753,15 +972,21 @@ async def run_grader(
                 async with sem:
                     pbar.set_postfix_str(f"grade '{phrase[:20]}' {key[1]} ({short})")
                     score, reason = await grade_answer(
-                        phrase, filtered_context, task, entry["answer"],
+                        phrase,
+                        filtered_context,
+                        task,
+                        entry["answer"],
                     )
                     entry["score"] = score
                     entry["reason"] = reason
             save_fn()
             pbar.update(1)
 
-        _log.info("  Cloud grader: %d calls, concurrency=%d",
-                  len(grade_items), _CLOUD_CONCURRENCY)
+        _log.info(
+            "  Cloud grader: %d calls, concurrency=%d",
+            len(grade_items),
+            _CLOUD_CONCURRENCY,
+        )
         await asyncio.gather(*[_grade_task(*item) for item in grade_items])
     else:
         for phrase, filtered_context, task, model, key, entry in grade_items:
@@ -772,7 +997,10 @@ async def run_grader(
                 entry["reason"] = "empty answer"
             else:
                 score, reason = await grade_answer(
-                    phrase, filtered_context, task, entry["answer"],
+                    phrase,
+                    filtered_context,
+                    task,
+                    entry["answer"],
                 )
                 entry["score"] = score
                 entry["reason"] = reason
@@ -819,7 +1047,9 @@ def pick_winners(
                 speed = a.get("speed_s", 0.0)
 
                 model_scores[model]["fields"][field_name] = {
-                    "answer": answer, "score": score, "speed_s": speed,
+                    "answer": answer,
+                    "score": score,
+                    "speed_s": speed,
                 }
                 model_scores[model]["total_speed_s"] += speed
                 model_scores[model]["weighted_score"] += score * weight / total_weight
@@ -918,6 +1148,7 @@ def plot_scores(answers: dict[_AnswerKey, dict]) -> None:
     """Scatter plot: one subplot per assignment, one series per student model."""
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
     except ImportError:
@@ -931,7 +1162,9 @@ def plot_scores(answers: dict[_AnswerKey, dict]) -> None:
 
     ncols = min(3, n_assign)
     nrows = (n_assign + ncols - 1) // ncols
-    fig, axes = plt.subplots(nrows, ncols, figsize=(7 * ncols, 5 * nrows), squeeze=False)
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(7 * ncols, 5 * nrows), squeeze=False
+    )
 
     for idx, field_name in enumerate(assignment_names):
         ax = axes[idx // ncols][idx % ncols]
@@ -950,10 +1183,15 @@ def plot_scores(answers: dict[_AnswerKey, dict]) -> None:
                     ys.append(entry.get("score", 0))
             if xs:
                 ax.scatter(
-                    xs, ys, label=short,
+                    xs,
+                    ys,
+                    label=short,
                     color=_PALETTE[i % len(_PALETTE)],
                     marker=_MARKERS[i % len(_MARKERS)],
-                    alpha=0.7, s=50, edgecolors="white", linewidths=0.5,
+                    alpha=0.7,
+                    s=50,
+                    edgecolors="white",
+                    linewidths=0.5,
                 )
         ax.legend(fontsize=9)
 
@@ -981,12 +1219,11 @@ async def main() -> None:
     total = len(mantras)
 
     assignment_names = list(ASSIGNMENTS.keys())
-    total_student = sum(
-        total * len(students_for(fn)) for fn in assignment_names
-    )
+    total_student = sum(total * len(students_for(fn)) for fn in assignment_names)
     total_grader = sum(
         total * len(students_for(fn))
-        for fn in assignment_names if len(students_for(fn)) > 1
+        for fn in assignment_names
+        if len(students_for(fn)) > 1
     )
 
     student_summary = ", ".join(
@@ -1000,7 +1237,7 @@ async def main() -> None:
         [
             f"###   Input:           {DEDUPED}  ({total} phrases)",
             f"###   Output:          {OUTPUT}",
-            f"###   Filter model:    {_model_short(FILTER_MODEL)}  (timeout {FILTER_TIMEOUT}s)",
+            f"###   Filter models:   {', '.join(_model_short(m) for m in FILTER_MODELS)}  (timeout {FILTER_TIMEOUT}s)",
             f"###   Students:        {student_summary}",
             f"###   Grader model:    {grader_info}",
             f"###   Assignments:     {', '.join(assignment_names)}",
@@ -1017,27 +1254,39 @@ async def main() -> None:
     sources = fetch_all_sources(mantras, existing_idx)
     t.stop()
     fetched = sum(1 for s in sources.values() if s.get("source_texts"))
-    _log.info("  %d/%d mantras have source texts.  (%.1f s)\n",
-              fetched, total, t.elapsed)
+    _log.info(
+        "  %d/%d mantras have source texts.  (%.1f s)\n", fetched, total, t.elapsed
+    )
 
     # ── Step 0: Context filter ───────────────────────────────────────────────
     contexts_cache = OUTPUT.parent / "enrich_contexts.json"
     if contexts_cache.exists():
         contexts = json.loads(contexts_cache.read_text())
         ctx_chars = sum(len(c) for c in contexts.values())
-        _log.info("Step 0 -- Context filter (cached: %d contexts, %d chars)\n",
-                  len(contexts), ctx_chars)
+        _log.info(
+            "Step 0 -- Context filter (cached: %d contexts, %d chars)\n",
+            len(contexts),
+            ctx_chars,
+        )
     else:
-        _log.info("Step 0 -- Context filter (%s, %d mantras)",
-                  _model_short(FILTER_MODEL), total)
-        await _warmup(FILTER_MODEL)
+        _log.info(
+            "Step 0 -- Context filter (%s, %d mantras)",
+            ", ".join(_model_short(m) for m in FILTER_MODELS),
+            total,
+        )
+        for fm in FILTER_MODELS:
+            await _warmup(fm)
         t = Timer().start()
         contexts = await filter_all_contexts(mantras, sources)
         t.stop()
         contexts_cache.write_text(json.dumps(contexts, ensure_ascii=False))
         ctx_chars = sum(len(c) for c in contexts.values())
-        _log.info("  Done: %d filtered contexts (%d chars total).  (%.1f s)\n",
-                  len(contexts), ctx_chars, t.elapsed)
+        _log.info(
+            "  Done: %d filtered contexts (%d chars total).  (%.1f s)\n",
+            len(contexts),
+            ctx_chars,
+            t.elapsed,
+        )
 
     # ── Load answer cache for resume ─────────────────────────────────────────
     answers_cache = OUTPUT.parent / "enrich_answers.json"
@@ -1052,12 +1301,13 @@ async def main() -> None:
         answers_cache.write_text(json.dumps(serialisable, indent=2, ensure_ascii=False))
 
     # ── Steps 1+2: Students + Grading (queue-based pipeline) ────────────────
-    total_work = total_student + total_grader
-    _log.info("Steps 1+2 -- Students + Grading (%d student + %d grader calls)",
-              total_student, total_grader)
+    _log.info(
+        "Steps 1+2 -- Students + Grading (%d student + %d grader calls)",
+        total_student,
+        total_grader,
+    )
     t = Timer().start()
-    with tqdm(total=total_work, desc="  Pipeline", unit="call") as pbar:
-        await run_students(mantras, sources, contexts, answers, pbar, _save_answers)
+    await run_students(mantras, sources, contexts, answers, _save_answers)
     t.stop()
     _log.info("  Done.  (%.1f s)\n", t.elapsed)
 
