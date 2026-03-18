@@ -12,6 +12,11 @@ void main() {
       await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(
+        find.text('Default cycle'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Default cycle'), findsOneWidget);
       // Default value is Session
       expect(find.text('Session'), findsWidgets);
@@ -23,6 +28,11 @@ void main() {
       await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(
+        find.text('Limit tap rate'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Limit tap rate'), findsOneWidget);
 
       final container = ProviderScope.containerOf(
@@ -40,9 +50,23 @@ void main() {
         tester.element(find.byType(MaterialApp)),
       );
 
-      // On non-mobile test runners the haptic switch is hidden.
-      // Visible switches in order: limitClickRate (0), notifications (1).
-      await tester.tap(find.byType(Switch).at(0));
+      await tester.scrollUntilVisible(
+        find.text('Limit tap rate'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.ensureVisible(find.text('Limit tap rate'));
+      await tester.pumpAndSettle();
+
+      // Find the Switch that is a sibling in the same Row as 'Limit tap rate'.
+      final limitTapRateSwitch = find.descendant(
+        of: find.ancestor(
+          of: find.text('Limit tap rate'),
+          matching: find.byType(Row),
+        ).first,
+        matching: find.byType(Switch),
+      );
+      await tester.tap(limitTapRateSwitch);
       await tester.pumpAndSettle();
 
       expect(container.read(appProvider).settings.limitClickRate, isFalse);
@@ -57,14 +81,16 @@ void main() {
         tester.element(find.byType(MaterialApp)),
       );
 
-      // Open the Default cycle dropdown and pick Daily.
-      final cycleDropdowns = find.byWidgetPredicate(
-        (w) => w is DropdownButton<RepetitionCycle>,
+      // Scroll until the Default cycle label is visible, then pick Daily chip.
+      await tester.scrollUntilVisible(
+        find.text('Daily'),
+        200,
+        scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(cycleDropdowns.first);
+      await tester.ensureVisible(find.text('Daily'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Daily').last);
+      await tester.tap(find.text('Daily'));
       await tester.pumpAndSettle();
 
       expect(
