@@ -74,6 +74,8 @@ TRADITION_PREFIX = {
     "jain": "jain",
     "taoist": "taoist",
     "universal": "universal",
+    "modern": "modern",
+    "other": "other",
     "western": "affirmation",
     "affirmation": "affirmation",
     "growth": "growth",
@@ -93,7 +95,6 @@ EMPTY_ENTRY = {
     "difficulty": "beginner",
     "targetRepetitions": 108,
     "translations": {"en": "", "zh": "", "es": ""},
-    "sources": [],
     "audioUrl": None,
 }
 
@@ -188,8 +189,13 @@ def merge_fields(base: dict, incoming: dict) -> dict:
     For lists: union, preserving order.
     For dicts: per-key fill-blanks.
     """
+    # Pipeline-only fields that should never land in the app database
+    _EXCLUDE = {"sources", "student_llm_scores"}
+
     result = dict(base)
     for key, value in incoming.items():
+        if key in _EXCLUDE:
+            continue
         if key.startswith("_"):  # skip metadata fields
             continue
         if key not in result:
@@ -305,10 +311,9 @@ def main() -> None:
                 continue
             tradition = incoming.get("tradition", "").lower()
             if tradition not in TRADITION_PREFIX:
-                _log.warning("skip (unknown tradition %r): %r",
+                _log.warning("unknown tradition %r -> 'other': %r",
                              incoming.get("tradition"), phrase)
-                stats["skipped"] += 1
-                continue
+                incoming["tradition"] = "Other"
 
             new_entry = merge_fields(dict(EMPTY_ENTRY), incoming)
             new_entry["id"] = make_id(incoming, existing_ids)
@@ -318,6 +323,12 @@ def main() -> None:
 
     # Sort by tradition then name
     library.sort(key=lambda e: (e.get("tradition", ""), e.get("name", "")))
+
+    # Strip pipeline-only fields that may have leaked in from prior runs
+    _STRIP = {"sources", "student_llm_scores"}
+    for entry in library:
+        for k in _STRIP:
+            entry.pop(k, None)
 
     total = len(library)
     _banner(
