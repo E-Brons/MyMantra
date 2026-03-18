@@ -7,6 +7,7 @@
 | `implement-feature` | `.agents/skills/implement-feature/SKILL.md` | Adding any new user-facing feature |
 | `fix-bug`           | `.agents/skills/fix-bug/SKILL.md`           | Diagnosing and fixing a bug        |
 | `on-git-ci-failure` | `.agents/skills/on-git-ci-failure/SKILL.md` | CI pipeline is red                 |
+| `local-ci`          | `.agents/skills/local-ci/SKILL.md`          | Run full CI locally before pushing |
 
 ---
 

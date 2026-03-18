@@ -62,7 +62,12 @@ For each step in the approved plan:
 
 1. **Compact**: summarise context and note the next step before writing code.
 2. **Implement** the step — keep commits focused and atomic.
-3. **Test**: run `make test` (lint + unit + widget) after each commit; fix any failures before moving on.
+3. **Test**: run the **local-ci skill** (phases 1–3) after each commit:
+   ```bash
+   make test
+   ```
+   All phases must be green before moving to the next step. If an integration
+   test is also being added in this step, run phase 4 as well.
 4. Commit with the appropriate prefix:
    - `feat[(<scope>)]: <description>` — for implementation changes
    - `test[(<scope>)]: <description>` — for tests (must be a **separate commit** from the implementation)
@@ -76,8 +81,24 @@ Repeat this sub-loop until all steps in the plan are complete.
 
 ## 5. Final Checks Before PR
 
-- Run the full local test suite: `make test`
-- Run integration tests if the feature touches app flow: `make test-integration TARGET=macos`
+Run the **local-ci skill** in full — all phases must be green:
+
+```bash
+make test && make test-integration TARGET=macos
+```
+
+If the feature includes any iOS-specific UI or icon placement:
+
+```bash
+flutter drive \
+  --driver test/driver/integration_test_driver.dart \
+  --target integration_test/icon_placement_integration_test.dart \
+  -d "iPhone 17 Pro" \
+  --screenshot build/screenshots
+open build/screenshots/
+```
+
+Then:
 - Update `docs/product/features.md` — change the feature status to `In Review`.
 - Commit the features.md update: `docs: update features.md — <feature> in review`
 
